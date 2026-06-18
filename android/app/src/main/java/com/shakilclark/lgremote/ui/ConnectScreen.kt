@@ -7,8 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,20 +28,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.tv.DiscoveredTv
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Muted
 
-/** Manual-IP connect + on-screen pairing status (US1, T017). Discovery is a later slice. */
+/** Auto-detect (SSDP) + manual-IP connect + on-screen pairing status (US1, T017). */
 @Composable
 fun ConnectScreen(
     state: ConnectionState,
     onConnect: (address: String, name: String) -> Unit,
+    discovered: List<DiscoveredTv> = emptyList(),
+    scanning: Boolean = false,
+    onScan: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var ip by remember { mutableStateOf("") }
     val connecting = state is ConnectionState.Connecting
     val pairing = state is ConnectionState.NeedsPairing
-    val validIp = ip.isNotBlank()
+    val busy = connecting || pairing
 
     Column(
         modifier = modifier.fillMaxSize().padding(20.dp),
@@ -48,27 +56,49 @@ fun ConnectScreen(
         Text("Connect to your TV", fontSize = 22.sp, modifier = Modifier.padding(top = 8.dp))
         Text(
             if (pairing) (state as ConnectionState.NeedsPairing).message
-            else "Enter your LG TV's IP address. It must be on this Wi-Fi.",
+            else "Scan for your LG TV, or enter its IP. It must be on this Wi-Fi.",
             color = Muted,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 6.dp, bottom = 20.dp),
+            modifier = Modifier.padding(top = 6.dp, bottom = 18.dp),
         )
 
+        // Discovered TVs (tap to connect).
+        discovered.forEach { tv ->
+            OutlinedButton(
+                onClick = { onConnect(tv.address, tv.name) },
+                enabled = !busy,
+                modifier = Modifier.fillMaxWidth().height(56.dp).padding(bottom = 10.dp),
+            ) {
+                Icon(Icons.Filled.Tv, contentDescription = null)
+                Text("  ${tv.name} · ${tv.address}")
+            }
+        }
+
+        // Scan.
+        OutlinedButton(
+            onClick = onScan,
+            enabled = !scanning && !busy,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+        ) {
+            if (scanning) CircularProgressIndicator(modifier = Modifier.height(20.dp))
+            else Text(if (discovered.isEmpty()) "Scan for TVs" else "Scan again")
+        }
+
+        // Manual IP fallback.
         OutlinedTextField(
             value = ip,
             onValueChange = { ip = it.trim() },
-            label = { Text("TV IP address") },
+            label = { Text("…or enter IP address") },
             placeholder = { Text("192.168.0.9") },
             singleLine = true,
-            enabled = !connecting && !pairing,
+            enabled = !busy,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
         )
-
         Button(
             onClick = { onConnect(ip, ip) },
-            enabled = validIp && !connecting && !pairing,
-            modifier = Modifier.fillMaxWidth().height(56.dp).padding(top = 16.dp),
+            enabled = ip.isNotBlank() && !busy,
+            modifier = Modifier.fillMaxWidth().height(56.dp).padding(top = 12.dp),
         ) {
             when {
                 pairing -> Text("Accept the prompt on your TV…")
@@ -82,7 +112,13 @@ fun ConnectScreen(
 @Preview(showBackground = true, widthDp = 360, heightDp = 780)
 @Composable
 private fun ConnectPreview() {
-    LGRemoteTheme { ConnectScreen(ConnectionState.Disconnected(), { _, _ -> }) }
+    LGRemoteTheme {
+        ConnectScreen(
+            ConnectionState.Disconnected(),
+            { _, _ -> },
+            discovered = listOf(DiscoveredTv("192.168.0.9", "LG webOS TV")),
+        )
+    }
 }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 780)

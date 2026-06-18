@@ -33,14 +33,28 @@ class TvConnectionManager(
     private var target: TvConnection? = null
     private var eventsJob: Job? = null
     private var wantConnection = false
+    private var suspended = false
 
     /** The live socket for command/pointer layers; null until connected. */
     val ssap: SsapClient? get() = client
 
     fun connect(tv: TvConnection) {
         wantConnection = true
+        suspended = false
         target = tv
         openSocket(tv)
+    }
+
+    /**
+     * Proactively enter the off-network state and stop reconnect churn when the phone has left
+     * the local network (FR-009 edge case). [connect] resumes once it's back on Wi-Fi.
+     */
+    fun markOffNetwork() {
+        suspended = true
+        eventsJob?.cancel()
+        client?.close()
+        client = null
+        _state.value = ConnectionState.OffNetwork()
     }
 
     private fun openSocket(tv: TvConnection) {
@@ -63,7 +77,7 @@ class TvConnectionManager(
     }
 
     private fun scheduleReconnect() {
-        if (!wantConnection) return
+        if (!wantConnection || suspended) return
         val tv = target ?: return
         scope.launch {
             delay(reconnectDelayMs)

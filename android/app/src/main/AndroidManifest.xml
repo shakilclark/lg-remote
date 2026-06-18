@@ -4,7 +4,10 @@
     <!-- Direct LAN control of the TV; no cloud. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- WIFI_MULTICAST + ACCESS_LOCAL_NETWORK added when SSDP discovery / targetSdk 37+ land. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- SSDP discovery needs a multicast lock. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- ACCESS_LOCAL_NETWORK added when targetSdk reaches 37+. -->
 
     <application
         android:allowBackup="false"

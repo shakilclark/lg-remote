@@ -4,13 +4,16 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.connection.NetworkMonitor
 import com.shakilclark.lgremote.connection.TvConnectionManager
 import com.shakilclark.lgremote.data.TvConnection
 import com.shakilclark.lgremote.data.TvStore
 import com.shakilclark.lgremote.tv.AppKey
 import com.shakilclark.lgremote.tv.Commands
+import com.shakilclark.lgremote.tv.DiscoveredTv
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.PointerSocket
+import com.shakilclark.lgremote.tv.TvDiscovery
 import com.shakilclark.lgremote.tv.TvInput
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,6 +49,8 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     )
     private val commands = Commands(manager)
     private val pointer = PointerSocket()
+    private val network = NetworkMonitor(app)
+    private val discovery = TvDiscovery(app)
 
     private val activeName = MutableStateFlow<String?>(null)
     private val hasActive = MutableStateFlow(false)
@@ -57,6 +62,12 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     private val _inputs = MutableStateFlow<List<TvInput>>(emptyList())
     /** External inputs, loaded on demand (US7). */
     val inputs: StateFlow<List<TvInput>> = _inputs.asStateFlow()
+
+    private val _discovered = MutableStateFlow<List<DiscoveredTv>>(emptyList())
+    /** TVs found by SSDP scan. */
+    val discovered: StateFlow<List<DiscoveredTv>> = _discovered.asStateFlow()
+    private val _scanning = MutableStateFlow(false)
+    val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
     private var volumeJob: Job? = null
 
@@ -81,6 +92,16 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
                     stopVolumeUpdates()
                     pointer.close()
                     _inputs.value = emptyList()
+                }
+            }
+        }
+        // Off-network detection: drop to OffNetwork when the phone leaves Wi-Fi; resume on return.
+        viewModelScope.launch {
+            network.onLocalNetwork.collect { onLan ->
+                when {
+                    !onLan && hasActive.value -> manager.markOffNetwork()
+                    onLan && manager.state.value is ConnectionState.OffNetwork ->
+                        store.activeTv()?.let { manager.connect(it) }
                 }
             }
         }
@@ -116,6 +137,19 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun retry() = viewModelScope.launch { store.activeTv()?.let { manager.connect(it) } }
+
+    /** SSDP scan for TVs on the LAN (US: auto-detect; manual entry stays as fallback). */
+    fun discover() {
+        if (_scanning.value) return
+        viewModelScope.launch {
+            _scanning.value = true
+            try {
+                _discovered.value = discovery.discover()
+            } finally {
+                _scanning.value = false
+            }
+        }
+    }
 
     // --- US2 controls ---
     fun volumeUp() = dispatch { commands.volumeUp() }

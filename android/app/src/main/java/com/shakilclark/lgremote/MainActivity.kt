@@ -39,10 +39,15 @@ class MainActivity : ComponentActivity() {
                 ) { padding ->
                     val ui by viewModel.uiState.collectAsStateWithLifecycle()
                     val inputs by viewModel.inputs.collectAsStateWithLifecycle()
+                    val discovered by viewModel.discovered.collectAsStateWithLifecycle()
+                    val scanning by viewModel.scanning.collectAsStateWithLifecycle()
                     App(
                         ui = ui,
                         onConnect = viewModel::connectTo,
                         onRetry = { viewModel.retry() },
+                        discovered = discovered,
+                        scanning = scanning,
+                        onScan = viewModel::discover,
                         onVolumeUp = viewModel::volumeUp,
                         onVolumeDown = viewModel::volumeDown,
                         onToggleMute = viewModel::toggleMute,

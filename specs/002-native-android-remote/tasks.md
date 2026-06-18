@@ -187,7 +187,7 @@ on-device (SC-007). Update validation log.
 
 ## Phase 9: Polish & Cross-Cutting
 
-- [ ] T043 [P] Off-network detection (phone leaves Wi-Fi) → `OffNetwork` state + recovery copy
+- [x] T043 [P] Off-network detection (phone leaves Wi-Fi) → `OffNetwork` state + recovery copy
   (edge case, FR-009).
 - [ ] T044 [P] App icon + full-screen/edge-to-edge polish; portrait lock; consistent theme/haptics.
 - [ ] T045 [P] `ui/RemoteScreenTest.kt` (Compose) — Connected layout shows volume/dpad/cursor/
@@ -195,7 +195,7 @@ on-device (SC-007). Update validation log.
 - [ ] T046 Release signing: local keystore + `assembleRelease`; document `adb install` in
   quickstart.md (FR-011).
 - [ ] T047 Run the full quickstart.md validation log on the real TV; fix any gaps.
-- [ ] T048 [P] (Deferred) SSDP discovery slice — `WifiManager.MulticastLock` + M-SEARCH + multi-TV
+- [x] T048 [P] (Deferred) SSDP discovery slice — `WifiManager.MulticastLock` + M-SEARCH + multi-TV
   picker (FR-003 auto, FR-015); add `CHANGE_WIFI_MULTICAST_STATE`. Tracked, not MVP.
 - [ ] T049 [P] (Deferred) `ACCESS_LOCAL_NETWORK` runtime permission + rationale UI + denied path,
   when bumping to `targetSdk 37+` (FR-017).
