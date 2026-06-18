@@ -25,18 +25,22 @@ const addTvSchema = z.object({
 
 const commandSchema = z
   .object({
-    type: z.enum(["volumeUp", "volumeDown", "setMute", "playPause", "nav"]),
+    type: z.enum(["volumeUp", "volumeDown", "setMute", "playPause", "nav", "launchApp"]),
     params: z
       .object({
         mute: z.boolean().optional(),
         button: z
           .enum(["UP", "DOWN", "LEFT", "RIGHT", "ENTER", "BACK", "HOME", "EXIT"])
           .optional(),
+        app: z.enum(["youtube", "netflix"]).optional(),
       })
       .optional(),
   })
   .refine((c) => c.type !== "nav" || !!c.params?.button, {
     message: "nav requires params.button",
+  })
+  .refine((c) => c.type !== "launchApp" || !!c.params?.app, {
+    message: "launchApp requires params.app",
   });
 
 export function createRestRouter(deps: RestDeps): Router {

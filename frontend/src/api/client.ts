@@ -64,10 +64,14 @@ export type CommandType =
   | "volumeDown"
   | "setMute"
   | "playPause"
-  | "nav";
+  | "nav"
+  | "launchApp"
+  | "setInput";
 export interface CommandParams {
   mute?: boolean;
   button?: "UP" | "DOWN" | "LEFT" | "RIGHT" | "ENTER" | "BACK" | "HOME" | "EXIT";
+  app?: "youtube" | "netflix";
+  inputId?: string;
 }
 
 /** Light haptic feedback on supported devices. */

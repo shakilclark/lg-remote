@@ -22,6 +22,7 @@ export class MockTV {
   promptCount = 0;
   lastRequests: string[] = [];
   buttons: string[] = []; // pointer-input button presses received
+  launched: string[] = []; // app ids launched via system.launcher/launch
 
   constructor(opts: MockTVOptions = {}) {
     this.clientKey = opts.clientKey ?? "MOCK-CLIENT-KEY";
@@ -72,6 +73,9 @@ export class MockTV {
       }
       if ((type === "request" || type === "subscribe") && uri) {
         this.lastRequests.push(uri);
+        if (uri.includes("system.launcher/launch") && typeof payload?.id === "string") {
+          this.launched.push(payload.id);
+        }
         this.reply(ws, id, this.responseFor(uri));
       }
     });
@@ -80,6 +84,15 @@ export class MockTV {
   private responseFor(uri: string): Record<string, unknown> {
     if (uri.includes("audio/getVolume"))
       return { returnValue: true, volumeStatus: { volume: 13, muteStatus: false } };
+    if (uri.includes("listLaunchPoints"))
+      return {
+        returnValue: true,
+        launchPoints: [
+          { id: "netflix", title: "Netflix" },
+          { id: "youtube.leanback.v4", title: "YouTube" },
+        ],
+      };
+    if (uri.includes("system.launcher/launch")) return { returnValue: true };
     if (uri.includes("getPointerInputSocket")) {
       const { port } = this.wss!.address() as AddressInfo;
       return { returnValue: true, socketPath: `ws://127.0.0.1:${port}` };

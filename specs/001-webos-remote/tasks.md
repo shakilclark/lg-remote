@@ -131,7 +131,7 @@ of MVP scope and listed under Deferred.
   pointer-input socket; frontend hold-to-move using DeviceOrientation/DeviceMotion (iOS
   `requestPermission` on gesture; **requires HTTPS/Tailscale**), with smoothing + dead-zone,
   motion gated to button-held. Requested 2026-06-18.
-- [ ] D004 [US6] App shortcuts (YouTube, Netflix): backend launch via
+- [X] D004 [US6] App shortcuts (YouTube, Netflix): backend launch via
   `system.launcher/launch`, resolving app id from `listLaunchPoints` titles with well-known
   fallbacks (`netflix`, `youtube.leanback.v4`); two one-tap buttons on the remote; surface
   "not installed". Requested 2026-06-18.

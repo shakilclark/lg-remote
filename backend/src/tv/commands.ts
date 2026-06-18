@@ -3,16 +3,25 @@
 
 import type { TVClient } from "./client.js";
 import type { ConnectionStateMachine } from "../state/connection.js";
-import type { ControlCommand, ControlResult } from "../types.js";
+import type { AppKey, ControlCommand, ControlResult } from "../types.js";
 
 type Conn = NonNullable<TVClient["raw"]>;
 type Pointer = { send(type: string, payload?: Record<string, unknown>): void; close(): void };
 
 const POINTER_URI = "ssap://com.webos.service.networkinput/getPointerInputSocket";
+const LIST_APPS_URI = "ssap://com.webos.applicationManager/listLaunchPoints";
+const LAUNCH_URI = "ssap://system.launcher/launch";
+
+// Fallback ids when listLaunchPoints can't be matched (varies by webOS version).
+const WELL_KNOWN_APP_IDS: Record<AppKey, string> = {
+  youtube: "youtube.leanback.v4",
+  netflix: "netflix",
+};
 
 export class Commands {
   private lastPlaying = true; // best-effort; we don't get true media state for free
   private pointerPromise: Promise<Pointer> | null = null;
+  private launchPoints: Array<{ id: string; title: string }> = [];
 
   constructor(
     private readonly client: TVClient,
@@ -21,6 +30,15 @@ export class Commands {
     // (Re)subscribe to volume on every (re)connect so the UI mirrors the TV.
     this.client.onConnected = (conn) => {
       this.pointerPromise = null; // force re-acquire of the pointer socket after reconnect
+      this.launchPoints = [];
+      // Cache the TV's installed apps so we can resolve shortcut ids by title.
+      conn.request(LIST_APPS_URI, null, (err, res) => {
+        if (!err && Array.isArray(res?.launchPoints)) {
+          this.launchPoints = res.launchPoints
+            .filter((p: { id?: string; title?: string }) => p.id && p.title)
+            .map((p: { id: string; title: string }) => ({ id: p.id, title: p.title }));
+        }
+      });
       conn.subscribe("ssap://audio/getVolume", (err, res) => {
         if (err || !res) return;
         // webOS varies: newer nests under volumeStatus{volume,muteStatus}; older is flat.
@@ -66,6 +84,16 @@ export class Commands {
           pointer.send("button", { name: button });
           break;
         }
+        case "launchApp": {
+          const app = cmd.params?.app;
+          if (!app) return { result: "failed", message: "launchApp requires an app", state: this.state.get() };
+          const id = this.resolveAppId(app);
+          const res = (await request(conn, LAUNCH_URI, { id })) as { returnValue?: boolean } | undefined;
+          if (res && res.returnValue === false) {
+            return { result: "failed", message: `${app} isn't available on this TV`, state: this.state.get() };
+          }
+          break;
+        }
         default:
           return { result: "failed", message: "Unsupported command", state: this.state.get() };
       }
@@ -73,6 +101,12 @@ export class Commands {
     } catch (e) {
       return { result: "failed", message: (e as Error).message, state: this.state.get() };
     }
+  }
+
+  /** Resolve a shortcut app to its TV app id: match a launch-point title, else fall back. */
+  private resolveAppId(app: AppKey): string {
+    const match = this.launchPoints.find((p) => p.title.toLowerCase().includes(app));
+    return match?.id ?? WELL_KNOWN_APP_IDS[app];
   }
 
   /** Acquire (and cache) the pointer-input socket used for D-pad/OK/Back/Home buttons. */

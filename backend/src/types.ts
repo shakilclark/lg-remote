@@ -48,17 +48,27 @@ export type ControlCommandType =
   | "volumeDown"
   | "setMute"
   | "playPause"
-  | "nav";
+  | "nav"
+  | "launchApp"
+  | "setInput";
+
+export type AppKey = "youtube" | "netflix";
 
 export interface ControlCommand {
   type: ControlCommandType;
-  params?: { mute?: boolean; button?: NavButton };
+  params?: { mute?: boolean; button?: NavButton; app?: AppKey; inputId?: string };
 }
 
 export interface ControlResult {
   result: "acknowledged" | "failed";
   message?: string;
   state?: ConnectionState;
+}
+
+/** An external input/source the TV exposes (US7). */
+export interface TVInput {
+  id: string;
+  label: string;
 }
 
 export function toPublic(tv: TVConnection): TVConnectionPublic {

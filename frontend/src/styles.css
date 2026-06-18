@@ -125,4 +125,12 @@ body {
 .navrow .btn { height: 64px; flex-direction: column; gap: 4px; }
 .navrow .ico { font-size: 22px; }
 
+/* app shortcuts (US6) */
+.shortcuts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); margin-top: var(--gap); }
+.shortcut { height: 60px; gap: 10px; font-size: 15px; font-weight: 700; }
+.shortcut .ico { font-size: 20px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 7px; color: #fff; }
+.shortcut .lbl { font-size: 14px; color: var(--text); text-transform: none; letter-spacing: 0; }
+.shortcut.yt .ico { background: #ff0033; }
+.shortcut.nf .ico { background: #e50914; font-weight: 900; font-family: Georgia, serif; }
+
 .comingsoon { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: auto; padding-bottom: 8px; }
