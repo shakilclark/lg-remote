@@ -14,9 +14,8 @@ declare module "lgtv2" {
   }
 
   interface PointerInputSocket {
-    button(name: string): void;
-    move(dx: number, dy: number): void;
-    click(): void;
+    // lgtv2's SpecializedSocket: send("button", { name: "UP" }) → "type:button\nname:UP\n\n"
+    send(type: string, payload?: Record<string, unknown>): void;
     close(): void;
   }
 

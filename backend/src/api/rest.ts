@@ -23,10 +23,21 @@ const addTvSchema = z.object({
   name: z.string().min(1).max(120).optional(),
 });
 
-const commandSchema = z.object({
-  type: z.enum(["volumeUp", "volumeDown", "setMute", "playPause"]),
-  params: z.object({ mute: z.boolean().optional() }).optional(),
-});
+const commandSchema = z
+  .object({
+    type: z.enum(["volumeUp", "volumeDown", "setMute", "playPause", "nav"]),
+    params: z
+      .object({
+        mute: z.boolean().optional(),
+        button: z
+          .enum(["UP", "DOWN", "LEFT", "RIGHT", "ENTER", "BACK", "HOME", "EXIT"])
+          .optional(),
+      })
+      .optional(),
+  })
+  .refine((c) => c.type !== "nav" || !!c.params?.button, {
+    message: "nav requires params.button",
+  });
 
 export function createRestRouter(deps: RestDeps): Router {
   const { store, state, tvClient, commands } = deps;

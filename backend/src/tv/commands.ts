@@ -6,9 +6,13 @@ import type { ConnectionStateMachine } from "../state/connection.js";
 import type { ControlCommand, ControlResult } from "../types.js";
 
 type Conn = NonNullable<TVClient["raw"]>;
+type Pointer = { send(type: string, payload?: Record<string, unknown>): void; close(): void };
+
+const POINTER_URI = "ssap://com.webos.service.networkinput/getPointerInputSocket";
 
 export class Commands {
   private lastPlaying = true; // best-effort; we don't get true media state for free
+  private pointerPromise: Promise<Pointer> | null = null;
 
   constructor(
     private readonly client: TVClient,
@@ -16,6 +20,7 @@ export class Commands {
   ) {
     // (Re)subscribe to volume on every (re)connect so the UI mirrors the TV.
     this.client.onConnected = (conn) => {
+      this.pointerPromise = null; // force re-acquire of the pointer socket after reconnect
       conn.subscribe("ssap://audio/getVolume", (err, res) => {
         if (err || !res) return;
         // webOS varies: newer nests under volumeStatus{volume,muteStatus}; older is flat.
@@ -54,6 +59,13 @@ export class Commands {
           this.lastPlaying = play;
           break;
         }
+        case "nav": {
+          const button = cmd.params?.button;
+          if (!button) return { result: "failed", message: "nav requires a button", state: this.state.get() };
+          const pointer = await this.getPointer(conn);
+          pointer.send("button", { name: button });
+          break;
+        }
         default:
           return { result: "failed", message: "Unsupported command", state: this.state.get() };
       }
@@ -61,6 +73,23 @@ export class Commands {
     } catch (e) {
       return { result: "failed", message: (e as Error).message, state: this.state.get() };
     }
+  }
+
+  /** Acquire (and cache) the pointer-input socket used for D-pad/OK/Back/Home buttons. */
+  private getPointer(conn: Conn): Promise<Pointer> {
+    if (!this.pointerPromise) {
+      this.pointerPromise = new Promise<Pointer>((resolve, reject) => {
+        conn.getSocket(POINTER_URI, (err, sock) => {
+          if (err || !sock) {
+            this.pointerPromise = null;
+            reject(err ?? new Error("Could not open pointer input socket"));
+          } else {
+            resolve(sock as Pointer);
+          }
+        });
+      });
+    }
+    return this.pointerPromise;
   }
 }
 

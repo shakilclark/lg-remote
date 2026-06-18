@@ -4,6 +4,7 @@ import { ConnectionBanner } from "./components/ConnectionBanner";
 import { ConnectScreen } from "./components/ConnectScreen";
 import { VolumePad } from "./components/VolumePad";
 import { PlaybackBar } from "./components/PlaybackBar";
+import { DPad } from "./components/DPad";
 import { api } from "./api/client";
 
 export default function App() {
@@ -28,7 +29,7 @@ export default function App() {
   );
 }
 
-// The remote: volume + playback (US2). D-pad navigation (US3) lands next.
+// The full remote: volume + playback (US2) and D-pad navigation (US3).
 function RemoteScreen({ volume, muted }: { volume?: number; muted?: boolean }) {
   return (
     <div className="screen remote">
@@ -38,8 +39,7 @@ function RemoteScreen({ volume, muted }: { volume?: number; muted?: boolean }) {
           <PlaybackBar />
         </div>
       </div>
-      <div className="spacer" />
-      <div className="comingsoon">D-pad navigation arrives in the next build slice.</div>
+      <DPad />
     </div>
   );
 }

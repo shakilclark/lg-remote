@@ -103,4 +103,25 @@ body {
 .btn .lbl { font-size: 11px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
 .btn.mute.on .lbl { color: var(--accent-soft); }
 
+/* d-pad (US3) */
+.pad {
+  margin-top: var(--gap);
+  background: var(--panel); border: 1px solid var(--edge); border-radius: 28px;
+  padding: 18px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+  gap: 10px; aspect-ratio: 1 / 1;
+}
+.pad .btn { border-radius: 18px; font-size: 24px; }
+.corner { background: transparent; border: none; }
+.up { grid-column: 2; grid-row: 1; }
+.down { grid-column: 2; grid-row: 3; }
+.left { grid-column: 1; grid-row: 2; }
+.right { grid-column: 3; grid-row: 2; }
+.ok {
+  grid-column: 2; grid-row: 2; border-radius: 50%; font-weight: 800; font-size: 18px; color: #fff;
+  background: linear-gradient(180deg, var(--accent-soft), var(--accent)); border-color: var(--accent);
+}
+.navrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); margin-top: var(--gap); }
+.navrow .btn { height: 64px; flex-direction: column; gap: 4px; }
+.navrow .ico { font-size: 22px; }
+
 .comingsoon { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: auto; padding-bottom: 8px; }

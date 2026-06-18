@@ -100,13 +100,13 @@ of MVP scope and listed under Deferred.
 
 ### Tests for US3
 
-- [ ] T025 [P] [US3] Unit test `backend/tests/nav.test.ts`: `nav` commands acquire the pointer-input socket once and send the right button names to mock-tv; invalid button → 422.
+- [X] T025 [P] [US3] Unit test `backend/tests/nav.test.ts`: `nav` commands acquire the pointer-input socket once and send the right button names to mock-tv; invalid button → 422.
 
 ### Implementation for US3
 
-- [ ] T026 [US3] Extend `backend/src/tv/client.ts`/`commands.ts`: acquire pointer-input socket via `getPointerInputSocket`, cache it, expose `button(name)` (UP/DOWN/LEFT/RIGHT/ENTER/BACK/HOME/EXIT).
-- [ ] T027 [US3] Extend `POST /api/command` to handle `{ type: "nav", params: { button } }` with zod enum validation.
-- [ ] T028 [P] [US3] Frontend `frontend/src/components/DPad.tsx` (directional pad + OK center, Back, Home) wired to `nav` commands; thumb-reachable layout.
+- [X] T026 [US3] Extend `backend/src/tv/client.ts`/`commands.ts`: acquire pointer-input socket via `getPointerInputSocket`, cache it, expose `button(name)` (UP/DOWN/LEFT/RIGHT/ENTER/BACK/HOME/EXIT).
+- [X] T027 [US3] Extend `POST /api/command` to handle `{ type: "nav", params: { button } }` with zod enum validation.
+- [X] T028 [P] [US3] Frontend `frontend/src/components/DPad.tsx` (directional pad + OK center, Back, Home) wired to `nav` commands; thumb-reachable layout.
 
 **Checkpoint**: All MVP stories (US1–US3) independently functional on the real TV.
 

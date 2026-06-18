@@ -21,6 +21,7 @@ export class MockTV {
   registerCount = 0;
   promptCount = 0;
   lastRequests: string[] = [];
+  buttons: string[] = []; // pointer-input button presses received
 
   constructor(opts: MockTVOptions = {}) {
     this.clientKey = opts.clientKey ?? "MOCK-CLIENT-KEY";
@@ -41,9 +42,16 @@ export class MockTV {
   private onConnection(ws: WebSocket): void {
     ws.on("error", () => {}); // swallow resets during teardown
     ws.on("message", (data) => {
+      const text = String(data);
+      // Pointer-input socket frames are line-based text, not JSON: "type:button\nname:UP\n\n".
+      if (text.startsWith("type:button")) {
+        const m = text.match(/name:([A-Z]+)/);
+        if (m) this.buttons.push(m[1]);
+        return;
+      }
       let msg: { id?: string; type?: string; uri?: string; payload?: Record<string, unknown> };
       try {
-        msg = JSON.parse(String(data));
+        msg = JSON.parse(text);
       } catch {
         return;
       }
