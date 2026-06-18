@@ -110,17 +110,32 @@ export class TVClient {
       this.onConnected?.(conn);
     });
 
-    conn.on("error", (err: Error) => this.handleDrop(err?.message));
+    conn.on("error", (err: NodeJS.ErrnoException) =>
+      this.handleDrop(err?.message, err?.code),
+    );
     conn.on("close", () => this.handleDrop());
   }
 
   /** Hook the command layer (US2/US3) sets to (re)subscribe on every (re)connect. */
   onConnected?: (conn: LgtvInstance) => void;
 
-  private handleDrop(message?: string): void {
-    if (this.isConnected) {
-      this.state.setStatus("disconnected", message ?? "Connection lost");
-    }
+  // Socket error codes that mean "no network path to the TV" rather than "TV refused/closed".
+  private static readonly OFF_NETWORK_CODES = new Set([
+    "EHOSTUNREACH",
+    "ENETUNREACH",
+    "EHOSTDOWN",
+    "ENETDOWN",
+    "EAI_AGAIN", // DNS/resolver unavailable — typically off-network
+  ]);
+
+  private handleDrop(message?: string, code?: string): void {
+    const offNetwork = code != null && TVClient.OFF_NETWORK_CODES.has(code);
+    // Reflect the truth on every drop (not only from "connected"): the reconnect loop will
+    // flip back to "connecting" on its next attempt, so the UI never lies (Principle IV).
+    this.state.setStatus(
+      offNetwork ? "off-network" : "disconnected",
+      offNetwork ? "Not on the same network as your TV" : message ?? "Connection lost",
+    );
     this.failures += 1;
     if (this.failures >= REDISCOVER_AFTER_FAILURES) {
       void this.tryRediscover();

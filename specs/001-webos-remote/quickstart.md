@@ -72,3 +72,17 @@ cd frontend && npm test     # vitest + Testing Library (component/state)
 ## Install check (SC-004)
 On Android Chrome and iPad Safari, the app installs to the home screen and launches
 full-screen with **no browser address bar**.
+
+## Validation log
+
+### 2026-06-18 — real TV (192.168.0.9), Android phone on home Wi-Fi
+- ✅ **US1** Pair once: paired from the phone (TV prompt accepted); reopening reconnects
+  with no prompt. Backend auto-reconnected on restart (`status: connected`). SC-001/002.
+- ✅ **US2** Volume/mute/play-pause: confirmed on the phone; volume reflected live
+  (1 → 3 via real `volumeStatus`). SC-003.
+- ✅ **US3** Navigation: HOME + arrows moved on-screen focus on the TV (pointer-input socket).
+- ✅ Backend tests: 15 passing against the mock webOS server.
+- ✅ PWA assets served (manifest `display: fullscreen`, icons, service worker).
+- ⏳ **SC-004 install / SC-007 away-from-home**: pending the Tailscale HTTPS step
+  (`docs/setup-tailscale.md`) — Android install + motion sensors need a secure origin.
+- ⏳ iPad pass: not yet run.

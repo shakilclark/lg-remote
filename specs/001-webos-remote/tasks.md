@@ -115,18 +115,22 @@ of MVP scope and listed under Deferred.
 ## Phase 6: Polish & Cross-Cutting Concerns
 
 - [X] T029 [P] PWA manifest + icons + service worker via `vite-plugin-pwa` in `frontend/vite.config.ts` and `frontend/public/`; standalone display, portrait, app name/theme (FR-011, SC-004).
-- [ ] T030 [P] App shell/layout `frontend/src/App.tsx`: compose ConnectionBanner + VolumePad + PlaybackBar + DPad; offline/disconnected affordances (FR-009/014).
-- [ ] T031 [P] Off-network detection in `backend/src/state/connection.ts` (no route/ping fail → off-network) and surfaced in UI (edge cases, SC-005).
+- [X] T030 [P] App shell/layout `frontend/src/App.tsx`: compose ConnectionBanner + VolumePad + PlaybackBar + DPad; offline/disconnected affordances (FR-009/014).
+- [X] T031 [P] Off-network detection in `backend/src/state/connection.ts` (no route/ping fail → off-network) and surfaced in UI (edge cases, SC-005).
 - [X] T032 [P] Write `docs/setup-tailscale.md`: install Tailscale on Raspberry Pi/phone/iPad, `tailscale serve --bg 8080`, install PWA from the `*.ts.net` URL (SC-004, SC-007).
-- [ ] T033 [P] Production wiring: `frontend` build → `backend/public`; `backend` `npm start` serves both; document in `README.md`.
-- [ ] T034 Run `quickstart.md` validation end-to-end on the real TV from the Android phone and iPad; record results.
+- [X] T033 [P] Production wiring: `frontend` build → `backend/public`; `backend` `npm start` serves both; document in `README.md`.
+- [X] T034 Run `quickstart.md` validation end-to-end on the real TV from the Android phone and iPad; record results.
 
 ---
 
-## Deferred (post-MVP — User Story 4, P3)
+## Deferred (post-MVP)
 
 - [ ] D001 [US4] App launcher: `listLaunchPoints` + `system.launcher/launch` (FR-007) + UI grid.
 - [ ] D002 [US4] Input switching: `getExternalInputList` + `switchInput` (FR-008) + UI list.
+- [ ] D003 [US5] Motion (Magic Remote) cursor: backend `move`/`click` over the existing
+  pointer-input socket; frontend hold-to-move using DeviceOrientation/DeviceMotion (iOS
+  `requestPermission` on gesture; **requires HTTPS/Tailscale**), with smoothing + dead-zone,
+  motion gated to button-held. Requested 2026-06-18.
 
 ---
 

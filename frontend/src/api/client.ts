@@ -75,8 +75,14 @@ export function buzz(ms = 8) {
   navigator.vibrate?.(ms);
 }
 
+export interface SubscribeHandlers {
+  onState: (s: ConnectionState) => void;
+  /** Whether the backend (events socket) is reachable — false when the phone can't reach it. */
+  onReachable?: (reachable: boolean) => void;
+}
+
 /** Subscribe to live connection-state pushes. Returns an unsubscribe fn. Auto-reconnects. */
-export function subscribeState(onState: (s: ConnectionState) => void): () => void {
+export function subscribeState(handlers: SubscribeHandlers): () => void {
   let ws: WebSocket | null = null;
   let closed = false;
   let retry: ReturnType<typeof setTimeout> | null = null;
@@ -84,16 +90,18 @@ export function subscribeState(onState: (s: ConnectionState) => void): () => voi
   const connect = () => {
     const proto = location.protocol === "https:" ? "wss" : "ws";
     ws = new WebSocket(`${proto}://${location.host}/api/events`);
+    ws.onopen = () => handlers.onReachable?.(true);
     ws.onmessage = (ev) => {
       try {
         const msg = JSON.parse(ev.data) as { type: string; state: ConnectionState };
-        if (msg.type === "state") onState(msg.state);
+        if (msg.type === "state") handlers.onState(msg.state);
       } catch {
         /* ignore malformed */
       }
     };
     ws.onclose = () => {
       if (closed) return;
+      handlers.onReachable?.(false);
       retry = setTimeout(connect, 1500);
     };
     ws.onerror = () => ws?.close();

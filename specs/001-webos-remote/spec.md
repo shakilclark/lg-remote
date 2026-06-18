@@ -97,6 +97,40 @@ launches on the TV; switch to an HDMI input and confirm the source changes.
 
 ---
 
+### User Story 5 - Motion (Magic Remote) cursor (Priority: P3)
+
+I can hold a button on the phone and **tilt/move the phone in the air** to drive the LG
+on-screen pointer (like the Magic Remote), and tap to click. Releasing the button hides /
+parks the cursor so it doesn't drift.
+
+**Why this priority**: A delightful power-feature that matches the native Magic Remote, but
+the D-pad (US3) already covers navigation, so this is an enhancement, not MVP.
+
+**Independent Test**: With a connected TV, hold the cursor button and rotate the phone — the
+on-screen pointer tracks the motion; tap to activate the focused item; release to stop.
+
+**Acceptance Scenarios**:
+
+1. **Given** a connected TV, **When** I hold the cursor button and move the phone, **Then**
+   the LG pointer moves correspondingly on screen.
+2. **Given** the cursor is showing, **When** I tap, **Then** the item under the pointer is
+   clicked.
+3. **Given** I release the cursor button, **When** I move the phone, **Then** the pointer
+   does **not** move (input is gated to the held state).
+4. **Given** my phone has not granted motion access, **When** I first use the cursor,
+   **Then** I am prompted to allow motion/orientation, and told if it's unavailable.
+
+**Notes / constraints** (for planning):
+- Reuses the **US3 pointer-input socket**: `move {dx, dy}` and `click` frames (same socket
+  as the buttons), so no new TV-side capability is needed.
+- Phone motion uses the **DeviceOrientation/DeviceMotion** web APIs. iOS requires an explicit
+  `requestPermission()` on a user gesture **and a secure (HTTPS) context** — so this feature
+  **depends on the Tailscale HTTPS path** being in place. Document that dependency.
+- Needs sensitivity/smoothing + a dead-zone so the pointer doesn't jitter; gate all motion
+  strictly to "button held" to avoid drift (FR ties to SC: pointer responds within ~100ms).
+
+---
+
 ### Edge Cases
 
 - **TV is off or asleep**: the app must clearly show it cannot reach the TV and offer to

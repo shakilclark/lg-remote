@@ -78,6 +78,7 @@ body {
 .btn.cta { height: 56px; font-size: 16px; color: #fff;
   background: linear-gradient(180deg, var(--accent-soft), var(--accent)); border-color: var(--accent); }
 .btn.small { height: 48px; padding: 0 18px; flex: none; }
+.btn.full { width: 100%; margin-top: 10px; color: var(--muted); }
 .manualrow { display: flex; gap: 10px; }
 .ipinput {
   flex: 1; height: 48px; border-radius: var(--r); border: 1px solid var(--edge);
