@@ -2,10 +2,13 @@ package com.shakilclark.lgremote.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tv
@@ -80,8 +83,18 @@ fun ConnectScreen(
             enabled = !scanning && !busy,
             modifier = Modifier.fillMaxWidth().height(52.dp),
         ) {
-            if (scanning) CircularProgressIndicator(modifier = Modifier.height(20.dp))
-            else Text(if (discovered.isEmpty()) "Scan for TVs" else "Scan again")
+            if (scanning) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text("Scanning…")
+                }
+            } else {
+                Text(if (discovered.isEmpty()) "Scan for TVs" else "Scan again")
+            }
         }
 
         // Manual IP fallback.
@@ -102,7 +115,14 @@ fun ConnectScreen(
         ) {
             when {
                 pairing -> Text("Accept the prompt on your TV…")
-                connecting -> CircularProgressIndicator(modifier = Modifier.height(22.dp))
+                connecting -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                    Text("Connecting…")
+                }
                 else -> Text("Connect")
             }
         }
