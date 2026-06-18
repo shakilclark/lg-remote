@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="0" fill="#0e0f13"/>
+  <!-- D-pad ring -->
+  <circle cx="512" cy="512" r="300" fill="#181a21" stroke="#2b2f3a" stroke-width="16"/>
+  <!-- direction chevrons -->
+  <g fill="#8b91a1">
+    <path d="M512 268 l38 58 h-76 z"/>
+    <path d="M512 756 l38 -58 h-76 z"/>
+    <path d="M268 512 l58 38 v-76 z"/>
+    <path d="M756 512 l-58 38 v-76 z"/>
+  </g>
+  <!-- OK center -->
+  <circle cx="512" cy="512" r="130" fill="#c0123a"/>
+  <text x="512" y="512" text-anchor="middle" dominant-baseline="central"
+        font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+        font-size="118" font-weight="800" fill="#ffffff">OK</text>
+</svg>
