@@ -6,13 +6,15 @@ import { z } from "zod";
 import type { Store } from "../store/store.js";
 import type { ConnectionStateMachine } from "../state/connection.js";
 import type { TVClient } from "../tv/client.js";
-import { toPublic, type TVConnection } from "../types.js";
+import type { Commands } from "../tv/commands.js";
+import { toPublic, type ControlCommand, type TVConnection } from "../types.js";
 import { discoverTVs } from "../tv/discovery.js";
 
 export interface RestDeps {
   store: Store;
   state: ConnectionStateMachine;
   tvClient: TVClient;
+  commands: Commands;
   discover?: (timeoutMs?: number) => Promise<Awaited<ReturnType<typeof discoverTVs>>>;
 }
 
@@ -21,8 +23,13 @@ const addTvSchema = z.object({
   name: z.string().min(1).max(120).optional(),
 });
 
+const commandSchema = z.object({
+  type: z.enum(["volumeUp", "volumeDown", "setMute", "playPause"]),
+  params: z.object({ mute: z.boolean().optional() }).optional(),
+});
+
 export function createRestRouter(deps: RestDeps): Router {
-  const { store, state, tvClient } = deps;
+  const { store, state, tvClient, commands } = deps;
   const discover = deps.discover ?? discoverTVs;
   const router = Router();
 
@@ -69,6 +76,18 @@ export function createRestRouter(deps: RestDeps): Router {
   router.get("/state", (_req, res) => {
     res.json(state.get());
   });
+
+  router.post("/command", asyncH(async (req, res) => {
+    const parsed = commandSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(422).json({ result: "failed", message: "Unknown command" });
+    }
+    const result = await commands.send(parsed.data as ControlCommand);
+    if (result.result === "acknowledged") return res.json(result);
+    // Distinguish "can't right now" (connection) from other failures.
+    const status = /not connected|off-network/i.test(result.message ?? "") ? 409 : 502;
+    return res.status(status).json(result);
+  }));
 
   return router;
 }

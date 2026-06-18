@@ -51,7 +51,29 @@ export const api = {
     fetch("/api/pair", { method: "POST" }).then(
       json<{ status: ConnectionStatus; message?: string }>,
     ),
+  command: (type: CommandType, params?: CommandParams) =>
+    fetch("/api/command", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type, params }),
+    }).then(json<{ result: string; state?: ConnectionState; message?: string }>),
 };
+
+export type CommandType =
+  | "volumeUp"
+  | "volumeDown"
+  | "setMute"
+  | "playPause"
+  | "nav";
+export interface CommandParams {
+  mute?: boolean;
+  button?: "UP" | "DOWN" | "LEFT" | "RIGHT" | "ENTER" | "BACK" | "HOME" | "EXIT";
+}
+
+/** Light haptic feedback on supported devices. */
+export function buzz(ms = 8) {
+  navigator.vibrate?.(ms);
+}
 
 /** Subscribe to live connection-state pushes. Returns an unsubscribe fn. Auto-reconnects. */
 export function subscribeState(onState: (s: ConnectionState) => void): () => void {

@@ -79,14 +79,14 @@ of MVP scope and listed under Deferred.
 
 ### Tests for US2
 
-- [ ] T020 [P] [US2] Contract test `backend/tests/api.command.test.ts`: `POST /api/command` for `volumeUp`/`volumeDown`/`setMute`/`playPause` → `acknowledged`; rejects when disconnected (409) and unknown type (422).
+- [X] T020 [P] [US2] Contract test `backend/tests/api.command.test.ts`: `POST /api/command` for `volumeUp`/`volumeDown`/`setMute`/`playPause` → `acknowledged`; rejects when disconnected (409) and unknown type (422).
 
 ### Implementation for US2
 
-- [ ] T021 [P] [US2] Implement SSAP command map in `backend/src/tv/commands.ts`: volumeUp/Down, setMute, play/pause; subscribe to `ssap://audio/getVolume` to keep `volume`/`muted` in ConnectionState.
-- [ ] T022 [US2] Add `POST /api/command` route (volume/mute/playPause) in `backend/src/api/rest.ts` with zod validation + connection-state guard (FR-014).
-- [ ] T023 [US2] Track last media state in `backend/src/tv/commands.ts` so `playPause` toggles correctly (contracts/tv-protocol.md note).
-- [ ] T024 [P] [US2] Frontend `frontend/src/components/VolumePad.tsx` (+/−, mute with live level) and `frontend/src/components/PlaybackBar.tsx` (play/pause), wired to `POST /api/command`; large touch targets, portrait (FR-012).
+- [X] T021 [P] [US2] Implement SSAP command map in `backend/src/tv/commands.ts`: volumeUp/Down, setMute, play/pause; subscribe to `ssap://audio/getVolume` to keep `volume`/`muted` in ConnectionState.
+- [X] T022 [US2] Add `POST /api/command` route (volume/mute/playPause) in `backend/src/api/rest.ts` with zod validation + connection-state guard (FR-014).
+- [X] T023 [US2] Track last media state in `backend/src/tv/commands.ts` so `playPause` toggles correctly (contracts/tv-protocol.md note).
+- [X] T024 [P] [US2] Frontend `frontend/src/components/VolumePad.tsx` (+/−, mute with live level) and `frontend/src/components/PlaybackBar.tsx` (play/pause), wired to `POST /api/command`; large touch targets, portrait (FR-012).
 
 **Checkpoint**: Everyday remote (volume + playback) usable on the phone against the real TV — shippable MVP if stopped here.
 

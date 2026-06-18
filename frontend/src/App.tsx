@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useConnection } from "./state/useConnection";
 import { ConnectionBanner } from "./components/ConnectionBanner";
 import { ConnectScreen } from "./components/ConnectScreen";
+import { VolumePad } from "./components/VolumePad";
+import { PlaybackBar } from "./components/PlaybackBar";
 import { api } from "./api/client";
 
 export default function App() {
@@ -21,26 +23,23 @@ export default function App() {
   return (
     <div className="app">
       <ConnectionBanner state={state} name={name} />
-      {connected ? <ConnectedView volume={state.volume} muted={state.muted} /> : <ConnectScreen state={state} />}
+      {connected ? <RemoteScreen volume={state.volume} muted={state.muted} /> : <ConnectScreen state={state} />}
     </div>
   );
 }
 
-// Placeholder for the connected state. Volume/playback (US2) and the D-pad (US3) land in
-// the next slices; this confirms the end-to-end connection is live.
-function ConnectedView({ volume, muted }: { volume?: number; muted?: boolean }) {
+// The remote: volume + playback (US2). D-pad navigation (US3) lands next.
+function RemoteScreen({ volume, muted }: { volume?: number; muted?: boolean }) {
   return (
-    <div className="screen connected">
-      <div className="hero">
-        <div className="bigemoji">✅</div>
-        <h1>Connected</h1>
-        <p>Your TV is paired and reachable.</p>
+    <div className="screen remote">
+      <div className="toprow">
+        <VolumePad volume={volume} muted={muted} />
+        <div className="sidecol">
+          <PlaybackBar />
+        </div>
       </div>
-      <div className="statline">
-        Volume <b>{volume ?? "—"}</b>
-        {muted ? " · muted" : ""}
-      </div>
-      <div className="comingsoon">Remote controls arrive in the next build slice.</div>
+      <div className="spacer" />
+      <div className="comingsoon">D-pad navigation arrives in the next build slice.</div>
     </div>
   );
 }

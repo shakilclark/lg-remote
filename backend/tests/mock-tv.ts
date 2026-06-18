@@ -62,7 +62,7 @@ export class MockTV {
         }
         return;
       }
-      if (type === "request" && uri) {
+      if ((type === "request" || type === "subscribe") && uri) {
         this.lastRequests.push(uri);
         this.reply(ws, id, this.responseFor(uri));
       }
@@ -70,7 +70,8 @@ export class MockTV {
   }
 
   private responseFor(uri: string): Record<string, unknown> {
-    if (uri.includes("audio/getVolume")) return { returnValue: true, volume: 13, muted: false };
+    if (uri.includes("audio/getVolume"))
+      return { returnValue: true, volumeStatus: { volume: 13, muteStatus: false } };
     if (uri.includes("getPointerInputSocket")) {
       const { port } = this.wss!.address() as AddressInfo;
       return { returnValue: true, socketPath: `ws://127.0.0.1:${port}` };

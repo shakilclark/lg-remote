@@ -8,6 +8,7 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import { Store } from "./store/store.js";
 import { ConnectionStateMachine } from "./state/connection.js";
 import { TVClient, type TVClientDeps } from "./tv/client.js";
+import { Commands } from "./tv/commands.js";
 import { createRestRouter, type RestDeps } from "./api/rest.js";
 import { EventsHub } from "./api/events.js";
 
@@ -34,10 +35,11 @@ export function buildApp(opts: BuildOptions = {}): AppContext {
   const store = opts.store ?? new Store();
   const state = new ConnectionStateMachine();
   const tvClient = new TVClient(store, state, opts.tvDeps);
+  const commands = new Commands(tvClient, state); // sets tvClient.onConnected before any connect
 
   const app = express();
   app.use(express.json());
-  app.use("/api", createRestRouter({ store, state, tvClient, discover: opts.discover }));
+  app.use("/api", createRestRouter({ store, state, tvClient, commands, discover: opts.discover }));
 
   // Serve the built PWA when present (production: frontend build → backend/public).
   if (opts.serveStatic !== false) {

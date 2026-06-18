@@ -50,6 +50,11 @@ export type ControlCommandType =
   | "playPause"
   | "nav";
 
+export interface ControlCommand {
+  type: ControlCommandType;
+  params?: { mute?: boolean; button?: NavButton };
+}
+
 export interface ControlResult {
   result: "acknowledged" | "failed";
   message?: string;
