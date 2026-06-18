@@ -4,45 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shakilclark.lgremote.ui.App
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: RemoteViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             LGRemoteTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    // Placeholder shell — RemoteScreen / ConnectScreen wire in from US1 onward.
-                    PlaceholderScreen()
+                    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+                    App(
+                        ui = ui,
+                        onConnect = viewModel::connectTo,
+                        onRetry = viewModel::retry,
+                    )
                 }
             }
         }
     }
-}
-
-@Composable
-private fun PlaceholderScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text("LG Remote — setup complete")
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 780)
-@Composable
-private fun PlaceholderPreview() {
-    LGRemoteTheme { PlaceholderScreen() }
 }

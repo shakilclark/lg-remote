@@ -23,6 +23,7 @@ class TvConnectionManager(
     private val scope: CoroutineScope,
     private val clientFactory: () -> SsapClient = { SsapClient(TvTrustManager.client()) },
     private val persistClientKey: suspend (tvId: String, clientKey: String) -> Unit = { _, _ -> },
+    private val urlFor: (TvConnection) -> String = { TvTrustManager.wssUrl(it.address) },
     private val reconnectDelayMs: Long = 5_000,
 ) {
     private val _state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected())
@@ -58,7 +59,7 @@ class TvConnectionManager(
                 }
             }
         }
-        c.connect(TvTrustManager.wssUrl(tv.address), tv.clientKey)
+        c.connect(urlFor(tv), tv.clientKey)
     }
 
     private fun scheduleReconnect() {

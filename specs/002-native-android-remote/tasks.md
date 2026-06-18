@@ -73,18 +73,18 @@ is testable without a device; final behaviour is verified on the real TV per sli
 **Goal**: enter the TV's IP → accept the on-TV prompt → "Connected"; reopen → silent reconnect.
 **Independent Test**: fresh install → pair → kill+reopen reconnects with no prompt.
 
-- [ ] T014 [P] [US1] `tv/Pairing.kt` — `register` handshake with `pairingType:PROMPT` + stored
+- [x] T014 [P] [US1] `tv/Pairing.kt` — `register` handshake with `pairingType:PROMPT` + stored
   client-key; parse `registered`/prompt; return client-key to persist (R3, contract).
-- [ ] T015 [P] [US1] `tv/PairingTest.kt` (MockWebServer) — with-key (no prompt) and without-key
+- [x] T015 [P] [US1] `tv/PairingTest.kt` (MockWebServer) — with-key (no prompt) and without-key
   (prompt→registered) paths; client-key persisted via T006.
-- [ ] T016 [US1] Wire pairing into `ConnectionStateMachine` + `RemoteViewModel` (NeedsPairing /
+- [x] T016 [US1] Wire pairing into `ConnectionStateMachine` + `RemoteViewModel` (NeedsPairing /
   Connecting / Connected); persist + reuse client-key on launch (FR-001/FR-002).
-- [ ] T017 [P] [US1] `ui/ConnectScreen.kt` — manual IP entry + "Connect"; shows "accept on your TV"
+- [x] T017 [P] [US1] `ui/ConnectScreen.kt` — manual IP entry + "Connect"; shows "accept on your TV"
   during NeedsPairing.
-- [ ] T018 [P] [US1] `ui/ConnectionBanner.kt` — connection-state chip (FR-009) shown on every screen.
-- [ ] T019 [US1] `app` first-run flow in `MainActivity`/nav: no active TV → ConnectScreen; active TV
+- [x] T018 [P] [US1] `ui/ConnectionBanner.kt` — connection-state chip (FR-009) shown on every screen.
+- [x] T019 [US1] `app` first-run flow in `MainActivity`/nav: no active TV → ConnectScreen; active TV
   → auto-connect on resume; re-establish socket + accurate state after background/kill.
-- [ ] T020 [P] [US1] `ui/ConnectScreenTest.kt` (Compose) — IP entry enables Connect; NeedsPairing
+- [x] T020 [P] [US1] `ui/ConnectScreenTest.kt` (Compose) — IP entry enables Connect; NeedsPairing
   copy renders.
 
 **Checkpoint / DEMO on TV (192.168.0.9)**: pair fresh, accept on TV, see Connected; force-quit &
