@@ -131,6 +131,61 @@ on-screen pointer tracks the motion; tap to activate the focused item; release t
 
 ---
 
+### User Story 6 - App shortcuts (YouTube & Netflix) (Priority: P2)
+
+I have dedicated one-tap buttons on the remote for **YouTube** and **Netflix** that launch
+the app straight on the TV — the two I open most, without hunting through the TV's home.
+
+**Why this priority**: High everyday value and small scope. A focused subset of the full app
+launcher (US4): rather than a whole grid, just the two apps I actually use, one tap each.
+
+**Independent Test**: With a connected TV, tap the YouTube shortcut → YouTube opens on the TV;
+tap Netflix → Netflix opens. Works regardless of what's currently on screen.
+
+**Acceptance Scenarios**:
+
+1. **Given** a connected TV, **When** I tap the YouTube shortcut, **Then** YouTube launches
+   (or foregrounds) on the TV.
+2. **Given** a connected TV, **When** I tap the Netflix shortcut, **Then** Netflix launches
+   on the TV.
+3. **Given** an app isn't installed on the TV, **When** I tap its shortcut, **Then** the app
+   tells me it couldn't launch rather than failing silently.
+
+**Notes / constraints** (for planning):
+- Launch via `ssap://system.launcher/launch` with the app id. Well-known webOS ids: Netflix =
+  `netflix`, YouTube = `youtube.leanback.v4`. Ids vary by webOS version — resolve robustly by
+  matching `listLaunchPoints` titles ("YouTube"/"Netflix") to the real id, falling back to the
+  well-known id. Detect "not installed" from the launch/launch-point result.
+- This is a concrete slice of US4 (FR-007). Generalises later to user-picked shortcuts.
+
+---
+
+### User Story 7 - Input switcher (Priority: P2)
+
+I can see the TV's inputs/sources (HDMI 1/2/…, etc.) and switch to one with a tap — e.g.
+jump to the HDMI my console or soundbar is on.
+
+**Why this priority**: A common everyday action the physical remote buries; small scope and
+high utility. The second concrete slice of US4 (FR-008).
+
+**Independent Test**: With a connected TV, open the input list → see the available sources →
+tap one → the TV switches to that input.
+
+**Acceptance Scenarios**:
+
+1. **Given** a connected TV, **When** I open the input switcher, **Then** I see the TV's
+   available external inputs (with their labels where provided).
+2. **Given** the input list, **When** I tap an input, **Then** the TV switches to that source.
+3. **Given** the input list, **When** the active input changes, **Then** the app reflects which
+   input is current.
+
+**Notes / constraints** (for planning):
+- List via `ssap://tv/getExternalInputList`; switch via `ssap://tv/switchInput` with
+  `{ inputId }`. Use the device's labels/icons from the list where available.
+- Concrete slice of US4 (FR-008).
+
+---
+
 ### Edge Cases
 
 - **TV is off or asleep**: the app must clearly show it cannot reach the TV and offer to
