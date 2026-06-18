@@ -12,7 +12,7 @@ description: "Task list for native Android LG webOS remote (direct-LAN)"
 state machine, cursor math) + Compose UI tests, and `001` set the precedent. Pure protocol/logic
 is testable without a device; final behaviour is verified on the real TV per slice.
 
-**Base package**: `com.elasticstage.lgremote` under `android/app/src/main/java/.../` (tests under
+**Base package**: `com.shakilclark.lgremote` under `android/app/src/main/java/.../` (tests under
 `android/app/src/test/...` and `androidTest/...`). **Real TV**: `192.168.0.9` (manual IP, v1).
 
 ## Format: `[ID] [P?] [Story] Description`

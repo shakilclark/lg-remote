@@ -16,7 +16,7 @@ How to build, run, and sideload the app, plus the per-slice validation log again
 cd android
 ./gradlew :app:installDebug      # builds + installs the debug APK to the connected phone
 # or open android/ in Android Studio and Run ▶
-adb shell am start -n com.elasticstage.lgremote/.MainActivity   # launch
+adb shell am start -n com.shakilclark.lgremote/.MainActivity   # launch
 adb logcat -s LGRemote                                          # app logs
 ```
 

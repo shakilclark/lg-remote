@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.elasticstage.lgremote"
+    namespace = "com.shakilclark.lgremote"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.elasticstage.lgremote"
+        applicationId = "com.shakilclark.lgremote"
         minSdk = 31
         targetSdk = 35
         versionCode = 1

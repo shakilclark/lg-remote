@@ -96,7 +96,7 @@ android/
     └── src/
         ├── main/
         │   ├── AndroidManifest.xml # INTERNET, ACCESS_NETWORK_STATE, (CHANGE_)WIFI_MULTICAST_STATE later; ACCESS_LOCAL_NETWORK for targetSDK 37+
-        │   └── java/com/elasticstage/lgremote/
+        │   └── java/com/shakilclark/lgremote/
         │       ├── tv/             # SSAP client (from scratch)
         │       │   ├── SsapClient.kt          # OkHttp WS to wss://ip:3001, framing, request/response + subscriptions
         │       │   ├── TvTrustManager.kt      # trust the TV's self-signed cert

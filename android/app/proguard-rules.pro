@@ -2,6 +2,6 @@
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.**
 -keepclassmembers class **$$serializer { *; }
--keepclasseswithmembers class com.elasticstage.lgremote.** {
+-keepclasseswithmembers class com.shakilclark.lgremote.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
