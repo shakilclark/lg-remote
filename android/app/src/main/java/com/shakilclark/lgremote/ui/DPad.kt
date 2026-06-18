@@ -1,6 +1,7 @@
 package com.shakilclark.lgremote.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -38,17 +39,20 @@ import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 @Composable
 fun DPad(onNav: (NavButton) -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Column(Modifier.fillMaxWidth().aspectRatio(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                CellSpacer(); ArrowCell(Icons.Filled.KeyboardArrowUp, "Up") { onNav(NavButton.UP) }; CellSpacer()
-            }
-            Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ArrowCell(Icons.Filled.KeyboardArrowLeft, "Left") { onNav(NavButton.LEFT) }
-                OkCell { onNav(NavButton.ENTER) }
-                ArrowCell(Icons.Filled.KeyboardArrowRight, "Right") { onNav(NavButton.RIGHT) }
-            }
-            Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                CellSpacer(); ArrowCell(Icons.Filled.KeyboardArrowDown, "Down") { onNav(NavButton.DOWN) }; CellSpacer()
+        // Centered, slightly inset cross so it reads like a remote rather than filling the screen.
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Column(Modifier.fillMaxWidth(0.82f).aspectRatio(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CellSpacer(); ArrowCell(Icons.Filled.KeyboardArrowUp, "Up") { onNav(NavButton.UP) }; CellSpacer()
+                }
+                Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ArrowCell(Icons.Filled.KeyboardArrowLeft, "Left") { onNav(NavButton.LEFT) }
+                    OkCell { onNav(NavButton.ENTER) }
+                    ArrowCell(Icons.Filled.KeyboardArrowRight, "Right") { onNav(NavButton.RIGHT) }
+                }
+                Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CellSpacer(); ArrowCell(Icons.Filled.KeyboardArrowDown, "Down") { onNav(NavButton.DOWN) }; CellSpacer()
+                }
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {

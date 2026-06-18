@@ -53,7 +53,7 @@ fun App(
         modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        ConnectionBanner(state = conn, tvName = ui.activeTvName)
+        ConnectionBanner(state = conn, tvName = ui.activeTvName, hasActiveTv = ui.hasActiveTv)
         when {
             connected -> RemoteScreen(
                 state = conn as ConnectionState.Connected,

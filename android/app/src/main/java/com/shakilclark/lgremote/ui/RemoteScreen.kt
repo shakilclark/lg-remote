@@ -11,7 +11,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.ui.theme.Muted
 import com.shakilclark.lgremote.tv.AppKey
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.TvInput
@@ -38,16 +42,24 @@ fun RemoteScreen(
     ) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             VolumePad(
-                volume = state.volume,
                 onUp = onVolumeUp,
                 onDown = onVolumeDown,
-                modifier = Modifier.weight(1.15f),
+                modifier = Modifier.weight(1f),
             )
             PlaybackBar(
                 muted = state.muted,
                 onToggleMute = onToggleMute,
                 onPlayPause = onPlayPause,
                 modifier = Modifier.weight(1f),
+            )
+        }
+        state.volume?.let { vol ->
+            Text(
+                "Volume $vol",
+                color = Muted,
+                fontSize = 13.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         DPad(onNav = onNav)

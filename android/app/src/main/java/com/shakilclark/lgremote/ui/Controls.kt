@@ -29,26 +29,16 @@ import androidx.compose.ui.unit.sp
 import com.shakilclark.lgremote.ui.theme.AccentSoft
 import com.shakilclark.lgremote.ui.theme.Muted
 
-/** Volume up / level / down stack (US2). */
+/** Volume up / down stack (US2). The level is shown as a caption in RemoteScreen. */
 @Composable
 fun VolumePad(
-    volume: Int?,
     onUp: () -> Unit,
     onDown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        ControlButton(icon = Icons.Filled.Add, label = "Vol +", onClick = onUp, modifier = Modifier.fillMaxWidth().height(78.dp))
-        Text(
-            volume?.let { "Volume $it" } ?: "Volume",
-            color = Muted,
-            fontSize = 13.sp,
-        )
-        ControlButton(icon = Icons.Filled.Remove, label = "Vol −", onClick = onDown, modifier = Modifier.fillMaxWidth().height(78.dp))
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        ControlButton(icon = Icons.Filled.Add, label = "Vol +", onClick = onUp, modifier = Modifier.fillMaxWidth().height(84.dp))
+        ControlButton(icon = Icons.Filled.Remove, label = "Vol −", onClick = onDown, modifier = Modifier.fillMaxWidth().height(84.dp))
     }
 }
 

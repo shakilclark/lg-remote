@@ -29,8 +29,13 @@ import com.shakilclark.lgremote.ui.theme.Warn
 
 /** Always-visible connection-state chip (FR-009). Title + sub-line, with a status dot. */
 @Composable
-fun ConnectionBanner(state: ConnectionState, tvName: String?, modifier: Modifier = Modifier) {
-    val (dot, title, sub) = bannerContent(state, tvName)
+fun ConnectionBanner(
+    state: ConnectionState,
+    tvName: String?,
+    hasActiveTv: Boolean = true,
+    modifier: Modifier = Modifier,
+) {
+    val (dot, title, sub) = bannerContent(state, tvName, hasActiveTv)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -51,11 +56,14 @@ fun ConnectionBanner(state: ConnectionState, tvName: String?, modifier: Modifier
 
 private data class Banner(val dot: Color, val title: String, val sub: String?)
 
-private fun bannerContent(state: ConnectionState, tvName: String?): Banner = when (state) {
+private fun bannerContent(state: ConnectionState, tvName: String?, hasActiveTv: Boolean): Banner = when (state) {
     is ConnectionState.Connected -> Banner(Ok, tvName ?: "Connected", "Connected")
     ConnectionState.Connecting -> Banner(Warn, tvName ?: "Connecting…", "Connecting…")
     is ConnectionState.NeedsPairing -> Banner(Warn, tvName ?: "Pairing", state.message)
-    is ConnectionState.Disconnected -> Banner(AccentSoft, tvName ?: "Disconnected", state.message)
+    // First run (no remembered TV) shouldn't look like an error — keep it neutral.
+    is ConnectionState.Disconnected ->
+        if (hasActiveTv) Banner(AccentSoft, tvName ?: "Disconnected", state.message)
+        else Banner(Muted, "Not connected", "Add your TV to get started")
     is ConnectionState.OffNetwork -> Banner(AccentSoft, "Off network", state.message)
     ConnectionState.PermissionRequired -> Banner(AccentSoft, "Permission needed", "Allow local-network access")
 }
