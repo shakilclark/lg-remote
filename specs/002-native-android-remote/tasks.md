@@ -22,16 +22,16 @@ is testable without a device; final behaviour is verified on the real TV per sli
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Create `android/` Gradle project: `settings.gradle.kts`, root `build.gradle.kts`,
+- [x] T001 Create `android/` Gradle project: `settings.gradle.kts`, root `build.gradle.kts`,
   `gradle/libs.versions.toml`, `app/build.gradle.kts` (Kotlin 2.0, JVM 17, `minSdk 31`,
   `targetSdk` current, Compose BOM, Material 3).
-- [ ] T002 [P] Add dependencies to the version catalog + `app`: OkHttp, kotlinx-serialization-json,
+- [x] T002 [P] Add dependencies to the version catalog + `app`: OkHttp, kotlinx-serialization-json,
   kotlinx-coroutines, AndroidX DataStore-preferences, Lifecycle (ViewModel/runtime-compose),
   Compose UI/Material3; test: JUnit5, kotlin-test, OkHttp MockWebServer, coroutines-test,
   Compose UI test.
-- [ ] T003 [P] `app/src/main/AndroidManifest.xml`: `INTERNET`, `ACCESS_NETWORK_STATE`; declare
+- [x] T003 [P] `app/src/main/AndroidManifest.xml`: `INTERNET`, `ACCESS_NETWORK_STATE`; declare
   `MainActivity` (portrait, full-screen); app label/icon placeholder.
-- [ ] T004 [P] Configure ktlint/spotless + a `.editorconfig`; confirm `./gradlew :app:assembleDebug`
+- [x] T004 [P] Configure ktlint/spotless + a `.editorconfig`; confirm `./gradlew :app:assembleDebug`
   builds an empty app.
 
 **Checkpoint**: empty app builds and installs to the phone.
@@ -42,25 +42,25 @@ is testable without a device; final behaviour is verified on the real TV per sli
 
 **⚠️ CRITICAL**: every user story depends on these. No story work begins until this passes.
 
-- [ ] T005 [P] `tv/SsapMessages.kt` — `@Serializable` models: register request/response,
+- [x] T005 [P] `tv/SsapMessages.kt` — `@Serializable` models: register request/response,
   generic request `{id,type,uri,payload}`, response/error, subscription envelope
   (per contracts/ssap-protocol.md).
-- [ ] T006 [P] `data/TvStore.kt` — DataStore(Preferences): persist `TVConnection` (id, name,
+- [x] T006 [P] `data/TvStore.kt` — DataStore(Preferences): persist `TVConnection` (id, name,
   address, clientKey) + `activeId`; never log clientKey (data-model.md).
-- [ ] T007 [P] `connection/ConnectionState.kt` — sealed `ConnectionState`
+- [x] T007 [P] `connection/ConnectionState.kt` — sealed `ConnectionState`
   (NeedsPairing/Connecting/Connected/Disconnected/OffNetwork/PermissionRequired).
-- [ ] T008 `tv/TvTrustManager.kt` — custom `X509TrustManager` + `HostnameVerifier` accepting the
+- [x] T008 `tv/TvTrustManager.kt` — custom `X509TrustManager` + `HostnameVerifier` accepting the
   TV's self-signed cert; build the shared `OkHttpClient` (FR-016, R1).
-- [ ] T009 `tv/SsapClient.kt` — OkHttp WebSocket to `wss://<ip>:3001`; connect/close, send request
+- [x] T009 `tv/SsapClient.kt` — OkHttp WebSocket to `wss://<ip>:3001`; connect/close, send request
   with unique `id`, correlate responses, support subscribe; expose inbound as a `Flow`. Uses the
   T008 client.
-- [ ] T010 [P] `tv/SsapClientTest.kt` (MockWebServer) — request→outgoing JSON; response routed to
+- [x] T010 [P] `tv/SsapClientTest.kt` (MockWebServer) — request→outgoing JSON; response routed to
   the right pending `id`; error→failure; subscription emits. (Write to fail first.)
-- [ ] T011 `connection/ConnectionStateMachine.kt` — drive transitions from SsapClient events +
+- [x] T011 `connection/ConnectionStateMachine.kt` — drive transitions from SsapClient events +
   reachability; auto-reconnect with backoff; refresh address on retry (FR-010, data-model.md).
-- [ ] T012 [P] `connection/ConnectionStateMachineTest.kt` — transition coverage incl. off-network
+- [x] T012 [P] `connection/ConnectionStateMachineTest.kt` — transition coverage incl. off-network
   and command-while-disconnected rejection.
-- [ ] T013 `RemoteViewModel.kt` (skeleton) — holds `StateFlow<UiState>` from the state machine +
+- [x] T013 `RemoteViewModel.kt` (skeleton) — holds `StateFlow<UiState>` from the state machine +
   store; `MainActivity.kt` — full-screen `enableEdgeToEdge`, Compose host, app theme in
   `ui/theme/`.
 
