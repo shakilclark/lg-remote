@@ -30,6 +30,11 @@ fun App(
     ui: UiState,
     onConnect: (address: String, name: String) -> Unit,
     onRetry: () -> Unit,
+    onVolumeUp: () -> Unit = {},
+    onVolumeDown: () -> Unit = {},
+    onToggleMute: () -> Unit = {},
+    onPlayPause: () -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     var reconfigure by remember { mutableStateOf(false) }
     val conn = ui.connection
@@ -40,28 +45,21 @@ fun App(
     val showReconnect = !connected && ui.hasActiveTv && transient && !reconfigure
 
     Column(
-        Modifier.fillMaxSize().systemBarsPadding().padding(horizontal = 18.dp, vertical = 12.dp),
+        modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         ConnectionBanner(state = conn, tvName = ui.activeTvName)
         when {
-            connected -> RemoteScreenPlaceholder()
+            connected -> RemoteScreen(
+                state = conn as ConnectionState.Connected,
+                onVolumeUp = onVolumeUp,
+                onVolumeDown = onVolumeDown,
+                onToggleMute = onToggleMute,
+                onPlayPause = onPlayPause,
+            )
             showReconnect -> ReconnectView(onRetry = onRetry, onChange = { reconfigure = true })
             else -> ConnectScreen(state = conn, onConnect = { a, n -> reconfigure = false; onConnect(a, n) })
         }
-    }
-}
-
-/** Filled in by US2+ (volume/playback/D-pad/etc.). For US1, proves Connected end-to-end. */
-@Composable
-private fun RemoteScreenPlaceholder() {
-    Column(
-        Modifier.fillMaxSize().padding(top = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text("✅", fontSize = 46.sp)
-        Text("Connected", fontSize = 22.sp, modifier = Modifier.padding(top = 8.dp))
-        Text("Remote controls land in the next slice.", color = Muted, modifier = Modifier.padding(top = 6.dp))
     }
 }
 

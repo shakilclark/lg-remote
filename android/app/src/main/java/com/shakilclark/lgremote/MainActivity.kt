@@ -1,15 +1,22 @@
 package com.shakilclark.lgremote
 
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.ui.App
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 
@@ -22,15 +29,38 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             LGRemoteTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
+                val snackbar = remember { SnackbarHostState() }
+                LaunchedEffect(Unit) {
+                    viewModel.messages.collect { snackbar.showSnackbar(it) }
+                }
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = { SnackbarHost(snackbar) },
+                ) { padding ->
                     val ui by viewModel.uiState.collectAsStateWithLifecycle()
                     App(
                         ui = ui,
                         onConnect = viewModel::connectTo,
-                        onRetry = viewModel::retry,
+                        onRetry = { viewModel.retry() },
+                        onVolumeUp = viewModel::volumeUp,
+                        onVolumeDown = viewModel::volumeDown,
+                        onToggleMute = viewModel::toggleMute,
+                        onPlayPause = viewModel::playPause,
+                        modifier = Modifier.padding(padding),
                     )
                 }
             }
         }
+    }
+
+    /** Drive TV volume from the phone's hardware rocker while connected (US2 #4). */
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (viewModel.uiState.value.connection is ConnectionState.Connected) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP -> { viewModel.volumeUp(); return true }
+                KeyEvent.KEYCODE_VOLUME_DOWN -> { viewModel.volumeDown(); return true }
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }

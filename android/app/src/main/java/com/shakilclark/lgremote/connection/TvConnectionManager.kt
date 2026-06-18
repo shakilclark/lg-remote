@@ -87,4 +87,18 @@ class TvConnectionManager(
         val c = client ?: error("TV not connected")
         return c.request(uri, payload)
     }
+
+    /** Subscribe to a uri on the live socket (e.g. volume); null when not connected. */
+    fun subscribe(uri: String): kotlinx.coroutines.flow.Flow<JsonObject>? = client?.subscribe(uri)
+
+    /** Fold live volume/mute into the Connected state so the UI stays in sync (US2). */
+    fun applyVolume(volume: Int?, muted: Boolean?) {
+        val cur = _state.value
+        if (cur is ConnectionState.Connected) {
+            _state.value = cur.copy(
+                volume = volume ?: cur.volume,
+                muted = muted ?: cur.muted,
+            )
+        }
+    }
 }

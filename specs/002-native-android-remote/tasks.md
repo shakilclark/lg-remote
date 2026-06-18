@@ -97,18 +97,18 @@ reopen → silent reconnect. Update quickstart.md validation log.
 **Goal**: volume ±, mute, play/pause; hardware volume rocker drives the TV.
 **Independent Test**: each control changes the TV and the app reflects volume/mute.
 
-- [ ] T021 [P] [US2] `tv/Commands.kt` — volumeUp/volumeDown/setMute/play/pause + `playPause` toggle
+- [x] T021 [P] [US2] `tv/Commands.kt` — volumeUp/volumeDown/setMute/play/pause + `playPause` toggle
   (track last media state, default pause); subscribe `getVolume`, parse **flat AND nested
   `volumeStatus`** shapes (R2, contract).
-- [ ] T022 [P] [US2] `tv/CommandsTest.kt` (MockWebServer) — each command → correct URI/payload;
+- [x] T022 [P] [US2] `tv/CommandsTest.kt` (MockWebServer) — each command → correct URI/payload;
   both getVolume shapes parse to `(volume, muted)`.
-- [ ] T023 [US2] Expose volume/mute/playPause through `RemoteViewModel`; feed live volume/mute from
+- [x] T023 [US2] Expose volume/mute/playPause through `RemoteViewModel`; feed live volume/mute from
   the subscription into `Connected` state.
-- [ ] T024 [P] [US2] `ui/VolumePad.kt` + `ui/PlaybackBar.kt` — large vol±, mute (active style),
+- [x] T024 [P] [US2] `ui/VolumePad.kt` + `ui/PlaybackBar.kt` — large vol±, mute (active style),
   play/pause; show current level; haptic on press (FR-012).
-- [ ] T025 [US2] `MainActivity.onKeyDown` — capture `VOLUME_UP/DOWN` while foregrounded → TV volume,
+- [x] T025 [US2] `MainActivity.onKeyDown` — capture `VOLUME_UP/DOWN` while foregrounded → TV volume,
   consume the event (US2 #4).
-- [ ] T026 [US2] Reject controls when not Connected with a visible reason (FR-014).
+- [x] T026 [US2] Reject controls when not Connected with a visible reason (FR-014).
 
 **Checkpoint / DEMO on TV**: vol/mute/play-pause + hardware rocker all affect the TV; app stays in
 sync. Update validation log.
