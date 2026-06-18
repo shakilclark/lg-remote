@@ -83,6 +83,9 @@ full-screen with **no browser address bar**.
 - ✅ **US3** Navigation: HOME + arrows moved on-screen focus on the TV (pointer-input socket).
 - ✅ Backend tests: 15 passing against the mock webOS server.
 - ✅ PWA assets served (manifest `display: fullscreen`, icons, service worker).
-- ⏳ **SC-004 install / SC-007 away-from-home**: pending the Tailscale HTTPS step
-  (`docs/setup-tailscale.md`) — Android install + motion sensors need a secure origin.
+- ✅ **Tailscale HTTPS live**: `tailscale serve --bg 8080` →
+  `https://mac.tail101494.ts.net/` returns 200 (valid cert). Secure origin now available,
+  unblocking Android install (SC-004) and the US5 motion cursor.
+- ⏳ **SC-004 install / SC-007 away-from-home**: ready to verify on the phone via the
+  HTTPS URL (install + away-from-home).
 - ⏳ iPad pass: not yet run.
