@@ -127,7 +127,7 @@ of MVP scope and listed under Deferred.
 
 - [ ] D001 [US4] App launcher: `listLaunchPoints` + `system.launcher/launch` (FR-007) + UI grid.
 - [ ] D002 [US4] Input switching: `getExternalInputList` + `switchInput` (FR-008) + UI list.
-- [ ] D003 [US5] Motion (Magic Remote) cursor: backend `move`/`click` over the existing
+- [X] D003 [US5] Motion (Magic Remote) cursor: backend `move`/`click` over the existing
   pointer-input socket; frontend hold-to-move using DeviceOrientation/DeviceMotion (iOS
   `requestPermission` on gesture; **requires HTTPS/Tailscale**), with smoothing + dead-zone,
   motion gated to button-held. Requested 2026-06-18.

@@ -24,6 +24,8 @@ export class MockTV {
   buttons: string[] = []; // pointer-input button presses received
   launched: string[] = []; // app ids launched via system.launcher/launch
   switchedTo: string[] = []; // input ids switched to via switchInput
+  moves: Array<{ dx: number; dy: number }> = []; // pointer move deltas
+  clicks = 0; // pointer clicks
 
   constructor(opts: MockTVOptions = {}) {
     this.clientKey = opts.clientKey ?? "MOCK-CLIENT-KEY";
@@ -49,6 +51,16 @@ export class MockTV {
       if (text.startsWith("type:button")) {
         const m = text.match(/name:([A-Z]+)/);
         if (m) this.buttons.push(m[1]);
+        return;
+      }
+      if (text.startsWith("type:move")) {
+        const dx = Number(text.match(/dx:(-?\d+)/)?.[1] ?? 0);
+        const dy = Number(text.match(/dy:(-?\d+)/)?.[1] ?? 0);
+        this.moves.push({ dx, dy });
+        return;
+      }
+      if (text.startsWith("type:click")) {
+        this.clicks += 1;
         return;
       }
       let msg: { id?: string; type?: string; uri?: string; payload?: Record<string, unknown> };

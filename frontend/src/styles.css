@@ -133,6 +133,13 @@ body {
 .shortcut.yt .ico { background: #ff0033; }
 .shortcut.nf .ico { background: #e50914; font-weight: 900; font-family: Georgia, serif; }
 
+/* motion cursor (US5) */
+.cursorpad { margin-top: var(--gap); }
+.cursorrow { display: grid; grid-template-columns: 2fr 1fr; gap: var(--gap); }
+.cursorhold { height: 56px; font-size: 15px; }
+.cursorhold.active { background: var(--press); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent-soft); }
+.cursorclick { height: 56px; font-size: 15px; font-weight: 700; }
+
 /* input switcher (US7) */
 .inputs { margin-top: var(--gap); }
 .inputrow { display: flex; flex-wrap: wrap; gap: 10px; }

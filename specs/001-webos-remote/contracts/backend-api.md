@@ -40,10 +40,18 @@ body → { "type": "volumeUp" }
 body → { "type": "setMute", "params": { "mute": true } }
 body → { "type": "playPause" }
 body → { "type": "nav", "params": { "button": "UP" } }   // UP|DOWN|LEFT|RIGHT|ENTER|BACK|HOME|EXIT
+body → { "type": "launchApp", "params": { "app": "youtube" } }   // youtube|netflix (US6)
+body → { "type": "setInput", "params": { "inputId": "HDMI_2" } } // (US7)
 
 200 → { "result": "acknowledged", "state": { "status": "connected", "volume": 13, "muted": false } }
 409 → { "result": "failed", "message": "TV not connected", "state": { "status": "disconnected" } }
 422 → { "result": "failed", "message": "Unknown command" }
+```
+
+### `GET /api/inputs`  (US7)
+List the TV's external inputs/sources.
+```json
+200 → { "inputs": [ { "id": "HDMI_1", "label": "HDMI 1" }, { "id": "HDMI_2", "label": "PS4 Game Console" } ] }
 ```
 Latency target: < 1s round-trip on LAN (SC-003).
 
@@ -51,6 +59,15 @@ Latency target: < 1s round-trip on LAN (SC-003).
 Current connection state snapshot (the same shape pushed over WS).
 ```json
 200 → { "status": "connected", "tvId": "...", "volume": 13, "muted": false }
+```
+
+## WebSocket: `GET /api/cursor` (upgrade)  (US5 motion cursor)
+
+Client→server, low-latency. The phone streams pointer deltas while the cursor button is held,
+forwarded to the TV's pointer-input socket. Read by the backend only.
+```json
+→ { "type": "move", "dx": 12, "dy": -8 }
+→ { "type": "click" }
 ```
 
 ## WebSocket: `GET /api/events` (upgrade)

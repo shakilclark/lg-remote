@@ -11,6 +11,7 @@ import { TVClient, type TVClientDeps } from "./tv/client.js";
 import { Commands } from "./tv/commands.js";
 import { createRestRouter, type RestDeps } from "./api/rest.js";
 import { EventsHub } from "./api/events.js";
+import { CursorHub } from "./api/cursor.js";
 
 export interface AppContext {
   app: Express;
@@ -58,7 +59,16 @@ export function buildApp(opts: BuildOptions = {}): AppContext {
   });
 
   const httpServer = createHTTPServer(app);
-  const events = new EventsHub(httpServer, state);
+  const events = new EventsHub(state);
+  const cursor = new CursorHub(commands);
+
+  // One upgrade handler routes to the right WS hub by path (avoids ws path-claim conflicts).
+  httpServer.on("upgrade", (req, socket, head) => {
+    const pathname = (req.url ?? "").split("?")[0];
+    if (pathname === events.path) events.handleUpgrade(req, socket, head);
+    else if (pathname === cursor.path) cursor.handleUpgrade(req, socket, head);
+    else socket.destroy();
+  });
 
   if (opts.autoConnect !== false && store.getActive()) {
     tvClient.pairActive();
@@ -82,6 +92,7 @@ export function buildApp(opts: BuildOptions = {}): AppContext {
     stop() {
       return new Promise((resolve) => {
         events.close();
+        cursor.close();
         tvClient.disconnect();
         httpServer.close(() => resolve());
       });

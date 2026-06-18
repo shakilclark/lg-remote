@@ -114,6 +114,22 @@ export class Commands {
     }
   }
 
+  /** Move the LG pointer by a relative delta (US5 motion cursor). */
+  async cursorMove(dx: number, dy: number): Promise<void> {
+    const conn = this.client.raw;
+    if (!this.client.isConnected || !conn) return;
+    const pointer = await this.getPointer(conn);
+    pointer.send("move", { dx: Math.round(dx), dy: Math.round(dy), drag: 0 });
+  }
+
+  /** Click at the current pointer position (US5). */
+  async cursorClick(): Promise<void> {
+    const conn = this.client.raw;
+    if (!this.client.isConnected || !conn) return;
+    const pointer = await this.getPointer(conn);
+    pointer.send("click");
+  }
+
   /** List the TV's external inputs/sources (US7). Empty when not connected. */
   async listInputs(): Promise<TVInput[]> {
     const conn = this.client.raw;
