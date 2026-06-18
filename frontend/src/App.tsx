@@ -6,6 +6,7 @@ import { VolumePad } from "./components/VolumePad";
 import { PlaybackBar } from "./components/PlaybackBar";
 import { DPad } from "./components/DPad";
 import { AppShortcuts } from "./components/AppShortcuts";
+import { InputSwitcher } from "./components/InputSwitcher";
 import { api } from "./api/client";
 
 export default function App() {
@@ -53,6 +54,7 @@ function RemoteScreen({ volume, muted }: { volume?: number; muted?: boolean }) {
       </div>
       <DPad />
       <AppShortcuts />
+      <InputSwitcher />
     </div>
   );
 }

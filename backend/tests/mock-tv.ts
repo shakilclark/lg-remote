@@ -23,6 +23,7 @@ export class MockTV {
   lastRequests: string[] = [];
   buttons: string[] = []; // pointer-input button presses received
   launched: string[] = []; // app ids launched via system.launcher/launch
+  switchedTo: string[] = []; // input ids switched to via switchInput
 
   constructor(opts: MockTVOptions = {}) {
     this.clientKey = opts.clientKey ?? "MOCK-CLIENT-KEY";
@@ -76,6 +77,9 @@ export class MockTV {
         if (uri.includes("system.launcher/launch") && typeof payload?.id === "string") {
           this.launched.push(payload.id);
         }
+        if (uri.includes("switchInput") && typeof payload?.inputId === "string") {
+          this.switchedTo.push(payload.inputId);
+        }
         this.reply(ws, id, this.responseFor(uri));
       }
     });
@@ -93,6 +97,15 @@ export class MockTV {
         ],
       };
     if (uri.includes("system.launcher/launch")) return { returnValue: true };
+    if (uri.includes("getExternalInputList"))
+      return {
+        returnValue: true,
+        devices: [
+          { id: "HDMI_1", label: "HDMI 1" },
+          { id: "HDMI_2", label: "Xbox" },
+        ],
+      };
+    if (uri.includes("switchInput")) return { returnValue: true };
     if (uri.includes("getPointerInputSocket")) {
       const { port } = this.wss!.address() as AddressInfo;
       return { returnValue: true, socketPath: `ws://127.0.0.1:${port}` };

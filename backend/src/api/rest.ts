@@ -25,7 +25,15 @@ const addTvSchema = z.object({
 
 const commandSchema = z
   .object({
-    type: z.enum(["volumeUp", "volumeDown", "setMute", "playPause", "nav", "launchApp"]),
+    type: z.enum([
+      "volumeUp",
+      "volumeDown",
+      "setMute",
+      "playPause",
+      "nav",
+      "launchApp",
+      "setInput",
+    ]),
     params: z
       .object({
         mute: z.boolean().optional(),
@@ -33,6 +41,7 @@ const commandSchema = z
           .enum(["UP", "DOWN", "LEFT", "RIGHT", "ENTER", "BACK", "HOME", "EXIT"])
           .optional(),
         app: z.enum(["youtube", "netflix"]).optional(),
+        inputId: z.string().min(1).max(64).optional(),
       })
       .optional(),
   })
@@ -41,6 +50,9 @@ const commandSchema = z
   })
   .refine((c) => c.type !== "launchApp" || !!c.params?.app, {
     message: "launchApp requires params.app",
+  })
+  .refine((c) => c.type !== "setInput" || !!c.params?.inputId, {
+    message: "setInput requires params.inputId",
   });
 
 export function createRestRouter(deps: RestDeps): Router {
@@ -91,6 +103,10 @@ export function createRestRouter(deps: RestDeps): Router {
   router.get("/state", (_req, res) => {
     res.json(state.get());
   });
+
+  router.get("/inputs", asyncH(async (_req, res) => {
+    res.json({ inputs: await commands.listInputs() });
+  }));
 
   router.post("/command", asyncH(async (req, res) => {
     const parsed = commandSchema.safeParse(req.body);

@@ -36,8 +36,14 @@ async function json<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export interface TVInput {
+  id: string;
+  label: string;
+}
+
 export const api = {
   getState: () => fetch("/api/state").then(json<ConnectionState>),
+  getInputs: () => fetch("/api/inputs").then(json<{ inputs: TVInput[] }>),
   getTvs: () => fetch("/api/tvs").then(json<{ tvs: TVPublic[]; activeId: string | null }>),
   discover: () =>
     fetch("/api/discover", { method: "POST" }).then(json<{ found: DiscoveredTV[] }>),

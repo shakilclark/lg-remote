@@ -135,7 +135,7 @@ of MVP scope and listed under Deferred.
   `system.launcher/launch`, resolving app id from `listLaunchPoints` titles with well-known
   fallbacks (`netflix`, `youtube.leanback.v4`); two one-tap buttons on the remote; surface
   "not installed". Requested 2026-06-18.
-- [ ] D005 [US7] Input switcher: backend `tv/getExternalInputList` + `tv/switchInput`
+- [X] D005 [US7] Input switcher: backend `tv/getExternalInputList` + `tv/switchInput`
   ({inputId}); frontend input list with labels + current-input indicator. Requested 2026-06-18.
 
 ---

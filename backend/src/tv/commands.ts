@@ -3,7 +3,7 @@
 
 import type { TVClient } from "./client.js";
 import type { ConnectionStateMachine } from "../state/connection.js";
-import type { AppKey, ControlCommand, ControlResult } from "../types.js";
+import type { AppKey, ControlCommand, ControlResult, TVInput } from "../types.js";
 
 type Conn = NonNullable<TVClient["raw"]>;
 type Pointer = { send(type: string, payload?: Record<string, unknown>): void; close(): void };
@@ -11,6 +11,8 @@ type Pointer = { send(type: string, payload?: Record<string, unknown>): void; cl
 const POINTER_URI = "ssap://com.webos.service.networkinput/getPointerInputSocket";
 const LIST_APPS_URI = "ssap://com.webos.applicationManager/listLaunchPoints";
 const LAUNCH_URI = "ssap://system.launcher/launch";
+const LIST_INPUTS_URI = "ssap://tv/getExternalInputList";
+const SWITCH_INPUT_URI = "ssap://tv/switchInput";
 
 // Fallback ids when listLaunchPoints can't be matched (varies by webOS version).
 const WELL_KNOWN_APP_IDS: Record<AppKey, string> = {
@@ -94,6 +96,15 @@ export class Commands {
           }
           break;
         }
+        case "setInput": {
+          const inputId = cmd.params?.inputId;
+          if (!inputId) return { result: "failed", message: "setInput requires an inputId", state: this.state.get() };
+          const res = (await request(conn, SWITCH_INPUT_URI, { inputId })) as { returnValue?: boolean } | undefined;
+          if (res && res.returnValue === false) {
+            return { result: "failed", message: "Couldn't switch input", state: this.state.get() };
+          }
+          break;
+        }
         default:
           return { result: "failed", message: "Unsupported command", state: this.state.get() };
       }
@@ -101,6 +112,18 @@ export class Commands {
     } catch (e) {
       return { result: "failed", message: (e as Error).message, state: this.state.get() };
     }
+  }
+
+  /** List the TV's external inputs/sources (US7). Empty when not connected. */
+  async listInputs(): Promise<TVInput[]> {
+    const conn = this.client.raw;
+    if (!this.client.isConnected || !conn) return [];
+    const res = (await request(conn, LIST_INPUTS_URI)) as
+      | { devices?: Array<{ id?: string; label?: string }> }
+      | undefined;
+    return (res?.devices ?? [])
+      .filter((d): d is { id: string; label?: string } => typeof d.id === "string")
+      .map((d) => ({ id: d.id, label: d.label ?? d.id }));
   }
 
   /** Resolve a shortcut app to its TV app id: match a launch-point title, else fall back. */
