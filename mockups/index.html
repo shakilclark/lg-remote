@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#0e0f13" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>LG Remote — visual mockup</title>
+<style>
+  :root {
+    --bg: #0e0f13;
+    --panel: #181a21;
+    --panel-2: #1f222b;
+    --edge: #2b2f3a;
+    --text: #f2f4f8;
+    --muted: #8b91a1;
+    --accent: #c0123a;        /* LG-ish red */
+    --accent-soft: #e23a5e;
+    --ok: #34d27b;
+    --warn: #f0b429;
+    --press: #2a2e39;
+    --r: 22px;
+    --gap: 14px;
+    --safe-b: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: radial-gradient(120% 80% at 50% -10%, #16181f 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex; justify-content: center;
+    overscroll-behavior: none;
+  }
+  .app {
+    width: 100%; max-width: 440px; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px calc(var(--safe-b) + 16px);
+  }
+
+  /* ---------- connection banner ---------- */
+  .banner {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel); border: 1px solid var(--edge);
+    border-radius: 18px; padding: 12px 16px; margin-bottom: var(--gap);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; flex: none; background: var(--muted); position: relative; }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 0 4px rgba(52,210,123,.16); }
+  .dot.connecting { background: var(--warn); animation: pulse 1s infinite; }
+  .dot.off { background: var(--accent-soft); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .banner .title { font-weight: 650; font-size: 15px; }
+  .banner .sub { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+  .banner .gear { margin-left: auto; color: var(--muted); font-size: 20px; padding: 6px; border-radius: 10px; }
+  .banner .gear:active { background: var(--press); }
+
+  /* ---------- generic buttons ---------- */
+  .btn {
+    border: 1px solid var(--edge); background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    color: var(--text); border-radius: var(--r); display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 600; user-select: none; cursor: pointer;
+    transition: transform .06s ease, background .12s ease, box-shadow .12s ease;
+  }
+  .btn:active { transform: scale(.96); background: var(--press); box-shadow: inset 0 0 0 1px var(--accent); }
+  .btn .ico { font-size: 26px; line-height: 1; }
+  .btn .lbl { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: .04em; text-transform: uppercase; }
+
+  section { margin-bottom: var(--gap); }
+  .cardlabel { font-size: 11px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; margin: 2px 4px 8px; }
+
+  /* ---------- volume + playback row ---------- */
+  .toprow { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--gap); }
+  .volume {
+    background: var(--panel); border: 1px solid var(--edge); border-radius: var(--r);
+    padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .vbtn { width: 100%; height: 78px; flex-direction: column; }
+  .vlevel { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
+  .vlevel b { color: var(--text); font-size: 15px; }
+  .sidecol { display: flex; flex-direction: column; gap: var(--gap); }
+  .mute, .playpause { flex: 1; flex-direction: column; min-height: 84px; }
+  .mute.on { color: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+
+  /* ---------- d-pad ---------- */
+  .pad {
+    background: var(--panel); border: 1px solid var(--edge); border-radius: 28px;
+    padding: 18px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+    gap: 10px; aspect-ratio: 1 / 1;
+  }
+  .pad .btn { border-radius: 18px; font-size: 24px; }
+  .ok { grid-column: 2; grid-row: 2; border-radius: 50% !important; font-weight: 800; font-size: 18px;
+        background: linear-gradient(180deg, var(--accent-soft), var(--accent)); border-color: var(--accent); color: #fff; }
+  .ok:active { box-shadow: inset 0 0 0 2px #fff5; }
+  .up{grid-column:2;grid-row:1}.down{grid-column:2;grid-row:3}.left{grid-column:1;grid-row:2}.right{grid-column:3;grid-row:2}
+  .corner { background: transparent; border: none; }
+
+  /* ---------- bottom nav row ---------- */
+  .navrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); margin-top: auto; }
+  .navrow .btn { height: 64px; flex-direction: column; }
+
+  /* ---------- connect screen ---------- */
+  .screen { display: none; flex-direction: column; gap: var(--gap); flex: 1; }
+  .screen.active { display: flex; }
+  .remote.active { display: flex; flex-direction: column; flex: 1; }
+  .hero { text-align: center; padding: 28px 8px 8px; }
+  .hero h1 { font-size: 22px; margin: 0 0 6px; }
+  .hero p { color: var(--muted); margin: 0; font-size: 14px; }
+  .tvitem { display:flex; align-items:center; gap:14px; background: var(--panel); border:1px solid var(--edge);
+            border-radius:18px; padding:16px; cursor:pointer; }
+  .tvitem:active { background: var(--press); }
+  .tvitem .ico { font-size: 26px; }
+  .tvitem .meta b { display:block; font-size:15px; }
+  .tvitem .meta span { font-size:12.5px; color: var(--muted); }
+  .tvitem .chev { margin-left:auto; color: var(--muted); }
+  .manual { text-align:center; color: var(--muted); font-size:13px; margin-top:4px; }
+  .manual a { color: var(--accent-soft); text-decoration: none; }
+  .cta { height: 56px; background: linear-gradient(180deg, var(--accent-soft), var(--accent));
+         border-color: var(--accent); color:#fff; border-radius:16px; font-size:16px; }
+
+  /* toast */
+  .toast { position: fixed; left:50%; bottom: calc(var(--safe-b) + 22px); transform: translateX(-50%) translateY(20px);
+           background:#000d; border:1px solid var(--edge); color:#fff; padding:10px 16px; border-radius:999px;
+           font-size:13px; opacity:0; pointer-events:none; transition:.18s; backdrop-filter: blur(8px); }
+  .toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+
+  .demobar { display:flex; gap:8px; justify-content:center; margin-bottom:10px; flex-wrap:wrap; }
+  .chip { font-size:11px; color:var(--muted); border:1px solid var(--edge); background:var(--panel);
+          padding:6px 10px; border-radius:999px; cursor:pointer; }
+  .chip:active { background: var(--press); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- demo controls (mockup only) -->
+  <div class="demobar">
+    <span class="chip" onclick="show('connect')">① Connect screen</span>
+    <span class="chip" onclick="show('remote')">② Remote</span>
+    <span class="chip" onclick="setState('connecting')">state: connecting</span>
+    <span class="chip" onclick="setState('off')">state: off-network</span>
+  </div>
+
+  <!-- ============ CONNECT SCREEN ============ -->
+  <div class="screen active" id="connect">
+    <div class="hero">
+      <div style="font-size:46px">📺</div>
+      <h1>Find your TV</h1>
+      <p>Make sure your LG TV is on and on the same Wi-Fi.</p>
+    </div>
+    <div class="cardlabel">Found on your network</div>
+    <div class="tvitem" onclick="pair()">
+      <span class="ico">📺</span>
+      <span class="meta"><b>Living Room TV</b><span>LG webOS · 192.168.1.50</span></span>
+      <span class="chev">›</span>
+    </div>
+    <div class="manual">Don't see it? <a onclick="toast('Manual IP entry')">Enter IP manually</a></div>
+    <div style="flex:1"></div>
+    <div class="btn cta" onclick="pair()">Scan again</div>
+  </div>
+
+  <!-- ============ REMOTE SCREEN ============ -->
+  <div class="screen remote" id="remote">
+    <div class="banner">
+      <span class="dot ok" id="dot"></span>
+      <div>
+        <div class="title" id="bannerTitle">Living Room TV</div>
+        <div class="sub" id="bannerSub">Connected</div>
+      </div>
+      <span class="gear" onclick="show('connect')">⚙︎</span>
+    </div>
+
+    <section>
+      <div class="toprow">
+        <div class="volume">
+          <div class="btn vbtn" onpointerdown="vol(1)"><span class="ico">＋</span></div>
+          <div class="vlevel">Volume <b id="vol">13</b></div>
+          <div class="btn vbtn" onpointerdown="vol(-1)"><span class="ico">－</span></div>
+        </div>
+        <div class="sidecol">
+          <div class="btn mute" id="mute" onpointerdown="toggleMute()"><span class="ico">🔈</span><span class="lbl">Mute</span></div>
+          <div class="btn playpause" onpointerdown="playpause()"><span class="ico" id="ppico">⏯</span><span class="lbl">Play / Pause</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="pad">
+        <div class="corner"></div>
+        <div class="btn up"    onpointerdown="press('▲ up')">▲</div>
+        <div class="corner"></div>
+        <div class="btn left"  onpointerdown="press('◀ left')">◀</div>
+        <div class="btn ok"    onpointerdown="press('OK')">OK</div>
+        <div class="btn right" onpointerdown="press('right ▶')">▶</div>
+        <div class="corner"></div>
+        <div class="btn down"  onpointerdown="press('▼ down')">▼</div>
+        <div class="corner"></div>
+      </div>
+    </section>
+
+    <div class="navrow">
+      <div class="btn" onpointerdown="press('Back')"><span class="ico">↩</span><span class="lbl">Back</span></div>
+      <div class="btn" onpointerdown="press('Home')"><span class="ico">⌂</span><span class="lbl">Home</span></div>
+      <div class="btn" onpointerdown="press('Exit')"><span class="ico">✕</span><span class="lbl">Exit</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let volume = 13, muted = false, playing = true;
+  const $ = id => document.getElementById(id);
+
+  function show(name){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $(name).classList.add(name==='remote'?'active':'active');
+  }
+  function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1100); }
+  function buzz(){ if(navigator.vibrate) navigator.vibrate(8); }
+
+  function pair(){
+    show('remote'); setState('connecting');
+    $('bannerSub').textContent = 'Accept the prompt on your TV…';
+    setTimeout(()=>{ setState('ok'); toast('Paired ✓'); }, 1400);
+  }
+  function setState(s){
+    const dot=$('dot'); dot.className='dot '+(s==='ok'?'ok':s);
+    const sub=$('bannerSub');
+    if(s==='ok') sub.textContent='Connected';
+    if(s==='connecting') sub.textContent='Connecting…';
+    if(s==='off') sub.textContent='Not on the same network as your TV';
+  }
+  function vol(d){ buzz(); volume=Math.max(0,Math.min(100,volume+d)); $('vol').textContent=volume; if(muted){muted=false;$('mute').classList.remove('on');} }
+  function toggleMute(){ buzz(); muted=!muted; $('mute').classList.toggle('on',muted); toast(muted?'Muted':'Unmuted'); }
+  function playpause(){ buzz(); playing=!playing; $('ppico').textContent=playing?'⏸':'▶'; toast(playing?'Play':'Pause'); }
+  function press(name){ buzz(); toast(name); }
+</script>
+</body>
+</html>

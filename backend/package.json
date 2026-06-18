@@ -1,0 +1,30 @@
+{
+  "name": "lg-remote-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend agent that owns the LG webOS TV connection and serves the remote UI.",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "lgtv2": "^1.6.3",
+    "node-ssdp": "^4.0.1",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.0",
+    "@types/ws": "^8.5.10",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}
