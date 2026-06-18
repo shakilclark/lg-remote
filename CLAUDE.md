@@ -1,18 +1,23 @@
 <!-- SPECKIT START -->
-## Active feature: 001-webos-remote
+## Active feature: 002-native-android-remote
 
-LG webOS TV remote — an installable PWA (React + TS + Vite) backed by a Node + TS service on
-an always-on Raspberry Pi that holds the TV's SSAP WebSocket (`lgtv2`) and is exposed over
-HTTPS via Tailscale Serve. MVP = pairing, volume/mute, play/pause, D-pad navigation.
+Native **Android** app (Kotlin + Jetpack Compose) that controls an LG webOS TV **directly over
+the LAN** — no backend, no Tailscale, no HTTPS. Re-platforms `001`. Android-only, home-Wi-Fi-
+only. Same user stories US1–US7 (pair, volume/mute, play/pause, D-pad nav, motion cursor,
+YouTube/Netflix shortcuts, input switcher).
 
 Read these for full context:
-- Plan: `specs/001-webos-remote/plan.md`
-- Spec: `specs/001-webos-remote/spec.md`
-- Research / decisions: `specs/001-webos-remote/research.md`
-- Data model: `specs/001-webos-remote/data-model.md`
-- Contracts: `specs/001-webos-remote/contracts/` (backend-api.md, tv-protocol.md)
-- Constitution (principles, non-negotiable): `.specify/memory/constitution.md`
+- Spec: `specs/002-native-android-remote/spec.md`
+- Constitution (principles, non-negotiable, v1.1.0): `.specify/memory/constitution.md`
+- Prior art (PWA + backend, protocol source of truth): `specs/001-webos-remote/`
+  — esp. `contracts/tv-protocol.md` and the working `backend/` SSAP code (`lgtv2`-based).
 
-Key rule: the browser never talks to the TV directly (mixed-content); the backend owns the
-only `ws://` socket to the TV and the pairing key lives server-side in `~/.config/lg-remote/`.
+Key decisions (from /clarify):
+- Connect over **`wss://<tv-ip>:3001`** (secure SSAP); trust the TV's self-signed cert with a
+  custom `TrustManager`. Do NOT rely on deprecated cleartext `ws://:3000`.
+- **SSAP client written from scratch in Kotlin** (OkHttp WebSocket); Connect-SDK /
+  heroslender/lg-remote are read-only references. Pairing client-key in app-private storage.
+- **Manual IP entry first**; SSDP auto-discovery is a later slice. `minSdk 31`.
+- Motion cursor uses native `SensorManager` (no HTTPS needed). Sideload signed APK (`adb`).
+- UI designed **directly in Compose**; the `001` web UI is only a visual reference.
 <!-- SPECKIT END -->
