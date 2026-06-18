@@ -12,10 +12,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.tv.AppKey
 import com.shakilclark.lgremote.tv.NavButton
+import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 
-/** The connected remote (US2 controls + US3 navigation; US5/US6/US7 add to this). */
+/** The connected remote (US2 controls + US3 nav + US6 shortcuts + US7 inputs; US5 adds cursor). */
 @Composable
 fun RemoteScreen(
     state: ConnectionState.Connected,
@@ -24,6 +26,10 @@ fun RemoteScreen(
     onToggleMute: () -> Unit,
     onPlayPause: () -> Unit,
     onNav: (NavButton) -> Unit = {},
+    onLaunchApp: (AppKey) -> Unit = {},
+    inputs: List<TvInput> = emptyList(),
+    onLoadInputs: () -> Unit = {},
+    onSelectInput: (TvInput) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -45,6 +51,8 @@ fun RemoteScreen(
             )
         }
         DPad(onNav = onNav)
+        AppShortcuts(onLaunch = onLaunchApp)
+        InputSwitcher(inputs = inputs, onLoad = onLoadInputs, onSelect = onSelectInput)
     }
 }
 
@@ -52,6 +60,6 @@ fun RemoteScreen(
 @Composable
 private fun RemotePreview() {
     LGRemoteTheme {
-        RemoteScreen(ConnectionState.Connected(volume = 13, muted = false), {}, {}, {}, {}, {})
+        RemoteScreen(ConnectionState.Connected(volume = 13, muted = false), {}, {}, {}, {})
     }
 }

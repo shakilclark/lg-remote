@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
                     snackbarHost = { SnackbarHost(snackbar) },
                 ) { padding ->
                     val ui by viewModel.uiState.collectAsStateWithLifecycle()
+                    val inputs by viewModel.inputs.collectAsStateWithLifecycle()
                     App(
                         ui = ui,
                         onConnect = viewModel::connectTo,
@@ -47,6 +48,10 @@ class MainActivity : ComponentActivity() {
                         onToggleMute = viewModel::toggleMute,
                         onPlayPause = viewModel::playPause,
                         onNav = viewModel::nav,
+                        onLaunchApp = viewModel::launchApp,
+                        inputs = inputs,
+                        onLoadInputs = viewModel::loadInputs,
+                        onSelectInput = { viewModel.setInput(it.id) },
                         modifier = Modifier.padding(padding),
                     )
                 }

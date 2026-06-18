@@ -138,13 +138,13 @@ sync. Update validation log.
 **Goal**: one-tap YouTube / Netflix launch.
 **Independent Test**: each shortcut launches its app; not-installed → clear message.
 
-- [ ] T031 [P] [US6] Extend `tv/Commands.kt` — `launchApp(appKey)`: resolve id from
+- [x] T031 [P] [US6] Extend `tv/Commands.kt` — `launchApp(appKey)`: resolve id from
   `listLaunchPoints` titles, fallback `youtube.leanback.v4`/`netflix`; detect not-installed (R2,
   contract, US6 #3).
-- [ ] T032 [P] [US6] `tv/LaunchAppTest.kt` (MockWebServer) — title→id resolution, fallback id,
+- [x] T032 [P] [US6] `tv/LaunchAppTest.kt` (MockWebServer) — title→id resolution, fallback id,
   not-installed result.
-- [ ] T033 [US6] Wire `LaunchApp` through `RemoteViewModel`; surface not-installed message.
-- [ ] T034 [P] [US6] `ui/AppShortcuts.kt` — YouTube + Netflix buttons (branded).
+- [x] T033 [US6] Wire `LaunchApp` through `RemoteViewModel`; surface not-installed message.
+- [x] T034 [P] [US6] `ui/AppShortcuts.kt` — YouTube + Netflix buttons (branded).
 
 **Checkpoint / DEMO on TV**: both shortcuts launch; not-installed handled. Update validation log.
 
@@ -155,11 +155,11 @@ sync. Update validation log.
 **Goal**: list + switch external inputs.
 **Independent Test**: input list shows labels; tapping one switches the TV source.
 
-- [ ] T035 [P] [US7] Extend `tv/Commands.kt` — `listInputs` (`getExternalInputList`) → `TVInput`s;
+- [x] T035 [P] [US7] Extend `tv/Commands.kt` — `listInputs` (`getExternalInputList`) → `TVInput`s;
   `setInput(inputId)` (`switchInput`); track active input (contract).
-- [ ] T036 [P] [US7] `tv/InputsTest.kt` (MockWebServer) — list parses id+label; switchInput payload.
-- [ ] T037 [US7] Wire inputs into `RemoteViewModel` (load on demand; reflect active).
-- [ ] T038 [P] [US7] `ui/InputSwitcher.kt` — input chips with labels (e.g. HDMI_2 "PS4…"),
+- [x] T036 [P] [US7] `tv/InputsTest.kt` (MockWebServer) — list parses id+label; switchInput payload.
+- [x] T037 [US7] Wire inputs into `RemoteViewModel` (load on demand; reflect active).
+- [x] T038 [P] [US7] `ui/InputSwitcher.kt` — input chips with labels (e.g. HDMI_2 "PS4…"),
   active highlighted.
 
 **Checkpoint / DEMO on TV**: see inputs, switch source, active reflected. Update validation log.
