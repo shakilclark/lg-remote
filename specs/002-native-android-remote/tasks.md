@@ -120,14 +120,14 @@ sync. Update validation log.
 **Goal**: D-pad + OK/Back/Home via the pointer-input socket.
 **Independent Test**: arrows move focus, OK selects, Back/Home work.
 
-- [ ] T027 [P] [US3] `tv/PointerSocket.kt` — request `getPointerInputSocket`, open the secondary
+- [x] T027 [P] [US3] `tv/PointerSocket.kt` — request `getPointerInputSocket`, open the secondary
   `wss://` socket (reuse TrustManager), send `button` frames (UP/DOWN/LEFT/RIGHT/ENTER/BACK/HOME/
   EXIT) in the newline format (R4, contract).
-- [ ] T028 [P] [US3] `tv/PointerSocketTest.kt` (MockWebServer) — getPointerInputSocket → second
+- [x] T028 [P] [US3] `tv/PointerSocketTest.kt` (MockWebServer) — getPointerInputSocket → second
   socket opened; button frames match the byte format.
-- [ ] T029 [US3] Add `Nav` command path to `RemoteViewModel`; keep the pointer socket open while
+- [x] T029 [US3] Add `Nav` command path to `RemoteViewModel`; keep the pointer socket open while
   Connected, reopen on drop.
-- [ ] T030 [P] [US3] `ui/DPad.kt` — directional pad + OK + Back/Home/Exit row; haptics.
+- [x] T030 [P] [US3] `ui/DPad.kt` — directional pad + OK + Back/Home/Exit row; haptics.
 
 **Checkpoint / DEMO on TV**: navigate webOS menus end-to-end. Update validation log.
 

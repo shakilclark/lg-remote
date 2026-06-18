@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
                         onVolumeDown = viewModel::volumeDown,
                         onToggleMute = viewModel::toggleMute,
                         onPlayPause = viewModel::playPause,
+                        onNav = viewModel::nav,
                         modifier = Modifier.padding(padding),
                     )
                 }

@@ -8,6 +8,8 @@ import com.shakilclark.lgremote.connection.TvConnectionManager
 import com.shakilclark.lgremote.data.TvConnection
 import com.shakilclark.lgremote.data.TvStore
 import com.shakilclark.lgremote.tv.Commands
+import com.shakilclark.lgremote.tv.NavButton
+import com.shakilclark.lgremote.tv.PointerSocket
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.jsonPrimitive
 
 /** Whether the UI should show the remote, the reconnect view, or the connect/pair screen. */
 data class UiState(
@@ -27,9 +30,9 @@ data class UiState(
 )
 
 /**
- * Owns the [TvConnectionManager], [TvStore], and [Commands]. Exposes a single [UiState],
- * auto-connects a remembered TV on launch (US1), dispatches control commands, and keeps live
- * volume/mute folded into the Connected state (US2).
+ * Owns the [TvConnectionManager], [TvStore], [Commands], and the [PointerSocket]. Exposes a
+ * single [UiState], auto-connects on launch (US1), dispatches control + navigation commands,
+ * and keeps live volume/mute folded into the Connected state (US2/US3).
  */
 class RemoteViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -39,6 +42,7 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         persistClientKey = { id, key -> store.updateClientKey(id, key) },
     )
     private val commands = Commands(manager)
+    private val pointer = PointerSocket()
 
     private val activeName = MutableStateFlow<String?>(null)
     private val hasActive = MutableStateFlow(false)
@@ -62,10 +66,15 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
                 manager.connect(tv)
             }
         }
-        // Restart the volume subscription each time we (re)connect; stop otherwise.
+        // On each (re)connect, restart the volume subscription and (re)open the pointer socket.
         viewModelScope.launch {
             manager.state.collect { state ->
-                if (state is ConnectionState.Connected) startVolumeUpdates() else stopVolumeUpdates()
+                if (state is ConnectionState.Connected) {
+                    startVolumeUpdates()
+                } else {
+                    stopVolumeUpdates()
+                    pointer.close()
+                }
             }
         }
     }
@@ -80,6 +89,13 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     private fun stopVolumeUpdates() {
         volumeJob?.cancel()
         volumeJob = null
+    }
+
+    private suspend fun ensurePointer() {
+        if (pointer.isOpen) return
+        val payload = manager.request("ssap://com.webos.service.networkinput/getPointerInputSocket")
+        val path = payload["socketPath"]?.jsonPrimitive?.content ?: return
+        pointer.connect(path)
     }
 
     fun connectTo(address: String, name: String) {
@@ -104,11 +120,22 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         dispatch { commands.setMute(!muted) }
     }
 
+    // --- US3 navigation (pointer-input socket) ---
+    fun nav(button: NavButton) = dispatch {
+        ensurePointer()
+        pointer.button(button)
+    }
+
     private fun dispatch(action: suspend () -> Unit) {
         viewModelScope.launch {
             runCatching { action() }.onFailure {
                 _messages.tryEmit(it.message ?: "TV not connected")
             }
         }
+    }
+
+    override fun onCleared() {
+        pointer.close()
+        manager.disconnect()
     }
 }

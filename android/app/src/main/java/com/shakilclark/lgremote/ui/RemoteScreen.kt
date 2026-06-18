@@ -9,10 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 
-/** The connected remote (US2 controls; US3/US5/US6/US7 add to this). */
+/** The connected remote (US2 controls + US3 navigation; US5/US6/US7 add to this). */
 @Composable
 fun RemoteScreen(
     state: ConnectionState.Connected,
@@ -20,9 +23,13 @@ fun RemoteScreen(
     onVolumeDown: () -> Unit,
     onToggleMute: () -> Unit,
     onPlayPause: () -> Unit,
+    onNav: (NavButton) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Column(
+        modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             VolumePad(
                 volume = state.volume,
@@ -37,6 +44,7 @@ fun RemoteScreen(
                 modifier = Modifier.weight(1f),
             )
         }
+        DPad(onNav = onNav)
     }
 }
 
@@ -44,6 +52,6 @@ fun RemoteScreen(
 @Composable
 private fun RemotePreview() {
     LGRemoteTheme {
-        RemoteScreen(ConnectionState.Connected(volume = 13, muted = false), {}, {}, {}, {})
+        RemoteScreen(ConnectionState.Connected(volume = 13, muted = false), {}, {}, {}, {}, {})
     }
 }

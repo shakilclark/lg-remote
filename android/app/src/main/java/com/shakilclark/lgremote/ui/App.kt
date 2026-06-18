@@ -34,6 +34,7 @@ fun App(
     onVolumeDown: () -> Unit = {},
     onToggleMute: () -> Unit = {},
     onPlayPause: () -> Unit = {},
+    onNav: (com.shakilclark.lgremote.tv.NavButton) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var reconfigure by remember { mutableStateOf(false) }
@@ -56,6 +57,7 @@ fun App(
                 onVolumeDown = onVolumeDown,
                 onToggleMute = onToggleMute,
                 onPlayPause = onPlayPause,
+                onNav = onNav,
             )
             showReconnect -> ReconnectView(onRetry = onRetry, onChange = { reconfigure = true })
             else -> ConnectScreen(state = conn, onConnect = { a, n -> reconfigure = false; onConnect(a, n) })
