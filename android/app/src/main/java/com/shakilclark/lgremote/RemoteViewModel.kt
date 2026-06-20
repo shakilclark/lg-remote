@@ -18,6 +18,7 @@ import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.NowPlaying
 import com.shakilclark.lgremote.tv.PlayState
 import com.shakilclark.lgremote.tv.PointerSocket
+import com.shakilclark.lgremote.tv.isSystemSurface
 import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvDiscovery
 import com.shakilclark.lgremote.tv.TvInput
@@ -160,7 +161,8 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
      * Unknown (e.g. Netflix, which doesn't register media). Hidden on the TV home/launcher.
      */
     private fun buildNowPlaying(appId: String?, mf: MediaForeground): NowPlaying? {
-        if (appId == null || appId in HOME_APP_IDS) return null
+        // Only show for actual content apps — hide the TV home, Settings, inputs, browser, live-TV.
+        if (appId == null || isSystemSurface(appId)) return null
         val app = _apps.value.firstOrNull { it.id == appId }
         val real = if (mf.appId == appId) mf.playState else PlayState.Unknown
         val state = when (real) {
@@ -292,10 +294,5 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         motionCursor.stop()
         pointer.close()
         manager.disconnect()
-    }
-
-    private companion object {
-        /** Foreground app ids that are the TV's own home/launcher — no now-playing strip for these. */
-        val HOME_APP_IDS = setOf("com.webos.app.home")
     }
 }

@@ -24,6 +24,15 @@ data class NowPlaying(
 )
 
 /**
+ * Whether an appId is a webOS built-in surface — the home/launcher, Settings, an HDMI/external
+ * input, the browser, live-TV, etc. (all `com.webos.app.*` / `com.palm.app.*`). These aren't
+ * "now playing", so the now-playing bar is hidden for them; content apps (netflix,
+ * youtube.leanback.v4, …) use their own ids and show. Pure + unit-tested.
+ */
+fun isSystemSurface(appId: String): Boolean =
+    appId.startsWith("com.webos.app.") || appId.startsWith("com.palm.app.")
+
+/**
  * Parse `com.webos.media/getForegroundAppInfo` → the first foreground media entry's app id +
  * play-state. Empty array (no app reporting media) → null appId / Unknown. Pure + unit-tested.
  */
