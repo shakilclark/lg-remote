@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Button
@@ -65,8 +67,7 @@ fun GesturePad(
     onClick: () -> Unit,
     onVolumeUp: () -> Unit,
     onVolumeDown: () -> Unit,
-    onChannelUp: () -> Unit,
-    onChannelDown: () -> Unit,
+    onBack: () -> Unit = {},
     showHint: Boolean = false,
     onDismissHint: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -134,20 +135,18 @@ fun GesturePad(
             }
         }
 
-        // Left edge — channel; right edge — volume. Drawn after the centre so edge touches win.
-        EdgeRocker(
-            label = "Channel",
-            hint = "CH",
-            onUp = onChannelUp,
-            onDown = onChannelDown,
-            modifier = Modifier.align(Alignment.CenterStart).fillMaxHeight().width(EDGE_WIDTH),
-        )
+        // Right edge — volume (drawn after the centre so edge touches win).
         EdgeRocker(
             label = "Volume",
             hint = "VOL",
             onUp = onVolumeUp,
             onDown = onVolumeDown,
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().width(EDGE_WIDTH),
+        )
+        // Back — bottom-left corner tap (replaces channel; visible affordance per 019).
+        BackCorner(
+            onClick = onBack,
+            modifier = Modifier.align(Alignment.BottomStart).padding(Space.m),
         )
 
         if (showHint) {
@@ -216,7 +215,27 @@ private fun EdgeRocker(
     }
 }
 
-/** One-time teaching card for the two non-obvious edge gestures. */
+/** Bottom-left Back corner — a visible tap target (replaces the old channel edge). */
+@Composable
+private fun BackCorner(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        modifier = modifier.semantics { contentDescription = "Back" },
+    ) {
+        Row(
+            Modifier.padding(horizontal = Space.m, vertical = Space.s),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Space.xs),
+        ) {
+            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null, modifier = Modifier.height(18.dp))
+            Text("Back", style = MaterialTheme.typography.labelMedium)
+        }
+    }
+}
+
+/** One-time teaching card for the non-obvious gestures. */
 @Composable
 private fun GestureHintCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
@@ -230,9 +249,9 @@ private fun GestureHintCard(onDismiss: () -> Unit, modifier: Modifier = Modifier
             Modifier.padding(Space.l),
             verticalArrangement = Arrangement.spacedBy(Space.s),
         ) {
-            Text("Two gestures to know", style = MaterialTheme.typography.titleMedium)
+            Text("Good to know", style = MaterialTheme.typography.titleMedium)
             Text(
-                "Swipe the right edge for volume, the left edge for channel. Everything else is a tap.",
+                "Swipe the right edge for volume; tap the bottom-left corner for Back. Everything else is a tap.",
                 style = MaterialTheme.typography.bodyMedium,
             )
             Button(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text("Got it") }
@@ -250,8 +269,7 @@ private fun GesturePadPreview() {
             onClick = {},
             onVolumeUp = {},
             onVolumeDown = {},
-            onChannelUp = {},
-            onChannelDown = {},
+            onBack = {},
             showHint = true,
             modifier = Modifier.fillMaxSize(),
         )
