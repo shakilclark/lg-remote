@@ -36,6 +36,14 @@ No-cable share without `adb`: sync the APK to the phone via **Syncthing** (OSS) 
 `python3 -m http.server` in the APK dir and open `http://<mac-ip>:8000/<apk>` on the phone. The CD
 release link (below) is the main share path.
 
+### Tuning the motion cursor (US5)
+
+The **debug** build shows a *Cursor tuning* panel under the cursor pad (Sensitivity, Dead-zone,
+Invert X/Y) that adjusts the cursor live. To tune against the real TV: `./gradlew :app:installDebug`
+(over wireless adb), connect, hold the cursor pad and move the phone while watching the TV pointer,
+and adjust until it feels right. Then bake the chosen values into `CursorMath` / `CursorTuning`
+defaults and cut a release.
+
 ## Sideload a shareable APK (no Play Store)
 
 ```bash

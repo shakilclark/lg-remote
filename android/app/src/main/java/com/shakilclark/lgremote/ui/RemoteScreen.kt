@@ -62,6 +62,7 @@ fun RemoteScreen(
         }
         DPad(onNav = onNav)
         CursorPad(onStart = onCursorStart, onStop = onCursorStop, onClick = onCursorClick)
+        if (com.shakilclark.lgremote.BuildConfig.DEBUG) CursorTuningPanel()
         AppShortcuts(onLaunch = onLaunchApp)
         InputSwitcher(inputs = inputs, onLoad = onLoadInputs, onSelect = onSelectInput)
     }

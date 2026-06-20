@@ -49,10 +49,24 @@ object CursorMath {
     }
 
     /** One axis: rotation (rad) → pixel delta, after dead-zone, scaling and clamp. */
-    fun axisDelta(rad: Double): Int {
-        if (abs(rad) < DEAD_ZONE) return 0
-        return (rad * SENSITIVITY).roundToInt().coerceIn(-MAX_STEP, MAX_STEP)
+    fun axisDelta(rad: Double): Int = axisDelta(rad, SENSITIVITY, DEAD_ZONE)
+
+    /** As [axisDelta], with explicit (live-tunable) sensitivity + dead-zone. */
+    fun axisDelta(rad: Double, sensitivity: Double, deadZone: Double): Int {
+        if (abs(rad) < deadZone) return 0
+        return (rad * sensitivity).roundToInt().coerceIn(-MAX_STEP, MAX_STEP)
     }
+}
+
+/**
+ * Live-tunable motion-cursor params (US5 on-device tuning). Read on the sensor thread, written from
+ * the UI tuning panel, so fields are @Volatile. Defaults match [CursorMath].
+ */
+object CursorTuning {
+    @Volatile var sensitivity: Double = CursorMath.SENSITIVITY
+    @Volatile var deadZone: Double = CursorMath.DEAD_ZONE
+    @Volatile var invertX: Boolean = false
+    @Volatile var invertY: Boolean = false
 }
 
 /**
@@ -93,8 +107,12 @@ class MotionCursor(
         last = curr
         if (prev == null) return // first sample only establishes the reference frame
         val (pan, tilt) = CursorMath.panTilt(prev, curr)
-        val dx = CursorMath.axisDelta(pan) // pan right → cursor right (flip on device if needed)
-        val dy = CursorMath.axisDelta(-tilt) // tilt up → cursor up
+        val s = CursorTuning.sensitivity
+        val dz = CursorTuning.deadZone
+        var dx = CursorMath.axisDelta(pan, s, dz) // pan right → cursor right
+        var dy = CursorMath.axisDelta(-tilt, s, dz) // tilt up → cursor up
+        if (CursorTuning.invertX) dx = -dx
+        if (CursorTuning.invertY) dy = -dy
         if (dx != 0 || dy != 0) onMove(dx, dy)
     }
 
