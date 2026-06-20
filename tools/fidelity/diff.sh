@@ -13,6 +13,8 @@ mkdir -p "$OUT"
 # surface  golden-basename  width  height
 SURFACES="
 home remote_connected 411 1200
+command-sheet command_sheet 411 480
+cover now_playing_cover 411 333
 "
 
 echo "surface              RMSE (0=identical)   diff image"

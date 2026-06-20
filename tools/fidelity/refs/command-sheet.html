@@ -1,0 +1,18 @@
+<!-- Fidelity ref: COMMAND SHEET, full-bleed 411x480, Ultraviolet light, de-noised (no emoji). -->
+<style>
+  :root{--surf:#FDF7FF;--sc-low:#F6ECFC;--sc:#EFE3F8;--sc-high:#E9DDF4;--on:#1D1B20;--onv:#4A454E;--p:#6E2EC9;--op:#FFFFFF;}
+  *{box-sizing:border-box;margin:0;}
+  html,body{width:411px;height:480px;background:var(--surf);font-family:system-ui,sans-serif;}
+  .wrap{padding:8px 16px 0;display:flex;flex-direction:column;gap:12px;}
+  .qr{display:flex;gap:8px;}
+  .qr button{flex:1;height:40px;border-radius:20px;background:var(--sc-high);border:none;}
+  .seg{display:flex;background:var(--sc-low);border-radius:999px;padding:4px;gap:2px;}
+  .seg b{flex:1;text-align:center;font-size:13px;font-weight:600;padding:8px 2px;border-radius:999px;color:var(--onv);}
+  .seg b.on{background:var(--p);color:var(--op);}
+  .empty{display:grid;place-items:center;height:300px;color:var(--onv);font-size:14px;}
+</style>
+<div class="wrap">
+  <div class="qr"><button></button><button></button><button></button><button></button></div>
+  <div class="seg"><b>Keypad</b><b class="on">Apps</b><b>Inputs</b><b>Sound</b><b>Type</b></div>
+  <div class="empty">No apps found</div>
+</div>
