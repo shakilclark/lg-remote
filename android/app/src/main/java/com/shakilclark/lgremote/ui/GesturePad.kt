@@ -30,8 +30,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -77,11 +88,7 @@ fun GesturePad(
     Box(
         modifier
             .clip(MaterialTheme.shapes.large)
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(scheme.surfaceContainerLow, scheme.surfaceContainer),
-                ),
-            )
+            .recessedWell(scheme.surfaceContainer, scheme.surfaceContainerLow, scheme.onSurface)
             .border(1.dp, scheme.outlineVariant, MaterialTheme.shapes.large),
     ) {
         // Centre — pointer move + tap-to-click.
@@ -157,6 +164,37 @@ fun GesturePad(
         }
     }
 }
+
+/**
+ * The pad's recessed, textured surface (design-system §5.2): a concave radial (lighter centre →
+ * darker edge), a faint 7dp dot texture, and an inset top shadow + highlight so it reads as a well.
+ * Drawn once via [drawWithCache] (the tile + brushes are cached) so dragging stays cheap.
+ */
+private fun Modifier.recessedWell(surface: Color, surfaceLow: Color, onSurface: Color): Modifier =
+    drawWithCache {
+        val tilePx = 7.dp.toPx().toInt().coerceAtLeast(2)
+        val r = 0.6.dp.toPx()
+        val tile = ImageBitmap(tilePx, tilePx)
+        Canvas(tile).drawCircle(Offset(r, r), r, Paint().apply { color = onSurface.copy(alpha = 0.06f) })
+        val dots = ShaderBrush(ImageShader(tile, TileMode.Repeated, TileMode.Repeated))
+        val base = Brush.radialGradient(
+            0f to surfaceLow,
+            0.58f to surface,
+            1f to lerp(surface, Color.Black, 0.08f),
+            center = Offset(size.width * 0.5f, size.height * 0.36f),
+            radius = size.maxDimension * 0.95f,
+        )
+        val top = 18.dp.toPx()
+        val topShadow = Brush.verticalGradient(
+            0f to Color.Black.copy(alpha = 0.16f), 1f to Color.Transparent, startY = 0f, endY = top,
+        )
+        onDrawBehind {
+            drawRect(base)
+            drawRect(dots)
+            drawRect(topShadow, size = Size(size.width, top))
+            drawRect(Color.White.copy(alpha = 0.35f), size = Size(size.width, 1.dp.toPx())) // top highlight
+        }
+    }
 
 /**
  * A transparent edge strip with a faint always-on affordance (▲ HINT ▼). Vertical drag emits stepped
