@@ -221,6 +221,11 @@ private fun ReconnectingChip(modifier: Modifier = Modifier) {
 @Composable
 private fun RemotePreview() {
     LGRemoteTheme {
-        RemoteScreen(ConnectionState.Connected(volume = 13, muted = false), {}, {}, {})
+        RemoteScreen(
+            state = ConnectionState.Connected(volume = 13, muted = false),
+            onVolumeUp = {},
+            onVolumeDown = {},
+            onToggleMute = {},
+        )
     }
 }
