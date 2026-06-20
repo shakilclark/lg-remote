@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.connection.ConnectionState
-import com.shakilclark.lgremote.tv.AppKey
 import com.shakilclark.lgremote.tv.NavButton
+import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Space
@@ -45,7 +45,8 @@ fun RemoteScreen(
     onPlayPause: () -> Unit = {},
     onFastForward: () -> Unit = {},
     onNav: (NavButton) -> Unit = {},
-    onLaunchApp: (AppKey) -> Unit = {},
+    apps: List<TvApp> = emptyList(),
+    onLaunchApp: (TvApp) -> Unit = {},
     inputs: List<TvInput> = emptyList(),
     onLoadInputs: () -> Unit = {},
     onSelectInput: (TvInput) -> Unit = {},
@@ -117,11 +118,19 @@ fun RemoteScreen(
             sheetState = rememberModalBottomSheetState(),
         ) {
             Column(
-                Modifier.fillMaxWidth().padding(horizontal = Space.xl).padding(bottom = Space.xxl),
-                verticalArrangement = Arrangement.spacedBy(Space.l),
+                Modifier.fillMaxWidth().padding(horizontal = Space.l),
+                verticalArrangement = Arrangement.spacedBy(Space.m),
             ) {
-                Text("Apps", style = MaterialTheme.typography.titleMedium)
-                AppShortcuts(onLaunch = { onLaunchApp(it); showApps = false })
+                Text(
+                    "Apps",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = Space.s),
+                )
+                AppGrid(
+                    apps = apps,
+                    onLaunch = { onLaunchApp(it); showApps = false },
+                    modifier = Modifier.fillMaxWidth().height(440.dp),
+                )
             }
         }
     }

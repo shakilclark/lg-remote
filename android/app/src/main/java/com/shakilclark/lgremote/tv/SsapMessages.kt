@@ -75,11 +75,5 @@ private val REGISTER_MANIFEST: JsonObject = buildJsonObject {
     )
 }
 
-/** App keys for the launch shortcuts (US6). */
-enum class AppKey(val wellKnownId: String, val title: String) {
-    YouTube("youtube.leanback.v4", "YouTube"),
-    Netflix("netflix", "Netflix"),
-}
-
 /** D-pad / pointer-socket buttons (US3). */
 enum class NavButton { UP, DOWN, LEFT, RIGHT, ENTER, BACK, HOME, EXIT }

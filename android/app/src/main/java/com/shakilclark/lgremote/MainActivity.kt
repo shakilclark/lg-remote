@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
                 ) { padding ->
                     val ui by viewModel.uiState.collectAsStateWithLifecycle()
                     val inputs by viewModel.inputs.collectAsStateWithLifecycle()
+                    val apps by viewModel.apps.collectAsStateWithLifecycle()
                     val discovered by viewModel.discovered.collectAsStateWithLifecycle()
                     val scanning by viewModel.scanning.collectAsStateWithLifecycle()
                     App(
@@ -55,6 +56,7 @@ class MainActivity : ComponentActivity() {
                         onPlayPause = viewModel::playPause,
                         onFastForward = viewModel::fastForward,
                         onNav = viewModel::nav,
+                        apps = apps,
                         onLaunchApp = viewModel::launchApp,
                         inputs = inputs,
                         onLoadInputs = viewModel::loadInputs,

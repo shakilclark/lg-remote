@@ -11,7 +11,6 @@ import com.shakilclark.lgremote.connection.TvConnectionManager
 import com.shakilclark.lgremote.cursor.MotionCursor
 import com.shakilclark.lgremote.data.TvConnection
 import com.shakilclark.lgremote.data.TvStore
-import com.shakilclark.lgremote.tv.AppKey
 import com.shakilclark.lgremote.tv.Commands
 import com.shakilclark.lgremote.tv.DiscoveredTv
 import com.shakilclark.lgremote.tv.NavButton
@@ -196,9 +195,9 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         pointer.click()
     }
 
-    // --- US6 app shortcuts ---
-    fun launchApp(app: AppKey) = dispatch {
-        if (!commands.launchApp(app)) _messages.tryEmit("${app.title} isn't installed on this TV")
+    // --- US6 app shortcuts (dynamic loader) ---
+    fun launchApp(app: TvApp) = dispatch {
+        if (!commands.launchAppId(app.id)) _messages.tryEmit("${app.title} couldn't be launched")
     }
 
     /** Bottom-bar ⚙ — open the TV's own settings on-screen. */

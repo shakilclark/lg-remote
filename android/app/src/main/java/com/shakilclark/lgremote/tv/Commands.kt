@@ -50,23 +50,7 @@ class Commands(private val manager: TvConnectionManager) {
     fun volumeUpdates(): Flow<VolumeState> =
         (manager.subscribe("ssap://audio/getVolume") ?: emptyFlow()).map { parseVolume(it) }
 
-    // --- US6: app shortcuts ---
-
-    /**
-     * Launch [app] on the TV. Resolves the real app id from listLaunchPoints titles (ids vary by
-     * webOS version) and falls back to the well-known id. Returns false if the TV reports the app
-     * isn't installed/launchable (US6 #3).
-     */
-    suspend fun launchApp(app: AppKey): Boolean {
-        val id = resolveAppId(app)
-        val res = manager.request("ssap://system.launcher/launch", buildJsonObject { put("id", id) })
-        return res["returnValue"]?.jsonPrimitive?.booleanOrNull ?: true
-    }
-
-    private suspend fun resolveAppId(app: AppKey): String = runCatching {
-        val res = manager.request("ssap://com.webos.applicationManager/listLaunchPoints")
-        resolveLaunchPointIdByTitle(res, app.title) ?: app.wellKnownId
-    }.getOrDefault(app.wellKnownId)
+    // --- US6: app shortcuts (dynamic loader) ---
 
     /** All installed apps from the TV's launch points, in the TV's own order (dynamic app loader). */
     suspend fun listApps(): List<TvApp> =

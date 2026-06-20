@@ -37,16 +37,33 @@ class AppsAndInputsTest {
     @Test
     fun `resolveLaunchPointIdByTitle matches title case-insensitively`() {
         val payload = json("""{"launchPoints":[{"title":"youtube","id":"youtube.leanback.v4"},{"title":"Netflix","id":"netflix"},{"title":"Settings","id":"com.palm.app.settings"}]}""")
-        assertEquals("youtube.leanback.v4", resolveLaunchPointIdByTitle(payload, AppKey.YouTube.title))
-        assertEquals("netflix", resolveLaunchPointIdByTitle(payload, AppKey.Netflix.title))
+        assertEquals("youtube.leanback.v4", resolveLaunchPointIdByTitle(payload, "YouTube"))
+        assertEquals("netflix", resolveLaunchPointIdByTitle(payload, "Netflix"))
         assertEquals("com.palm.app.settings", resolveLaunchPointIdByTitle(payload, "Settings"))
     }
 
     @Test
     fun `resolveLaunchPointIdByTitle returns null when absent so caller falls back`() {
         val payload = json("""{"launchPoints":[{"title":"Disney+","id":"com.disney"}]}""")
-        assertNull(resolveLaunchPointIdByTitle(payload, AppKey.YouTube.title))
+        assertNull(resolveLaunchPointIdByTitle(payload, "YouTube"))
         assertNull(resolveLaunchPointIdByTitle(payload, "Settings"))
+    }
+
+    @Test
+    fun `parseLaunchPoints reads id, title, icon in TV order, blank icon becomes null`() {
+        val payload = json(
+            """{"launchPoints":[
+                {"id":"youtube.leanback.v4","title":"YouTube","icon":"https://tv:3001/r/yt.png"},
+                {"id":"netflix","title":"Netflix","icon":""},
+                {"id":"com.x"}
+            ]}""",
+        )
+        val apps = parseLaunchPoints(payload)
+        assertEquals(3, apps.size)
+        assertEquals(TvApp("youtube.leanback.v4", "YouTube", "https://tv:3001/r/yt.png"), apps[0])
+        assertNull(apps[1].iconUrl) // blank icon → null (UI falls back to a tile)
+        assertEquals("com.x", apps[2].title) // missing title falls back to id
+        assertTrue(parseLaunchPoints(json("""{"returnValue":true}""")).isEmpty())
     }
 
     @Test
@@ -66,23 +83,28 @@ class AppsAndInputsTest {
     // --- launch + input over MockWebServer ---
 
     @Test
-    fun `launchApp resolves id, sends launch, and reports not-installed`() = runBlocking {
+    fun `launchAppId sends launch and reports the TV result`() = runBlocking {
         val received = CopyOnWriteArrayList<String>()
         val commands = connectCommands(received) { env, ws ->
-            when {
-                env.uri == "ssap://com.webos.applicationManager/listLaunchPoints" ->
-                    ws.send("""{"type":"response","id":"${env.id}","payload":{"launchPoints":[{"title":"YouTube","id":"youtube.leanback.v4"}]}}""")
-                env.uri == "ssap://system.launcher/launch" -> {
-                    val installed = env.payload.toString().contains("youtube.leanback.v4")
-                    ws.send("""{"type":"response","id":"${env.id}","payload":{"returnValue":$installed}}""")
-                }
+            if (env.uri == "ssap://system.launcher/launch") {
+                val ok = env.payload.toString().contains("youtube.leanback.v4")
+                ws.send("""{"type":"response","id":"${env.id}","payload":{"returnValue":$ok}}""")
             }
         }
-        // YouTube resolves + launches.
-        assertTrue(commands.launchApp(AppKey.YouTube))
+        assertTrue(commands.launchAppId("youtube.leanback.v4"))
         assertTrue(received.any { it.contains("ssap://system.launcher/launch") && it.contains("youtube.leanback.v4") })
-        // Netflix not in launchPoints → falls back to well-known id, TV reports not installed.
-        assertFalse(commands.launchApp(AppKey.Netflix))
+        assertFalse(commands.launchAppId("com.unknown")) // TV reports returnValue:false
+    }
+
+    @Test
+    fun `listApps parses launch points from the TV`() = runBlocking {
+        val commands = connectCommands(CopyOnWriteArrayList()) { env, ws ->
+            if (env.uri == "ssap://com.webos.applicationManager/listLaunchPoints") {
+                ws.send("""{"type":"response","id":"${env.id}","payload":{"launchPoints":[{"id":"netflix","title":"Netflix","icon":"https://tv:3001/r/n.png"}]}}""")
+            }
+        }
+        val apps = commands.listApps()
+        assertEquals(TvApp("netflix", "Netflix", "https://tv:3001/r/n.png"), apps.single())
     }
 
     @Test

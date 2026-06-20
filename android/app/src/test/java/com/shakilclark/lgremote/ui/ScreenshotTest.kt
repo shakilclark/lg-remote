@@ -1,11 +1,16 @@
 package com.shakilclark.lgremote.ui
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.dp
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import org.junit.Rule
@@ -62,6 +67,22 @@ class ScreenshotTest {
     fun bottom_bar() = shot("bottom_bar") {
         BottomBar(
             onBack = {}, onHome = {}, onOpenPad = {}, onOpenApps = {}, onOpenInputs = {}, onOpenTvSettings = {},
+        )
+    }
+
+    @Test
+    fun app_grid() = shot("app_grid") {
+        // Null icons → deterministic letter-tile fallback (no network in the golden).
+        AppGrid(
+            apps = listOf(
+                TvApp("youtube.leanback.v4", "YouTube", null),
+                TvApp("netflix", "Netflix", null),
+                TvApp("disney", "Disney+", null),
+                TvApp("iplayer", "BBC iPlayer", null),
+                TvApp("prime", "Prime Video", null),
+            ),
+            onLaunch = {},
+            modifier = Modifier.fillMaxWidth().height(320.dp),
         )
     }
 }
