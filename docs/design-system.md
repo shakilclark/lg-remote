@@ -5,7 +5,14 @@ electric-red, dark-only, D-pad + bottom-bar spec. The look is **Material 3 Expre
 **Material You** (light **and** dark), with a fixed **Ultraviolet `#7B2FF7`** fallback seed.
 
 > Visual reference: the rendered design studies live in [`docs/design/`](./design/) — open them in a
-> browser and toggle light/dark. They are the canonical look; this doc is the token/spec layer.
+> browser and toggle light/dark.
+>
+> **Fidelity stance (decided 2026-06-20): these artifacts define the _direction_ — the structure,
+> the component set, and the Ultraviolet _fallback_ palette — not pixel-truth.** The shipped app keeps
+> the Direction-C structure but takes a **native finish**: Material You dynamic colour (so the
+> artifacts' Ultraviolet only appears when dynamic colour is off / pre-Android-12) and standard
+> Material 3 components reused/evolved rather than rebuilt to the mockups. The on-device look therefore
+> legitimately differs from the mockups, especially in colour. This doc is the token/spec layer.
 > Requirements: [`specs/010-expressive-redesign/spec.md`](../specs/010-expressive-redesign/spec.md).
 
 ---
