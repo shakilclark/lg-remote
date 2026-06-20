@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
                     val ui by viewModel.uiState.collectAsStateWithLifecycle()
                     val inputs by viewModel.inputs.collectAsStateWithLifecycle()
                     val apps by viewModel.apps.collectAsStateWithLifecycle()
+                    val nowPlaying by viewModel.nowPlaying.collectAsStateWithLifecycle()
                     val discovered by viewModel.discovered.collectAsStateWithLifecycle()
                     val scanning by viewModel.scanning.collectAsStateWithLifecycle()
                     App(
@@ -65,6 +66,8 @@ class MainActivity : ComponentActivity() {
                         onCursorMove = viewModel::cursorMove,
                         onCursorClick = viewModel::cursorClick,
                         onOpenTvSettings = viewModel::openTvSettings,
+                        nowPlaying = nowPlaying,
+                        onStop = viewModel::stop,
                         modifier = Modifier.padding(padding),
                     )
                 }

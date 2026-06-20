@@ -17,12 +17,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -30,10 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
-import coil.compose.SubcomposeAsyncImage
-import coil.request.ImageRequest
 import com.shakilclark.lgremote.tv.TvApp
-import com.shakilclark.lgremote.tv.TvTrustManager
 import com.shakilclark.lgremote.ui.theme.Muted
 import com.shakilclark.lgremote.ui.theme.Space
 
@@ -55,9 +50,7 @@ fun AppGrid(
         }
         return
     }
-    val context = LocalContext.current
-    // Reuse the TV's trust so the self-signed HTTPS icon URLs load.
-    val imageLoader = remember { ImageLoader.Builder(context).okHttpClient(TvTrustManager.client()).build() }
+    val imageLoader = rememberTvImageLoader()
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 76.dp),
@@ -93,13 +86,11 @@ private fun AppTile(app: TvApp, imageLoader: ImageLoader, onClick: () -> Unit) {
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh),
             contentAlignment = Alignment.Center,
         ) {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current).data(app.iconUrl).crossfade(true).build(),
+            AppIcon(
+                iconUrl = app.iconUrl,
+                fallbackText = app.title,
                 imageLoader = imageLoader,
-                contentDescription = null,
                 modifier = Modifier.fillMaxSize().padding(Space.s),
-                loading = { LetterMark(app.title) },
-                error = { LetterMark(app.title) },
             )
         }
         Text(
@@ -109,17 +100,6 @@ private fun AppTile(app: TvApp, imageLoader: ImageLoader, onClick: () -> Unit) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-private fun LetterMark(title: String) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            title.trim().firstOrNull()?.uppercase() ?: "?",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

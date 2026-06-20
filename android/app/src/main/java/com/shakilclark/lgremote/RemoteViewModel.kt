@@ -13,7 +13,10 @@ import com.shakilclark.lgremote.data.TvConnection
 import com.shakilclark.lgremote.data.TvStore
 import com.shakilclark.lgremote.tv.Commands
 import com.shakilclark.lgremote.tv.DiscoveredTv
+import com.shakilclark.lgremote.tv.MediaForeground
 import com.shakilclark.lgremote.tv.NavButton
+import com.shakilclark.lgremote.tv.NowPlaying
+import com.shakilclark.lgremote.tv.PlayState
 import com.shakilclark.lgremote.tv.PointerSocket
 import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvDiscovery
@@ -73,6 +76,10 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     /** Installed apps from the TV (dynamic app loader); preloaded on connect. */
     val apps: StateFlow<List<TvApp>> = _apps.asStateFlow()
 
+    private val _nowPlaying = MutableStateFlow<NowPlaying?>(null)
+    /** Live now-playing snapshot (004) — also the shared source for the future 003 lockscreen. */
+    val nowPlaying: StateFlow<NowPlaying?> = _nowPlaying.asStateFlow()
+
     private val _discovered = MutableStateFlow<List<DiscoveredTv>>(emptyList())
     /** TVs found by network scan (SSDP + port-3001 sweep). */
     val discovered: StateFlow<List<DiscoveredTv>> = _discovered.asStateFlow()
@@ -80,6 +87,7 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
     private var volumeJob: Job? = null
+    private var mediaJob: Job? = null
 
     val uiState: StateFlow<UiState> =
         combine(manager.state, activeName, hasActive) { conn, name, has ->
@@ -98,9 +106,11 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
             manager.state.collect { state ->
                 if (state is ConnectionState.Connected) {
                     startVolumeUpdates()
+                    startMediaUpdates()
                     if (_apps.value.isEmpty()) loadApps() // preload the app list
                 } else {
                     stopVolumeUpdates()
+                    stopMediaUpdates()
                     motionCursor.stop()
                     pointer.close()
                     _inputs.value = emptyList()
@@ -117,6 +127,27 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
         }
+    }
+
+    private fun startMediaUpdates() {
+        if (mediaJob?.isActive == true) return
+        mediaJob = viewModelScope.launch {
+            commands.mediaUpdates().collect { mf -> _nowPlaying.value = resolveNowPlaying(mf) }
+        }
+    }
+
+    private fun stopMediaUpdates() {
+        mediaJob?.cancel()
+        mediaJob = null
+        _nowPlaying.value = null
+    }
+
+    /** Build the now-playing snapshot — shown only when an app is actually playing/paused. */
+    private fun resolveNowPlaying(mf: MediaForeground): NowPlaying? {
+        val id = mf.appId ?: return null
+        if (mf.playState != PlayState.Playing && mf.playState != PlayState.Paused) return null
+        val app = _apps.value.firstOrNull { it.id == id }
+        return NowPlaying(id, app?.title ?: id, app?.iconUrl, mf.playState)
     }
 
     private fun startVolumeUpdates() {
@@ -166,9 +197,17 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     // --- US2 controls ---
     fun volumeUp() = dispatch { commands.volumeUp() }
     fun volumeDown() = dispatch { commands.volumeDown() }
-    fun playPause() = dispatch { commands.playPause() }
+    /** State-driven play/pause: uses the TV's real play-state when known, else a best-effort toggle. */
+    fun playPause() = dispatch {
+        when (_nowPlaying.value?.playState) {
+            PlayState.Playing -> commands.pause()
+            PlayState.Paused -> commands.play()
+            else -> commands.playPause()
+        }
+    }
     fun rewind() = dispatch { commands.rewind() }
     fun fastForward() = dispatch { commands.fastForward() }
+    fun stop() = dispatch { commands.stop() }
 
     fun toggleMute() {
         val muted = (uiState.value.connection as? ConnectionState.Connected)?.muted ?: false

@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
@@ -36,11 +37,12 @@ fun TransportRow(
     onRewind: () -> Unit,
     onPlayPause: () -> Unit,
     onFastForward: () -> Unit,
+    playing: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     ControlRow(modifier) {
         Key(Icons.Filled.FastRewind, "Rewind", onClick = onRewind)
-        Key(Icons.Filled.PlayArrow, "Play or pause", onClick = onPlayPause)
+        Key(if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause", onClick = onPlayPause)
         Key(Icons.Filled.FastForward, "Fast forward", onClick = onFastForward)
     }
 }

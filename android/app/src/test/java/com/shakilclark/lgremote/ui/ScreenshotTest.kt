@@ -10,6 +10,8 @@ import androidx.compose.ui.unit.dp
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.tv.NowPlaying
+import com.shakilclark.lgremote.tv.PlayState
 import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
@@ -83,6 +85,15 @@ class ScreenshotTest {
             ),
             onLaunch = {},
             modifier = Modifier.fillMaxWidth().height(320.dp),
+        )
+    }
+
+    @Test
+    fun now_playing_strip() = shot("now_playing_strip") {
+        NowPlayingStrip(
+            nowPlaying = NowPlaying("netflix", "Netflix", null, PlayState.Paused),
+            onExpand = {},
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

@@ -23,6 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.tv.NavButton
+import com.shakilclark.lgremote.tv.NowPlaying
+import com.shakilclark.lgremote.tv.PlayState
 import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
@@ -54,13 +56,24 @@ fun RemoteScreen(
     onCursorMove: (dx: Int, dy: Int) -> Unit = { _, _ -> },
     onCursorClick: () -> Unit = {},
     onOpenTvSettings: () -> Unit = {},
+    nowPlaying: NowPlaying? = null,
+    onStop: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showPad by remember { mutableStateOf(false) }
     var showApps by remember { mutableStateOf(false) }
     var showInputs by remember { mutableStateOf(false) }
+    var showNowPlaying by remember { mutableStateOf(false) }
 
     Column(modifier.fillMaxSize()) {
+        // Now-playing strip — only when something is actually playing (tap to expand).
+        if (nowPlaying != null) {
+            NowPlayingStrip(
+                nowPlaying = nowPlaying,
+                onExpand = { showNowPlaying = true },
+                modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s),
+            )
+        }
         // Body — D-pad biased low (thumb arc); transport + volume as two centered rows beneath it.
         Column(
             Modifier.weight(1f).fillMaxWidth().padding(horizontal = Space.l),
@@ -73,6 +86,7 @@ fun RemoteScreen(
                 onRewind = onRewind,
                 onPlayPause = onPlayPause,
                 onFastForward = onFastForward,
+                playing = nowPlaying?.playState == PlayState.Playing,
             )
             Spacer(Modifier.height(Space.m))
             VolumeRow(
@@ -143,6 +157,22 @@ fun RemoteScreen(
             InputSwitcher(
                 inputs = inputs.filter { it.connected },
                 onSelect = { onSelectInput(it); showInputs = false },
+                modifier = Modifier.padding(horizontal = Space.xl).padding(bottom = Space.xxl),
+            )
+        }
+    }
+
+    if (showNowPlaying && nowPlaying != null) {
+        ModalBottomSheet(
+            onDismissRequest = { showNowPlaying = false },
+            sheetState = rememberModalBottomSheetState(),
+        ) {
+            NowPlayingSheetContent(
+                nowPlaying = nowPlaying,
+                onRewind = onRewind,
+                onPlayPause = onPlayPause,
+                onFastForward = onFastForward,
+                onStop = onStop,
                 modifier = Modifier.padding(horizontal = Space.xl).padding(bottom = Space.xxl),
             )
         }

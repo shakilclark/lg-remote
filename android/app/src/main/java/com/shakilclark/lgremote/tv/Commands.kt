@@ -45,6 +45,12 @@ class Commands(private val manager: TvConnectionManager) {
 
     suspend fun rewind() { manager.request("ssap://media.controls/rewind") }
     suspend fun fastForward() { manager.request("ssap://media.controls/fastForward") }
+    suspend fun stop() { manager.request("ssap://media.controls/stop"); playing = false }
+
+    /** Live now-playing feed: foreground media app + play-state (004). Empty when nothing reports. */
+    fun mediaUpdates(): Flow<MediaForeground> =
+        (manager.subscribe("ssap://com.webos.media/getForegroundAppInfo") ?: emptyFlow())
+            .map { parseMediaForeground(it) }
 
     /** Live volume/mute stream; empty when not connected. */
     fun volumeUpdates(): Flow<VolumeState> =
