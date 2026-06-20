@@ -36,13 +36,12 @@ No-cable share without `adb`: sync the APK to the phone via **Syncthing** (OSS) 
 `python3 -m http.server` in the APK dir and open `http://<mac-ip>:8000/<apk>` on the phone. The CD
 release link (below) is the main share path.
 
-### Tuning the motion cursor (US5)
+### Pointer control — the touchpad (US5)
 
-The **debug** build shows a *Cursor tuning* panel under the cursor pad (Sensitivity, Dead-zone,
-Invert X/Y) that adjusts the cursor live. To tune against the real TV: `./gradlew :app:installDebug`
-(over wireless adb), connect, hold the cursor pad and move the phone while watching the TV pointer,
-and adjust until it feels right. Then bake the chosen values into `CursorMath` / `CursorTuning`
-defaults and cut a release.
+The pointer is driven by an on-screen **touchpad** (bottom bar → **▢ Pad** → full-height sheet):
+drag to move the LG pointer, tap to click. It uses the same pointer-input socket as the D-pad — no
+sensors. (The earlier gyro motion cursor was removed from the UX; its math/code remains under
+`cursor/` but is not wired into the UI.)
 
 ## Sideload a shareable APK (no Play Store)
 
@@ -92,7 +91,7 @@ Each slice is "done" only when checked on the real phone + TV. Record results he
 | US3 D-pad | Up/Down/Left/Right move focus; OK selects; Back/Home work | pointer socket | ☐ |
 | US6 Shortcuts | YouTube launches; Netflix launches; not-installed → clear message | | ☐ |
 | US7 Inputs | Input list shows labels (e.g. HDMI_2 "PS4…"); tap switches source | | ☐ |
-| US5 Cursor | Hold + move phone → LG pointer tracks; tap clicks; release → no drift (retune sensitivity) | SensorManager, no HTTPS | ☐ |
+| US5 Touchpad | Open ▢ Pad → drag moves the LG pointer; tap clicks | pointer socket | ☐ |
 | Resilience | TV off → Disconnected state + retry; phone off-Wi-Fi → OffNetwork; nothing silently dropped | | ☐ |
 
 ## Notes

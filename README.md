@@ -12,9 +12,9 @@ spec-first with [GitHub Spec Kit](https://github.github.com/spec-kit/) — see
 The app opens a secure SSAP WebSocket straight to the TV at **`wss://<tv-ip>:3001`**, trusting
 the TV's self-signed certificate with a custom `TrustManager`. The pairing client-key is kept in
 app-private storage, so after a one-time "accept on your TV" prompt it reconnects silently. A
-secondary pointer-input socket carries D-pad navigation and the motion cursor; the motion cursor
-reads phone tilt via the native `SensorManager` — no web/HTTPS permission dance, which is the main
-reason this is a native app rather than a PWA.
+secondary pointer-input socket carries D-pad navigation, media transport, and an on-screen
+**touchpad** cursor (drag to move the pointer, tap to click). Native access to the TV's self-signed
+secure socket — which a browser refuses — is the main reason this is a native app, not a PWA.
 
 ```
 Android app ──wss:// SSAP (LAN, self-signed cert)──▶ LG webOS TV
@@ -27,13 +27,15 @@ Android-only, home-Wi-Fi-only, by design.
 | Slice | Scope | State |
 |-------|-------|-------|
 | US1 | Pair once, auto-reconnect, live connection state | ✅ built |
-| US2 | Volume / mute / play-pause (+ hardware volume rocker) | ✅ built |
-| US3 | D-pad / OK / Back / Home / Exit | ✅ built |
-| US6 | YouTube & Netflix shortcuts | ✅ built |
-| US7 | Input switcher (HDMI / sources) | ✅ built |
-| US5 | Motion (Magic Remote) cursor | ✅ built — on-device sensitivity tune pending |
-| Resilience | Off-network detection · SSDP TV auto-discovery | ✅ built |
-| Polish | App icon, release signing, full real-TV validation | ⏳ next |
+| US2 | Volume / mute / play-pause + transport (rewind / fast-forward) + hardware rocker | ✅ built |
+| US3 | D-pad / OK + bottom bar (Back · Home · Apps · Inputs · Settings) | ✅ built |
+| US5 | On-screen **touchpad** cursor (drag to move, tap to click) — replaces the gyro motion cursor | ✅ built |
+| US6 | App shortcuts (YouTube / Netflix) · dynamic TV app loader | ✅ / ⏳ in progress |
+| US7 | Input switcher (connected sources only) | ✅ built |
+| Settings | ⚙ launches the TV's own settings on-screen | ✅ built |
+| Resilience | Off-network detection · TV auto-discovery (SSDP + port-3001 sweep) | ✅ built |
+| Planned | Lockscreen controls (`003`) · now-playing (`004`) · beautify (`005`) · audio output (`006`) | 📋 specced |
+| Polish | App icon, full real-TV validation | ⏳ next |
 
 ## Build & run (debug)
 
@@ -51,14 +53,11 @@ adb logcat -s LGRemote                                        # app logs
 then `adb pair <phone-ip>:<port>` (enter the 6-digit code) and `adb connect <phone-ip>:<port>`; the
 same `gradlew` commands then push over Wi-Fi. ([details](specs/002-native-android-remote/quickstart.md))
 
-Enter the TV's IP (or scan), accept the pairing prompt on the TV, and you're connected.
+Tap **Scan for TVs** (or enter the TV's IP), accept the pairing prompt on the TV, and you're
+connected.
 
-**No TV / no phone?** A debug-only `PreviewActivity` renders the full connected UI with sample
-state, and works on an emulator:
-
-```bash
-adb shell am start -n com.shakilclark.lgremote/.PreviewActivity
-```
+**No TV / no phone?** The UI renders without one via Compose `@Preview` in Android Studio, and the
+Roborazzi screenshot goldens in `app/src/test/screenshots/` show the current screens.
 
 ## Sideload a shareable APK (no Play Store)
 
@@ -77,7 +76,8 @@ after intentional UI changes with `./gradlew :app:recordRoborazziDebug`.
 ## Project layout
 
 - **`android/`** — the app (Kotlin + Jetpack Compose). The current product.
-- **`specs/002-native-android-remote/`** — active spec, plan, tasks, quickstart.
+- **`specs/002-native-android-remote/`** — the shipped spec, plan, tasks, quickstart.
+- **`specs/003…006/`** — planned/specced features: lockscreen controls, now-playing, beautify, audio output.
 - **`docs/design-system.md`** — Material 3 Expressive UI spec (color/type/shape/motion tokens + component recipes).
 - **`.specify/memory/constitution.md`** — project principles (v1.1.0, post-pivot).
 
