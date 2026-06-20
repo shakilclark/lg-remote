@@ -35,7 +35,7 @@ Android-only, home-Wi-Fi-only, by design.
 | 004 | Now-playing — live app + real play-state strip/sheet; play/pause bound to TV state | ✅ built |
 | Settings | ⚙ launches the TV's own settings on-screen | ✅ built |
 | Resilience | Off-network detection · TV auto-discovery (SSDP + port-3001 sweep) | ✅ built |
-| Planned | Lockscreen controls (`003`) · beautify (`005`) · audio output (`006`) · haptics (`007`) | 📋 specced |
+| Planned | Seamless reconnect (`008`) · lockscreen controls (`003`) · beautify (`005`) · audio output (`006`) · haptics (`007`) | 📋 specced |
 | Polish | App icon, full real-TV validation | ⏳ next |
 
 ## Build & run (debug)
