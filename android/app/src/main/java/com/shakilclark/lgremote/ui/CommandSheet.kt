@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.VolumeOff
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
@@ -42,6 +44,8 @@ import com.shakilclark.lgremote.ui.theme.Space
 @Composable
 fun CommandSheet(
     onNav: (NavButton) -> Unit,
+    muted: Boolean = false,
+    onToggleMute: () -> Unit = {},
     apps: List<TvApp>,
     onLaunchApp: (TvApp) -> Unit,
     inputs: List<TvInput>,
@@ -63,6 +67,11 @@ fun CommandSheet(
         ) {
             QuickAction(Icons.AutoMirrored.Rounded.ArrowBack, "Back") { onNav(NavButton.BACK) }
             QuickAction(Icons.Rounded.Home, "Home") { onNav(NavButton.HOME) }
+            QuickAction(
+                if (muted) Icons.AutoMirrored.Rounded.VolumeOff else Icons.AutoMirrored.Rounded.VolumeUp,
+                if (muted) "Unmute" else "Mute",
+                onClick = onToggleMute,
+            )
             QuickAction(Icons.Rounded.Settings, "Settings", onClick = onOpenTvSettings)
         }
 
@@ -90,12 +99,12 @@ fun CommandSheet(
 
 @Composable
 private fun RowScope.QuickAction(icon: ImageVector, label: String, onClick: () -> Unit) {
+    // Icon-only (label as contentDescription): a row of four labels doesn't fit horizontally.
     androidx.compose.material3.FilledTonalButton(
         onClick = onClick,
         modifier = Modifier.weight(1f),
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.height(18.dp))
-        Text(" $label", style = MaterialTheme.typography.labelLarge)
+        Icon(icon, contentDescription = label, modifier = Modifier.height(20.dp))
     }
 }
 

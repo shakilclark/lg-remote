@@ -1,6 +1,7 @@
 package com.shakilclark.lgremote.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,9 +75,7 @@ fun RemoteScreen(
     onDismissGestureHint: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    var showPad by remember { mutableStateOf(false) }
-    var showApps by remember { mutableStateOf(false) }
-    var showInputs by remember { mutableStateOf(false) }
+    var showCommands by remember { mutableStateOf(false) }
     var showNowPlaying by remember { mutableStateOf(false) }
 
     Box(modifier.fillMaxSize()) {
@@ -93,30 +92,25 @@ fun RemoteScreen(
                 modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s),
             )
         }
-        // Body — D-pad biased low (thumb arc); transport + volume as two centered rows beneath it.
-        Column(
-            Modifier.weight(1f).fillMaxWidth().padding(horizontal = Space.l),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Spacer(Modifier.weight(1f)) // bigger top gap → cluster sits in the lower half
-            DirectionPad(onNav = onNav, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.weight(1f))
-            VolumeRow(
-                onUp = onVolumeUp,
-                onDown = onVolumeDown,
-                muted = state.muted,
-                onToggleMute = onToggleMute,
-                modifier = Modifier.padding(bottom = Space.s),
-            )
-        }
-
-        BottomBar(
-            onBack = { onNav(NavButton.BACK) },
-            onHome = { onNav(NavButton.HOME) },
-            onOpenPad = { showPad = true },
-            onOpenApps = { showApps = true },
-            onOpenInputs = { onLoadInputs(); showInputs = true },
-            onOpenTvSettings = onOpenTvSettings,
+        // Home (Direction C): the gesture pad is the primary surface — glide/tap to point & click,
+        // right edge = volume, left edge = channel.
+        GesturePad(
+            onTouchStart = onCursorTouchStart,
+            onMove = onCursorMove,
+            onClick = onCursorClick,
+            onVolumeUp = onVolumeUp,
+            onVolumeDown = onVolumeDown,
+            onChannelUp = onChannelUp,
+            onChannelDown = onChannelDown,
+            showHint = showGestureHint,
+            onDismissHint = onDismissGestureHint,
+            modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s),
+        )
+        // Grip — pulls up the command sheet (keys / apps / inputs / mute / settings). Back is
+        // intentionally not surfaced on the home yet — that affordance is being redesigned.
+        Grip(
+            onOpen = { onLoadInputs(); showCommands = true },
+            modifier = Modifier.fillMaxWidth().padding(vertical = Space.s),
         )
       }
       if (reconnecting) {
@@ -124,62 +118,21 @@ fun RemoteScreen(
       }
     }
 
-    if (showPad) {
+    if (showCommands) {
         ModalBottomSheet(
-            onDismissRequest = { showPad = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        ) {
-            GesturePad(
-                onTouchStart = onCursorTouchStart,
-                onMove = onCursorMove,
-                onClick = onCursorClick,
-                onVolumeUp = onVolumeUp,
-                onVolumeDown = onVolumeDown,
-                onChannelUp = onChannelUp,
-                onChannelDown = onChannelDown,
-                showHint = showGestureHint,
-                onDismissHint = onDismissGestureHint,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(440.dp)
-                    .padding(horizontal = Space.l)
-                    .padding(bottom = Space.xxl),
-            )
-        }
-    }
-
-    if (showApps) {
-        ModalBottomSheet(
-            onDismissRequest = { showApps = false },
+            onDismissRequest = { showCommands = false },
             sheetState = rememberModalBottomSheetState(),
         ) {
-            Column(
-                Modifier.fillMaxWidth().padding(horizontal = Space.l),
-                verticalArrangement = Arrangement.spacedBy(Space.m),
-            ) {
-                Text(
-                    "Apps",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(start = Space.s),
-                )
-                AppGrid(
-                    apps = apps,
-                    onLaunch = { onLaunchApp(it); showApps = false },
-                    modifier = Modifier.fillMaxWidth().height(440.dp),
-                )
-            }
-        }
-    }
-
-    if (showInputs) {
-        ModalBottomSheet(
-            onDismissRequest = { showInputs = false },
-            sheetState = rememberModalBottomSheetState(),
-        ) {
-            InputSwitcher(
-                inputs = inputs.filter { it.connected },
-                onSelect = { onSelectInput(it); showInputs = false },
-                modifier = Modifier.padding(horizontal = Space.xl).padding(bottom = Space.xxl),
+            CommandSheet(
+                onNav = onNav,
+                muted = state.muted == true,
+                onToggleMute = onToggleMute,
+                apps = apps,
+                onLaunchApp = { onLaunchApp(it); showCommands = false },
+                inputs = inputs,
+                onSelectInput = { onSelectInput(it); showCommands = false },
+                onOpenTvSettings = onOpenTvSettings,
+                modifier = Modifier.padding(bottom = Space.xxl),
             )
         }
     }
@@ -198,6 +151,31 @@ fun RemoteScreen(
                 modifier = Modifier.padding(horizontal = Space.xl).padding(bottom = Space.xxl),
             )
         }
+    }
+}
+
+/** The bottom grip that raises the command sheet — the only on-screen promise that there's more. */
+@Composable
+private fun Grip(onOpen: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier
+            .clip(MaterialTheme.shapes.large)
+            .clickable(onClick = onOpen)
+            .semantics(mergeDescendants = true) { contentDescription = "More controls" }
+            .padding(vertical = Space.s),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Space.xs),
+    ) {
+        Box(
+            Modifier.size(width = 40.dp, height = 5.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.outline),
+        )
+        Text(
+            "More controls",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

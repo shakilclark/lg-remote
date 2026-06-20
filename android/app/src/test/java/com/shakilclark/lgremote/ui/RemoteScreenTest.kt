@@ -17,9 +17,11 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Behaviour tests for the redesigned remote. JVM via Robolectric — no emulator. Body = pure D-pad +
- * volume; everything else is the icon bottom bar (found by contentDescription). One screen, no
- * scroll. The remote isn't shown when disconnected.
+ * Behaviour tests for the redesigned remote (010 Direction C). JVM via Robolectric — no emulator.
+ * Home = the gesture pad + a "More controls" grip; the D-pad, apps, inputs, mute and Settings live
+ * in the pull-up command sheet (tested directly as leaf composables to avoid driving a
+ * ModalBottomSheet). Back is intentionally not on the home yet (affordance being redesigned). The
+ * remote isn't shown when disconnected.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w411dp-h891dp")
@@ -31,67 +33,52 @@ class RemoteScreenTest {
     private val connected = ConnectionState.Connected(volume = 10, muted = false)
 
     @Test
-    fun connected_controls_are_present() {
+    fun home_shows_gesture_pad_and_grip() {
         compose.setContent {
             LGRemoteTheme {
                 RemoteScreen(state = connected, onVolumeUp = {}, onVolumeDown = {}, onToggleMute = {})
             }
         }
-        compose.onNodeWithText("OK").assertExists() // D-pad centre
-        compose.onNodeWithContentDescription("Mute").assertExists() // volume row
-        // Bottom bar (transport now lives on the now-playing bar — see NowPlayingUiTest).
-        listOf("Back", "Home", "Pad", "Apps", "Inputs", "Settings").forEach {
-            compose.onNodeWithContentDescription(it).assertExists()
-        }
+        compose.onNodeWithContentDescription("Touchpad", substring = true).assertExists() // gesture pad
+        compose.onNodeWithContentDescription("More controls").assertExists() // grip → command sheet
     }
 
     @Test
     fun ok_fires_enter_nav() {
         var nav: NavButton? = null
         compose.setContent {
-            LGRemoteTheme {
-                RemoteScreen(state = connected, onVolumeUp = {}, onVolumeDown = {}, onToggleMute = {}, onNav = { nav = it })
-            }
+            LGRemoteTheme { DirectionPad(onNav = { nav = it }) } // D-pad lives in the command sheet
         }
         compose.onNodeWithText("OK").performClick()
         assertEquals(NavButton.ENTER, nav)
     }
 
     @Test
-    fun bottom_bar_back_and_home_fire_nav() {
+    fun command_sheet_controls_fire() {
         val navs = mutableListOf<NavButton>()
+        var mutes = 0
+        var settings = 0
         compose.setContent {
             LGRemoteTheme {
-                RemoteScreen(state = connected, onVolumeUp = {}, onVolumeDown = {}, onToggleMute = {}, onNav = { navs += it })
+                CommandSheet(
+                    onNav = { navs += it },
+                    muted = false,
+                    onToggleMute = { mutes++ },
+                    apps = emptyList(),
+                    onLaunchApp = {},
+                    inputs = emptyList(),
+                    onSelectInput = {},
+                    onOpenTvSettings = { settings++ },
+                )
             }
         }
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithContentDescription("Home").performClick()
-        assertEquals(listOf(NavButton.BACK, NavButton.HOME), navs)
-    }
-
-    @Test
-    fun mute_fires_its_callback() {
-        var mutes = 0
-        compose.setContent {
-            LGRemoteTheme {
-                RemoteScreen(state = connected, onVolumeUp = {}, onVolumeDown = {}, onToggleMute = { mutes++ })
-            }
-        }
         compose.onNodeWithContentDescription("Mute").performClick()
-        assertEquals(1, mutes)
-    }
-
-    @Test
-    fun settings_opens_tv_settings() {
-        var opened = 0
-        compose.setContent {
-            LGRemoteTheme {
-                RemoteScreen(state = connected, onVolumeUp = {}, onVolumeDown = {}, onToggleMute = {}, onOpenTvSettings = { opened++ })
-            }
-        }
         compose.onNodeWithContentDescription("Settings").performClick()
-        assertEquals(1, opened)
+        assertEquals(listOf(NavButton.BACK, NavButton.HOME), navs)
+        assertEquals(1, mutes)
+        assertEquals(1, settings)
     }
 
     @Test
@@ -130,6 +117,6 @@ class RemoteScreenTest {
             }
         }
         compose.onNodeWithText("Try now").assertIsDisplayed() // ReconnectView, not the remote
-        compose.onNodeWithText("OK").assertDoesNotExist()
+        compose.onNodeWithContentDescription("More controls").assertDoesNotExist() // remote grip absent
     }
 }
