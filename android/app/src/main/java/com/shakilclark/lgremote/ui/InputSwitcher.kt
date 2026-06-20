@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +51,7 @@ fun InputSwitcher(
                             onSelect(input)
                         },
                         label = { Text(input.label) },
-                        leadingIcon = { Icon(Icons.Filled.Tv, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Rounded.Tv, contentDescription = null) },
                     )
                 }
             }

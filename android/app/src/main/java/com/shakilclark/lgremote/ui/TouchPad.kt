@@ -7,7 +7,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -90,7 +90,7 @@ fun TouchPad(
             verticalArrangement = Arrangement.spacedBy(Space.s),
         ) {
             Icon(
-                Icons.Filled.TouchApp,
+                Icons.Rounded.TouchApp,
                 contentDescription = null,
                 modifier = Modifier.height(28.dp),
                 tint = scheme.onSurfaceVariant,

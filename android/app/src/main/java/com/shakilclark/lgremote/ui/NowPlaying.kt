@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FastForward
-import androidx.compose.material.icons.filled.FastRewind
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.rounded.FastForward
+import androidx.compose.material.icons.rounded.FastRewind
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -97,10 +97,10 @@ fun NowPlayingBar(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        BarKey(Icons.Filled.FastRewind, "Rewind", onRewind)
-        BarKey(if (nowPlaying.playState == PlayState.Playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause", onPlayPause)
-        BarKey(Icons.Filled.FastForward, "Fast forward", onFastForward)
-        BarKey(Icons.Filled.Stop, "Stop", onStop)
+        BarKey(Icons.Rounded.FastRewind, "Rewind", onRewind)
+        BarKey(if (nowPlaying.playState == PlayState.Playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow, "Play or pause", onPlayPause)
+        BarKey(Icons.Rounded.FastForward, "Fast forward", onFastForward)
+        BarKey(Icons.Rounded.Stop, "Stop", onStop)
     }
 }
 
@@ -152,10 +152,10 @@ fun NowPlayingSheetContent(
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(Space.l, Alignment.CenterHorizontally)) {
-            SheetKey(Icons.Filled.FastRewind, "Rewind", onRewind)
-            SheetKey(if (nowPlaying.playState == PlayState.Playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause", onPlayPause)
-            SheetKey(Icons.Filled.FastForward, "Fast forward", onFastForward)
-            SheetKey(Icons.Filled.Stop, "Stop", onStop)
+            SheetKey(Icons.Rounded.FastRewind, "Rewind", onRewind)
+            SheetKey(if (nowPlaying.playState == PlayState.Playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow, "Play or pause", onPlayPause)
+            SheetKey(Icons.Rounded.FastForward, "Fast forward", onFastForward)
+            SheetKey(Icons.Rounded.Stop, "Stop", onStop)
         }
     }
 }

@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Input
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.automirrored.rounded.Input
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,13 +54,13 @@ fun BottomBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Space.xs),
     ) {
-        BarItem(Icons.AutoMirrored.Filled.ArrowBack, "Back", onBack)
-        BarItem(Icons.Filled.Home, "Home", onHome)
-        BarItem(Icons.Filled.TouchApp, "Pad", onOpenPad)
-        BarItem(Icons.Filled.Apps, "Apps", onOpenApps)
-        BarItem(Icons.Filled.Input, "Inputs", onOpenInputs)
+        BarItem(Icons.AutoMirrored.Rounded.ArrowBack, "Back", onBack)
+        BarItem(Icons.Rounded.Home, "Home", onHome)
+        BarItem(Icons.Rounded.TouchApp, "Pad", onOpenPad)
+        BarItem(Icons.Rounded.Apps, "Apps", onOpenApps)
+        BarItem(Icons.AutoMirrored.Rounded.Input, "Inputs", onOpenInputs)
         Spacer(Modifier.width(Space.l)) // separate rare/disruptive Settings from the frequent keys
-        BarItem(Icons.Filled.Settings, "Settings", onOpenTvSettings)
+        BarItem(Icons.Rounded.Settings, "Settings", onOpenTvSettings)
     }
 }
 

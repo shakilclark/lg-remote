@@ -16,10 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -52,17 +52,17 @@ fun DirectionPad(onNav: (NavButton) -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
             EmptyCell()
-            GridKey(Icons.Filled.KeyboardArrowUp, "Up") { onNav(NavButton.UP) }
+            GridKey(Icons.Rounded.KeyboardArrowUp, "Up") { onNav(NavButton.UP) }
             EmptyCell()
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-            GridKey(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Left") { onNav(NavButton.LEFT) }
+            GridKey(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, "Left") { onNav(NavButton.LEFT) }
             OkCell { onNav(NavButton.ENTER) }
-            GridKey(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Right") { onNav(NavButton.RIGHT) }
+            GridKey(Icons.AutoMirrored.Rounded.KeyboardArrowRight, "Right") { onNav(NavButton.RIGHT) }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
             EmptyCell()
-            GridKey(Icons.Filled.KeyboardArrowDown, "Down") { onNav(NavButton.DOWN) }
+            GridKey(Icons.Rounded.KeyboardArrowDown, "Down") { onNav(NavButton.DOWN) }
             EmptyCell()
         }
     }

@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -72,7 +72,7 @@ fun ConnectScreen(
                 enabled = !busy,
                 modifier = Modifier.fillMaxWidth().height(56.dp).padding(bottom = 10.dp),
             ) {
-                Icon(Icons.Filled.Tv, contentDescription = null)
+                Icon(Icons.Rounded.Tv, contentDescription = null)
                 Text("  ${tv.name} · ${tv.address}")
             }
         }

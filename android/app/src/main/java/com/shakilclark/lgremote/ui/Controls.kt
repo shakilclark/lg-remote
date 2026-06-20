@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeOff
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.automirrored.rounded.VolumeOff
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -36,14 +36,14 @@ fun VolumeRow(
     modifier: Modifier = Modifier,
 ) {
     ControlRow(modifier) {
-        Key(Icons.Filled.Remove, "Volume down", onClick = onDown)
+        Key(Icons.Rounded.Remove, "Volume down", onClick = onDown)
         Key(
-            icon = if (muted == true) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
+            icon = if (muted == true) Icons.AutoMirrored.Rounded.VolumeOff else Icons.AutoMirrored.Rounded.VolumeUp,
             label = "Mute",
             accent = muted == true,
             onClick = onToggleMute,
         )
-        Key(Icons.Filled.Add, "Volume up", onClick = onUp)
+        Key(Icons.Rounded.Add, "Volume up", onClick = onUp)
     }
 }
 
