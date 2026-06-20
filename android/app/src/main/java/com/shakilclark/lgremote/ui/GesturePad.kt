@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
@@ -87,9 +88,9 @@ fun GesturePad(
     val haptics = LocalHapticFeedback.current
     Box(
         modifier
-            .clip(MaterialTheme.shapes.large)
-            .recessedWell(scheme.surfaceContainer, scheme.surfaceContainerLow, scheme.onSurface)
-            .border(1.dp, scheme.outlineVariant, MaterialTheme.shapes.large),
+            .clip(RoundedCornerShape(26.dp))
+            .recessedWell(scheme.surfaceContainer, scheme.surfaceContainerLowest, scheme.onSurface)
+            .border(1.dp, scheme.outlineVariant, RoundedCornerShape(26.dp)),
     ) {
         // Centre — pointer move + tap-to-click.
         Box(
@@ -130,7 +131,7 @@ fun GesturePad(
         ) {
             // Centre OK ring — the visible click affordance (a tap anywhere on the pad also clicks).
             Box(
-                Modifier.size(84.dp).clip(CircleShape).background(scheme.primary),
+                Modifier.size(80.dp).clip(CircleShape).background(scheme.primary),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
