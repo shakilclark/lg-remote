@@ -36,7 +36,7 @@ Android-only, home-Wi-Fi-only, by design.
 | 008 | Seamless reconnect — instant resume on unlock + grace window, fast backoff (Tier 1) | ✅ built |
 | Settings | ⚙ launches the TV's own settings on-screen | ✅ built |
 | Resilience | Off-network detection · TV auto-discovery (SSDP + port-3001 sweep) | ✅ built |
-| Planned | Lockscreen controls (`003`) · beautify (`005`) · audio output (`006`) · haptics (`007`) | 📋 specced |
+| Planned | Notification controls (`009`, absorbs `003`) · beautify (`005`) · audio output (`006`) · haptics (`007`) | 📋 specced |
 | Polish | App icon, full real-TV validation | ⏳ next |
 
 ## Build & run (debug)
