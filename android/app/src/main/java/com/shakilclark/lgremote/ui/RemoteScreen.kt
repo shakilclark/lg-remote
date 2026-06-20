@@ -70,6 +70,8 @@ fun RemoteScreen(
     onOpenTvSettings: () -> Unit = {},
     nowPlaying: NowPlaying? = null,
     onStop: () -> Unit = {},
+    tvName: String = "",
+    onPowerOff: () -> Unit = {},
     reconnecting: Boolean = false,
     showGestureHint: Boolean = false,
     onDismissGestureHint: () -> Unit = {},
@@ -80,6 +82,12 @@ fun RemoteScreen(
 
     Box(modifier.fillMaxSize()) {
       Column(Modifier.fillMaxSize()) {
+        // Top bar: connection chip + voice (inactive shell) + power.
+        RemoteTopBar(
+            tvName = tvName,
+            onPowerOff = onPowerOff,
+            modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s),
+        )
         // Now-playing strip — only when something is actually playing (tap to expand).
         if (nowPlaying != null) {
             NowPlayingBar(

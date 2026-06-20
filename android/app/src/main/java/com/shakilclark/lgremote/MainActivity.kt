@@ -71,6 +71,7 @@ class MainActivity : ComponentActivity() {
                         onOpenTvSettings = viewModel::openTvSettings,
                         nowPlaying = nowPlaying,
                         onStop = viewModel::stop,
+                        onPowerOff = viewModel::powerOff,
                         showGestureHint = showGestureHint,
                         onDismissGestureHint = viewModel::dismissGestureHint,
                         modifier = Modifier.padding(padding),

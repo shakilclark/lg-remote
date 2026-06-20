@@ -55,6 +55,7 @@ fun App(
     discovered: List<com.shakilclark.lgremote.tv.DiscoveredTv> = emptyList(),
     scanning: Boolean = false,
     onScan: () -> Unit = {},
+    onPowerOff: () -> Unit = {},
     showGestureHint: Boolean = false,
     onDismissGestureHint: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -121,6 +122,8 @@ fun App(
                 onOpenTvSettings = onOpenTvSettings,
                 nowPlaying = nowPlaying,
                 onStop = onStop,
+                tvName = ui.activeTvName ?: "",
+                onPowerOff = onPowerOff,
                 showGestureHint = showGestureHint,
                 onDismissGestureHint = onDismissGestureHint,
             )

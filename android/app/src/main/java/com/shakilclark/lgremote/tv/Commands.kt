@@ -36,6 +36,9 @@ class Commands(private val manager: TvConnectionManager) {
     suspend fun channelUp() { manager.request("ssap://tv/channelUp") }
     suspend fun channelDown() { manager.request("ssap://tv/channelDown") }
 
+    /** Power the TV off (it can be woken again by Wake-on-LAN / the app's reconnect). */
+    suspend fun powerOff() { manager.request("ssap://system/turnOff") }
+
     suspend fun setMute(mute: Boolean) {
         manager.request("ssap://audio/setMute", buildJsonObject { put("mute", mute) })
     }
