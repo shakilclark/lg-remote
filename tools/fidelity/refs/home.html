@@ -1,0 +1,50 @@
+<!-- Fidelity reference: HOME surface, full-bleed at the golden's px (411x1200), Ultraviolet LIGHT
+     (matches the Roborazzi golden which renders dynamic-off light). Uses the design's literal CSS so
+     `compare` against remote_connected.png reports exactly where the Compose render drifts. Reflects
+     the current target: VOL edge only, bottom-left Back, greyed (inactive) mic per spec 020. -->
+<style>
+  :root{
+    --surf:#FDF7FF;--sc-low:#F6ECFC;--sc:#EFE3F8;--sc-high:#E9DDF4;
+    --on:#1D1B20;--onv:#4A454E;--outline:#7B757F;
+    --p:#6E2EC9;--op:#FFFFFF;--pc:#EFDBFF;--opc:#270056;
+    --ok-c:#2E7D4F;
+    --data:ui-monospace,"SF Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;}
+  html,body{width:411px;height:1200px;background:var(--surf);font-family:system-ui,-apple-system,sans-serif;}
+  .col{display:flex;flex-direction:column;height:1200px;}
+
+  .appbar{display:flex;align-items:center;gap:8px;padding:8px 16px;}
+  .tvchip{display:inline-flex;align-items:center;gap:8px;background:var(--sc-high);border-radius:999px;padding:7px 12px;font-size:16px;font-weight:600;color:var(--on);flex:1;}
+  .tvchip .live{width:8px;height:8px;border-radius:50%;background:var(--ok-c);flex:none;}
+  .ib{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;font-size:16px;flex:none;border:none;}
+  .ib.mic{background:var(--sc);color:var(--onv);opacity:.55;}   /* inactive shell (020) */
+  .ib.pw{background:var(--sc);color:var(--p);}
+
+  .pad{flex:1;margin:8px 16px;border-radius:26px;position:relative;display:grid;place-items:center;overflow:hidden;
+    background:
+      radial-gradient(circle, color-mix(in srgb,var(--on) 7%, transparent) 1px, transparent 1.4px) 0 0/7px 7px,
+      radial-gradient(135% 118% at 50% 36%, #FFFFFF 0%, var(--sc) 58%, color-mix(in srgb,var(--on) 11%, var(--sc)) 100%);
+    box-shadow:inset 0 7px 15px -9px rgba(70,40,110,.30), inset 0 -2px 7px rgba(255,255,255,.7), inset 0 1px 0 rgba(255,255,255,.85);
+    border:1px solid color-mix(in srgb,var(--on) 10%, transparent);}
+  .ring{width:84px;height:84px;border-radius:50%;background:var(--p);color:var(--op);display:grid;place-items:center;font-weight:700;font-size:16px;box-shadow:0 5px 13px -7px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.18);}
+  .el{position:absolute;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--onv);opacity:.45;font-size:11px;}
+  .el .lbl{writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.06em;}
+  .backcorner{position:absolute;left:12px;bottom:12px;display:inline-flex;align-items:center;gap:4px;background:var(--sc-high);color:var(--on);border-radius:16px;padding:8px 12px;font-size:12px;font-weight:600;}
+
+  .grip{padding:8px 0 12px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--onv);font-size:12px;}
+  .grip .bar{width:40px;height:5px;border-radius:999px;background:var(--outline);}
+</style>
+<div class="col">
+  <div class="appbar">
+    <span class="tvchip"><span class="live"></span>TV</span>
+    <button class="ib mic">🎤</button>
+    <button class="ib pw">⏻</button>
+  </div>
+  <div class="pad">
+    <span class="el">▲<span class="lbl">VOL</span>▼</span>
+    <span class="ring">OK</span>
+    <span class="backcorner">← Back</span>
+  </div>
+  <div class="grip"><span class="bar"></span>More controls</div>
+</div>
