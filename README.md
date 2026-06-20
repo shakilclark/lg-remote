@@ -1,43 +1,85 @@
 # LG webOS TV Remote
 
-An installable, touch-first remote for an LG webOS TV. Built spec-first with
-[GitHub Spec Kit](https://github.github.com/spec-kit/) — see [`specs/001-webos-remote/`](specs/001-webos-remote/).
+A native **Android** remote for an LG webOS TV that talks **directly to the TV over your home
+Wi-Fi** — no backend, no cloud, no Tailscale, no HTTPS proxy. Kotlin + Jetpack Compose, built
+spec-first with [GitHub Spec Kit](https://github.github.com/spec-kit/) — see
+[`specs/002-native-android-remote/`](specs/002-native-android-remote/).
 
 ## How it works
 
-A browser can't open the TV's insecure local WebSocket from a secure/installed app, so a
-small **Node backend** (run on an always-on box — a Raspberry Pi) owns the only socket to
-the TV, persists the pairing key, and serves the **PWA** UI. **Tailscale Serve** fronts it
-with real HTTPS so the PWA installs cleanly on Android + iPad and works away from home — all
-private, no third-party cloud.
+The app opens a secure SSAP WebSocket straight to the TV at **`wss://<tv-ip>:3001`**, trusting
+the TV's self-signed certificate with a custom `TrustManager`. The pairing client-key is kept in
+app-private storage, so after a one-time "accept on your TV" prompt it reconnects silently. A
+secondary pointer-input socket carries D-pad navigation and the motion cursor; the motion cursor
+reads phone tilt via the native `SensorManager` — no web/HTTPS permission dance, which is the main
+reason this is a native app rather than a PWA.
 
 ```
-phone/iPad (PWA) ──HTTPS/WSS (Tailscale)──▶ Node backend (Pi) ──ws:// SSAP──▶ LG TV
+Android app ──wss:// SSAP (LAN, self-signed cert)──▶ LG webOS TV
 ```
+
+Android-only, home-Wi-Fi-only, by design.
 
 ## Status
 
 | Slice | Scope | State |
 |-------|-------|-------|
 | US1 | Pair once, auto-reconnect, live connection state | ✅ built |
-| US2 | Volume / mute / play-pause | ⏳ next |
-| US3 | D-pad / OK / Back / Home | ⏳ next |
-| Polish | PWA install, Tailscale docs, off-network detection | ⏳ next |
+| US2 | Volume / mute / play-pause (+ hardware volume rocker) | ✅ built |
+| US3 | D-pad / OK / Back / Home / Exit | ✅ built |
+| US6 | YouTube & Netflix shortcuts | ✅ built |
+| US7 | Input switcher (HDMI / sources) | ✅ built |
+| US5 | Motion (Magic Remote) cursor | ✅ built — on-device sensitivity tune pending |
+| Resilience | Off-network detection · SSDP TV auto-discovery | ✅ built |
+| Polish | App icon, release signing, full real-TV validation | ⏳ next |
 
-## Run it (dev)
+## Build & run (debug)
+
+JDK 17+ and the Android SDK (or Android Studio). Phone with USB debugging on, on the **same
+Wi-Fi** as the TV.
 
 ```bash
-cd backend && npm install
-cd ../frontend && npm install && npm run build   # emits into backend/public
-
-cd ../backend && PORT=8080 npm run dev            # serves UI + API on :8080
+cd android
+./gradlew :app:installDebug                                   # build + install to the phone
+adb shell am start -n com.shakilclark.lgremote/.MainActivity  # launch
+adb logcat -s LGRemote                                        # app logs
 ```
 
-Open `http://<this-machine-ip>:8080` on a phone on the same Wi-Fi. Scan for the TV (or
-enter its IP), then accept the pairing prompt on the TV.
+Enter the TV's IP (or scan), accept the pairing prompt on the TV, and you're connected.
 
-- Backend: `backend/` (Node + TypeScript, `lgtv2`, `node-ssdp`, Express, `ws`).
-- Frontend: `frontend/` (React + TypeScript + Vite).
-- Tests: `cd backend && npm test` (real `lgtv2` against a mock webOS server — no TV needed).
+**No TV / no phone?** A debug-only `PreviewActivity` renders the full connected UI with sample
+state, and works on an emulator:
 
-State lives in `~/.config/lg-remote/store.json` (override with `LG_REMOTE_STORE`).
+```bash
+adb shell am start -n com.shakilclark.lgremote/.PreviewActivity
+```
+
+## Sideload a shareable APK (no Play Store)
+
+```bash
+cd android
+./gradlew :app:assembleRelease     # → app/build/outputs/apk/release/app-release.apk
+adb install -r app/build/outputs/apk/release/app-release.apk
+# or copy the APK to the phone and tap it (allow "install unknown apps" once)
+```
+
+No developer account required. Tests: `cd android && ./gradlew :app:testDebugUnitTest`
+(SSAP client, commands, pointer + cursor math — all run against mocks, no TV needed).
+
+## Project layout
+
+- **`android/`** — the app (Kotlin + Jetpack Compose). The current product.
+- **`specs/002-native-android-remote/`** — active spec, plan, tasks, quickstart.
+- **`.specify/memory/constitution.md`** — project principles (v1.1.0, post-pivot).
+
+### Prior art (the original PWA — kept as protocol reference, not the shipping product)
+
+`001` was an installable **PWA + Node backend + Tailscale** design: a browser can't open the
+TV's local socket from a secure context, so a Pi-hosted Node agent owned the socket and Tailscale
+fronted it with HTTPS. We re-platformed to native Android for direct-LAN access and native sensors
+(no agent, no HTTPS). The old code and its protocol notes remain useful references:
+
+- `specs/001-webos-remote/` — the PWA spec, esp. `contracts/tv-protocol.md`.
+- `backend/` (Node + `lgtv2`) — the SSAP behaviour, verified against the real TV.
+- `frontend/` — the React PWA UI (visual reference only).
+- `docs/setup-tailscale.md` — **legacy**, only relevant to running that old PWA.

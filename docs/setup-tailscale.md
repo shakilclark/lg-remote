@@ -1,5 +1,11 @@
 # HTTPS + away-from-home via Tailscale
 
+> ⚠️ **Legacy — `001` PWA only.** This applies to the original PWA + Node-backend design. The
+> current product is a **native Android app that connects directly to the TV over the LAN**
+> (`wss://<tv-ip>:3001`) and needs **no Tailscale, no HTTPS proxy, and no backend**. Kept only as
+> reference for anyone running the old PWA. See the [README](../README.md) for the current app.
+
+
 A full-screen **installable** PWA needs a trusted HTTPS origin (Android won't install a PWA
 served over plain `http://<lan-ip>`; a service worker requires a secure context). Tailscale
 gives the host a real Let's Encrypt cert with no certificate fiddling, and as a bonus the
