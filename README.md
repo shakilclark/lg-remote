@@ -67,8 +67,10 @@ adb install -r app/build/outputs/apk/release/app-release.apk
 # or copy the APK to the phone and tap it (allow "install unknown apps" once)
 ```
 
-No developer account required. Tests: `cd android && ./gradlew :app:testDebugUnitTest`
-(SSAP client, commands, pointer + cursor math — all run against mocks, no TV needed).
+No developer account required. Tests (`cd android && ./gradlew :app:testDebugUnitTest`): SSAP
+client, commands, pointer + cursor math, **Compose behaviour** (Robolectric), and **Roborazzi
+screenshot / visual-regression** — all on the JVM, no TV or emulator. Re-record screenshot goldens
+after intentional UI changes with `./gradlew :app:recordRoborazziDebug`.
 
 ## Project layout
 
