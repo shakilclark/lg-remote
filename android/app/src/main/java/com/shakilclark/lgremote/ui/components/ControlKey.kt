@@ -9,10 +9,10 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -20,22 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.MotionSpecs
 
 /**
- * The workhorse remote button (design-system §7.1): neutral `surfaceContainerHigh` fill by default,
- * `onSurface` glyph; on press it morphs (§4.2), shifts to `surfaceContainerHighest` with a faint
- * primary overlay, and the glyph tints to `primary`. Haptic on press-down; ripple off — the morph
- * is the feedback.
+ * The workhorse remote button (design-system §7.1): neutral `surfaceContainerHigh` fill + `onSurface`
+ * glyph by default; on press it morphs (§4.2), shifts to `surfaceContainerHighest` with a faint
+ * primary overlay, and the glyph tints to `primary`. Haptic on press-down; ripple off — the morph is
+ * the feedback. Size/shape come from [modifier], so it works as a square key or a wide bar.
  */
 @Composable
 fun ControlKey(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    size: Dp = 64.dp,
     content: @Composable () -> Unit,
 ) {
     val haptics = LocalHapticFeedback.current
@@ -57,7 +55,6 @@ fun ControlKey(
 
     Box(
         modifier
-            .size(size)
             .pressMorph(interaction)
             .background(fill)
             .background(scheme.primary.copy(alpha = overlay))
@@ -75,6 +72,6 @@ fun ControlKey(
 @Composable
 private fun ControlKeyPreview() {
     LGRemoteTheme {
-        ControlKey(onClick = {}) { Text("OK") }
+        ControlKey(onClick = {}, modifier = Modifier.size(64.dp)) { Text("OK") }
     }
 }
