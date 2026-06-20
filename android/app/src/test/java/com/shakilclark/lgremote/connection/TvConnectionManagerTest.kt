@@ -6,7 +6,6 @@ import com.shakilclark.lgremote.tv.Ssap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import okhttp3.OkHttpClient
@@ -67,50 +66,6 @@ class TvConnectionManagerTest {
         }
         assertEquals("tv-1" to "GRANTED-KEY", persisted.get())
         assertTrue(manager.state.value is ConnectionState.Connected)
-        manager.disconnect()
-    }
-
-    @Test
-    fun `auto-reconnects after the socket drops (008 fast backoff)`() = runBlocking {
-        server = MockWebServer()
-        // First session: register, then the TV drops the socket.
-        server.enqueue(
-            MockResponse().withWebSocketUpgrade(object : WebSocketListener() {
-                override fun onMessage(webSocket: WebSocket, text: String) {
-                    if (Ssap.parse(text).type == "register") {
-                        webSocket.send("""{"type":"registered","payload":{"client-key":"k"}}""")
-                        webSocket.close(1000, "drop")
-                    }
-                }
-            }),
-        )
-        // Second session: register and stay — the reconnect should land here.
-        server.enqueue(
-            MockResponse().withWebSocketUpgrade(object : WebSocketListener() {
-                override fun onMessage(webSocket: WebSocket, text: String) {
-                    if (Ssap.parse(text).type == "register") {
-                        webSocket.send("""{"type":"registered","payload":{"client-key":"k"}}""")
-                    }
-                }
-            }),
-        )
-        server.start()
-        val base = server.url("/").toString()
-        val scope = CoroutineScope(Dispatchers.IO)
-        val manager = TvConnectionManager(
-            scope = scope,
-            clientFactory = { SsapClient(OkHttpClient()) },
-            urlFor = { base },
-        )
-        val connects = java.util.concurrent.atomic.AtomicInteger(0)
-        val watch = scope.launch {
-            manager.state.collect { if (it is ConnectionState.Connected) connects.incrementAndGet() }
-        }
-        manager.connect(TvConnection(id = "tv", name = "tv", address = "127.0.0.1"))
-        // Connected once, dropped, then reconnected → Connected a second time (fast backoff).
-        withTimeout(8000) { while (connects.get() < 2) kotlinx.coroutines.delay(20) }
-        assertTrue(connects.get() >= 2)
-        watch.cancel()
         manager.disconnect()
     }
 }

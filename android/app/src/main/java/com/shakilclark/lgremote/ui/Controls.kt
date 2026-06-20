@@ -8,10 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.FastForward
-import androidx.compose.material.icons.filled.FastRewind
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -24,28 +20,8 @@ import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.ui.components.ControlKey
 import com.shakilclark.lgremote.ui.theme.Space
 
-/** Shared side for the centered control keys in the transport + volume rows. */
+/** Shared side for the centered control keys in the volume row. */
 private val ControlCell = 64.dp
-
-/**
- * Centered media transport row for the main remote: Rewind / Play-Pause / Fast-forward — the
- * SSAP-supported set. Pairs with [VolumeRow] as two consistent centered rows under the D-pad.
- * Play/pause is the existing blind toggle (webOS has no reliable play-state query).
- */
-@Composable
-fun TransportRow(
-    onRewind: () -> Unit,
-    onPlayPause: () -> Unit,
-    onFastForward: () -> Unit,
-    playing: Boolean = false,
-    modifier: Modifier = Modifier,
-) {
-    ControlRow(modifier) {
-        Key(Icons.Filled.FastRewind, "Rewind", onClick = onRewind)
-        Key(if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause", onClick = onPlayPause)
-        Key(Icons.Filled.FastForward, "Fast forward", onClick = onFastForward)
-    }
-}
 
 /**
  * Centered volume row: Vol − / Mute / Vol +, icon-only. Mute turns to the error accent while muted.

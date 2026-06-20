@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.NowPlaying
-import com.shakilclark.lgremote.tv.PlayState
 import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
@@ -80,9 +79,13 @@ fun RemoteScreen(
       Column(Modifier.fillMaxSize()) {
         // Now-playing strip — only when something is actually playing (tap to expand).
         if (nowPlaying != null) {
-            NowPlayingStrip(
+            NowPlayingBar(
                 nowPlaying = nowPlaying,
                 onExpand = { showNowPlaying = true },
+                onRewind = onRewind,
+                onPlayPause = onPlayPause,
+                onFastForward = onFastForward,
+                onStop = onStop,
                 modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s),
             )
         }
@@ -94,13 +97,6 @@ fun RemoteScreen(
             Spacer(Modifier.weight(1f)) // bigger top gap → cluster sits in the lower half
             DirectionPad(onNav = onNav, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.weight(1f))
-            TransportRow(
-                onRewind = onRewind,
-                onPlayPause = onPlayPause,
-                onFastForward = onFastForward,
-                playing = nowPlaying?.playState == PlayState.Playing,
-            )
-            Spacer(Modifier.height(Space.m))
             VolumeRow(
                 onUp = onVolumeUp,
                 onDown = onVolumeDown,

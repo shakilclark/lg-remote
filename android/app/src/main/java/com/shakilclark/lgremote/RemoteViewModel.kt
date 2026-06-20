@@ -83,6 +83,9 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     // Now-playing is the merge of foreground-app identity (always known) + media play-state (best-effort).
     private val foregroundAppId = MutableStateFlow<String?>(null)
     private val mediaForeground = MutableStateFlow(MediaForeground(null, PlayState.Unknown))
+    // Optimistic play/pause for apps the TV doesn't report state for (e.g. Netflix): assume playing,
+    // flip on each tap, so the play/pause glyph actually toggles. Overridden by real state when given.
+    private var optimisticPlaying = true
 
     private val _discovered = MutableStateFlow<List<DiscoveredTv>>(emptyList())
     /** TVs found by network scan (SSDP + port-3001 sweep). */
@@ -159,8 +162,15 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     private fun buildNowPlaying(appId: String?, mf: MediaForeground): NowPlaying? {
         if (appId == null || appId in HOME_APP_IDS) return null
         val app = _apps.value.firstOrNull { it.id == appId }
-        val playState = if (mf.appId == appId) mf.playState else PlayState.Unknown
-        return NowPlaying(appId, app?.title ?: appId, app?.iconUrl, playState)
+        val real = if (mf.appId == appId) mf.playState else PlayState.Unknown
+        val state = when (real) {
+            PlayState.Playing -> { optimisticPlaying = true; PlayState.Playing }
+            PlayState.Paused -> { optimisticPlaying = false; PlayState.Paused }
+            PlayState.Stopped -> PlayState.Stopped
+            // No real state (e.g. Netflix) → show the optimistic guess so play/pause toggles visibly.
+            PlayState.Unknown -> if (optimisticPlaying) PlayState.Playing else PlayState.Paused
+        }
+        return NowPlaying(appId, app?.title ?: appId, app?.iconUrl, state)
     }
 
     private fun startVolumeUpdates() {
@@ -213,13 +223,13 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     // --- US2 controls ---
     fun volumeUp() = dispatch { commands.volumeUp() }
     fun volumeDown() = dispatch { commands.volumeDown() }
-    /** State-driven play/pause: uses the TV's real play-state when known, else a best-effort toggle. */
+    /** Play/pause: flips the (optimistic) state immediately so the glyph toggles, then sends it. */
     fun playPause() = dispatch {
-        when (_nowPlaying.value?.playState) {
-            PlayState.Playing -> commands.pause()
-            PlayState.Paused -> commands.play()
-            else -> commands.playPause()
-        }
+        val cur = _nowPlaying.value
+        val wasPlaying = cur?.playState == PlayState.Playing
+        optimisticPlaying = !wasPlaying
+        cur?.let { _nowPlaying.value = it.copy(playState = if (optimisticPlaying) PlayState.Playing else PlayState.Paused) }
+        if (wasPlaying) commands.pause() else commands.play()
     }
     fun rewind() = dispatch { commands.rewind() }
     fun fastForward() = dispatch { commands.fastForward() }

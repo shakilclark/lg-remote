@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/** Behaviour tests for the now-playing strip + sheet (004). JVM via Robolectric; null icon → letter. */
+/** Behaviour tests for the now-playing bar + cover sheet (004 redesign). JVM via Robolectric. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w411dp-h891dp")
 class NowPlayingUiTest {
@@ -25,13 +25,31 @@ class NowPlayingUiTest {
     private val np = NowPlaying("netflix", "Netflix", null, PlayState.Paused)
 
     @Test
-    fun strip_shows_app_and_expands_on_tap() {
+    fun bar_shows_app_and_expands_on_tap() {
         var expanded = 0
-        compose.setContent { LGRemoteTheme { NowPlayingStrip(nowPlaying = np, onExpand = { expanded++ }) } }
+        compose.setContent {
+            LGRemoteTheme {
+                NowPlayingBar(np, onExpand = { expanded++ }, onRewind = {}, onPlayPause = {}, onFastForward = {}, onStop = {})
+            }
+        }
         compose.onNodeWithText("Netflix").assertExists()
-        compose.onNodeWithText("Paused").assertExists()
         compose.onNodeWithContentDescription("Now playing: Netflix").performClick()
         assertEquals(1, expanded)
+    }
+
+    @Test
+    fun bar_transport_fires_inline() {
+        var plays = 0
+        var stops = 0
+        compose.setContent {
+            LGRemoteTheme {
+                NowPlayingBar(np, onExpand = {}, onRewind = {}, onPlayPause = { plays++ }, onFastForward = {}, onStop = { stops++ })
+            }
+        }
+        compose.onNodeWithContentDescription("Play or pause").performClick()
+        compose.onNodeWithContentDescription("Stop").performClick()
+        assertEquals(1, plays)
+        assertEquals(1, stops)
     }
 
     @Test

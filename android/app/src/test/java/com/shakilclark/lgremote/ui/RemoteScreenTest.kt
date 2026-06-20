@@ -38,27 +38,11 @@ class RemoteScreenTest {
             }
         }
         compose.onNodeWithText("OK").assertExists() // D-pad centre
-        compose.onNodeWithContentDescription("Mute").assertExists() // volume strip
-        // Transport row.
-        listOf("Rewind", "Play or pause", "Fast forward").forEach {
-            compose.onNodeWithContentDescription(it).assertExists()
-        }
-        // Bottom bar.
+        compose.onNodeWithContentDescription("Mute").assertExists() // volume row
+        // Bottom bar (transport now lives on the now-playing bar — see NowPlayingUiTest).
         listOf("Back", "Home", "Pad", "Apps", "Inputs", "Settings").forEach {
             compose.onNodeWithContentDescription(it).assertExists()
         }
-    }
-
-    @Test
-    fun play_pause_fires_its_callback() {
-        var plays = 0
-        compose.setContent {
-            LGRemoteTheme {
-                RemoteScreen(state = connected, onVolumeUp = {}, onVolumeDown = {}, onToggleMute = {}, onPlayPause = { plays++ })
-            }
-        }
-        compose.onNodeWithContentDescription("Play or pause").performClick()
-        assertEquals(1, plays)
     }
 
     @Test

@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +29,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.tv.NowPlaying
@@ -44,11 +45,21 @@ private fun stateLabel(state: PlayState): String = when (state) {
 }
 
 /**
- * Slim now-playing strip for the top of the remote (004) — shown only when an app is actually
- * playing/paused. Shows the app icon + name + play-state; tap to expand the full sheet.
+ * Persistent now-playing bar pinned to the top whenever something is on (004 redesign): app icon +
+ * name (tap to expand the cover sheet) with the full transport inline — rewind / play-pause /
+ * fast-forward / stop. The play-pause glyph reflects [NowPlaying.playState] (optimistic when the TV
+ * doesn't report it). This is the single home for media transport — there's no separate row.
  */
 @Composable
-fun NowPlayingStrip(nowPlaying: NowPlaying, onExpand: () -> Unit, modifier: Modifier = Modifier) {
+fun NowPlayingBar(
+    nowPlaying: NowPlaying,
+    onExpand: () -> Unit,
+    onRewind: () -> Unit,
+    onPlayPause: () -> Unit,
+    onFastForward: () -> Unit,
+    onStop: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val loader = rememberTvImageLoader()
     val haptics = LocalHapticFeedback.current
     Row(
@@ -56,46 +67,54 @@ fun NowPlayingStrip(nowPlaying: NowPlaying, onExpand: () -> Unit, modifier: Modi
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .clickable {
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                onExpand()
-            }
-            .semantics { contentDescription = "Now playing: ${nowPlaying.name}" }
-            .padding(horizontal = Space.m, vertical = Space.s),
+            .padding(horizontal = Space.s, vertical = Space.xs),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Space.m),
     ) {
-        Box(
-            Modifier.size(36.dp).clip(MaterialTheme.shapes.small)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-            contentAlignment = Alignment.Center,
+        Row(
+            Modifier
+                .weight(1f)
+                .clip(MaterialTheme.shapes.medium)
+                .clickable {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onExpand()
+                }
+                .semantics { contentDescription = "Now playing: ${nowPlaying.name}" }
+                .padding(Space.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Space.s),
         ) {
-            AppIcon(nowPlaying.iconUrl, nowPlaying.name, loader, Modifier.fillMaxSize().padding(Space.xs))
-        }
-        Column(Modifier.weight(1f)) {
+            Box(
+                Modifier.size(36.dp).clip(MaterialTheme.shapes.small)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                contentAlignment = Alignment.Center,
+            ) {
+                AppIcon(nowPlaying.iconUrl, nowPlaying.name, loader, Modifier.fillMaxSize().padding(Space.xs))
+            }
             Text(
                 nowPlaying.name,
                 style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            val label = stateLabel(nowPlaying.playState)
-            if (label.isNotEmpty()) {
-                Text(
-                    label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
         }
-        Icon(Icons.Filled.ExpandLess, contentDescription = "Expand", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        BarKey(Icons.Filled.FastRewind, "Rewind", onRewind)
+        BarKey(if (nowPlaying.playState == PlayState.Playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause", onPlayPause)
+        BarKey(Icons.Filled.FastForward, "Fast forward", onFastForward)
+        BarKey(Icons.Filled.Stop, "Stop", onStop)
+    }
+}
+
+@Composable
+private fun BarKey(icon: ImageVector, label: String, onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(icon, contentDescription = label, modifier = Modifier.size(22.dp))
     }
 }
 
 /**
- * Now-playing sheet body (004): larger app identity + play-state + the full SSAP transport set
- * including Stop. The play/pause glyph reflects real state. Wrapped in a ModalBottomSheet by the
- * caller, matching the Apps/Inputs pattern.
+ * Expanded now-playing as a cover view (004 redesign + "cover if available"): a large app-icon
+ * cover, the app name + play-state, and the full transport. webOS exposes no real artwork for app
+ * playback, so the app icon is the cover; real art would slot in here if a source ever provided it.
  */
 @Composable
 fun NowPlayingSheetContent(
@@ -107,54 +126,42 @@ fun NowPlayingSheetContent(
     modifier: Modifier = Modifier,
 ) {
     val loader = rememberTvImageLoader()
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.l)) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Space.l),
-            verticalAlignment = Alignment.CenterVertically,
+    Column(
+        modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Space.l),
+    ) {
+        Box(
+            Modifier.size(132.dp).clip(MaterialTheme.shapes.large)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(
-                Modifier.size(64.dp).clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                contentAlignment = Alignment.Center,
-            ) {
-                AppIcon(nowPlaying.iconUrl, nowPlaying.name, loader, Modifier.fillMaxSize().padding(Space.s))
-            }
-            Column(Modifier.weight(1f)) {
-                Text(
-                    nowPlaying.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                val label = stateLabel(nowPlaying.playState)
-                if (label.isNotEmpty()) {
-                    Text(
-                        label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            AppIcon(nowPlaying.iconUrl, nowPlaying.name, loader, Modifier.fillMaxSize().padding(Space.xl))
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+            Text(
+                nowPlaying.name,
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+            )
+            val label = stateLabel(nowPlaying.playState)
+            if (label.isNotEmpty()) {
+                Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Space.l, Alignment.CenterHorizontally),
-        ) {
-            TransKey(Icons.Filled.FastRewind, "Rewind", onRewind)
-            TransKey(
-                if (nowPlaying.playState == PlayState.Playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                "Play or pause",
-                onPlayPause,
-            )
-            TransKey(Icons.Filled.FastForward, "Fast forward", onFastForward)
-            TransKey(Icons.Filled.Stop, "Stop", onStop)
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.l, Alignment.CenterHorizontally)) {
+            SheetKey(Icons.Filled.FastRewind, "Rewind", onRewind)
+            SheetKey(if (nowPlaying.playState == PlayState.Playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause", onPlayPause)
+            SheetKey(Icons.Filled.FastForward, "Fast forward", onFastForward)
+            SheetKey(Icons.Filled.Stop, "Stop", onStop)
         }
     }
 }
 
 @Composable
-private fun TransKey(icon: ImageVector, label: String, onClick: () -> Unit) {
+private fun SheetKey(icon: ImageVector, label: String, onClick: () -> Unit) {
     ControlKey(onClick = onClick, modifier = Modifier.size(60.dp)) {
         Icon(icon, contentDescription = label, modifier = Modifier.size(26.dp))
     }

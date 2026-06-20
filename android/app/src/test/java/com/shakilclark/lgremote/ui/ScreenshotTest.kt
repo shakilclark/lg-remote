@@ -89,10 +89,14 @@ class ScreenshotTest {
     }
 
     @Test
-    fun now_playing_strip() = shot("now_playing_strip") {
-        NowPlayingStrip(
+    fun now_playing_bar() = shot("now_playing_bar") {
+        NowPlayingBar(
             nowPlaying = NowPlaying("netflix", "Netflix", null, PlayState.Paused),
             onExpand = {},
+            onRewind = {},
+            onPlayPause = {},
+            onFastForward = {},
+            onStop = {},
             modifier = Modifier.fillMaxWidth(),
         )
     }
