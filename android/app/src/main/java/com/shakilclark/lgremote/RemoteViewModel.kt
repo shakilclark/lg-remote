@@ -225,6 +225,8 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     // --- US2 controls ---
     fun volumeUp() = dispatch { commands.volumeUp() }
     fun volumeDown() = dispatch { commands.volumeDown() }
+    fun channelUp() = dispatch { commands.channelUp() }
+    fun channelDown() = dispatch { commands.channelDown() }
     /** Play/pause: flips the (optimistic) state immediately so the glyph toggles, then sends it. */
     fun playPause() = dispatch {
         val cur = _nowPlaying.value

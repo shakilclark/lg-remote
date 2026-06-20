@@ -33,6 +33,9 @@ class Commands(private val manager: TvConnectionManager) {
     suspend fun volumeUp() { manager.request("ssap://audio/volumeUp") }
     suspend fun volumeDown() { manager.request("ssap://audio/volumeDown") }
 
+    suspend fun channelUp() { manager.request("ssap://tv/channelUp") }
+    suspend fun channelDown() { manager.request("ssap://tv/channelDown") }
+
     suspend fun setMute(mute: Boolean) {
         manager.request("ssap://audio/setMute", buildJsonObject { put("mute", mute) })
     }
