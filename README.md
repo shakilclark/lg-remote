@@ -30,11 +30,11 @@ Android-only, home-Wi-Fi-only, by design.
 | US2 | Volume / mute / play-pause + transport (rewind / fast-forward) + hardware rocker | ✅ built |
 | US3 | D-pad / OK + bottom bar (Back · Home · Apps · Inputs · Settings) | ✅ built |
 | US5 | On-screen **touchpad** cursor (drag to move, tap to click) — replaces the gyro motion cursor | ✅ built |
-| US6 | App shortcuts (YouTube / Netflix) · dynamic TV app loader | ✅ / ⏳ in progress |
+| US6 | Dynamic app loader — all installed TV apps with icons, tap to launch | ✅ built |
 | US7 | Input switcher (connected sources only) | ✅ built |
 | Settings | ⚙ launches the TV's own settings on-screen | ✅ built |
 | Resilience | Off-network detection · TV auto-discovery (SSDP + port-3001 sweep) | ✅ built |
-| Planned | Lockscreen controls (`003`) · now-playing (`004`) · beautify (`005`) · audio output (`006`) | 📋 specced |
+| Planned | Lockscreen controls (`003`) · now-playing (`004`) · beautify (`005`) · audio output (`006`) · haptics (`007`) | 📋 specced |
 | Polish | App icon, full real-TV validation | ⏳ next |
 
 ## Build & run (debug)
