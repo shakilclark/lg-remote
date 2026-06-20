@@ -1,5 +1,7 @@
 # LG webOS TV Remote
 
+[![CI](https://github.com/shakilclark/lg-remote/actions/workflows/ci.yml/badge.svg)](https://github.com/shakilclark/lg-remote/actions/workflows/ci.yml)
+
 A native **Android** remote for an LG webOS TV that talks **directly to the TV over your home
 Wi-Fi** — no backend, no cloud, no Tailscale, no HTTPS proxy. Kotlin + Jetpack Compose, built
 spec-first with [GitHub Spec Kit](https://github.github.com/spec-kit/) — see
