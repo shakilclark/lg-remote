@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.jsonPrimitive
@@ -80,6 +81,12 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     private val _nowPlaying = MutableStateFlow<NowPlaying?>(null)
     /** Live now-playing snapshot (004) — also the shared source for the future 003 lockscreen. */
     val nowPlaying: StateFlow<NowPlaying?> = _nowPlaying.asStateFlow()
+
+    /** First-run gesture-pad teaching card: shown until dismissed once (010 discoverability). */
+    val showGestureHint: StateFlow<Boolean> =
+        store.gestureHintSeen.map { !it }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+    fun dismissGestureHint() = viewModelScope.launch { store.setGestureHintSeen() }
 
     // Now-playing is the merge of foreground-app identity (always known) + media play-state (best-effort).
     private val foregroundAppId = MutableStateFlow<String?>(null)

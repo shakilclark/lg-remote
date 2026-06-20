@@ -70,6 +70,8 @@ fun RemoteScreen(
     nowPlaying: NowPlaying? = null,
     onStop: () -> Unit = {},
     reconnecting: Boolean = false,
+    showGestureHint: Boolean = false,
+    onDismissGestureHint: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showPad by remember { mutableStateOf(false) }
@@ -135,6 +137,8 @@ fun RemoteScreen(
                 onVolumeDown = onVolumeDown,
                 onChannelUp = onChannelUp,
                 onChannelDown = onChannelDown,
+                showHint = showGestureHint,
+                onDismissHint = onDismissGestureHint,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(440.dp)

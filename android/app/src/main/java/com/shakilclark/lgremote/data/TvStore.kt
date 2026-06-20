@@ -3,6 +3,7 @@ package com.shakilclark.lgremote.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -33,7 +34,15 @@ class TvStore(private val context: Context) {
 
     private val tvsKey = stringPreferencesKey("tvs_json")
     private val activeKey = stringPreferencesKey("active_id")
+    private val gestureHintKey = booleanPreferencesKey("gesture_hint_seen")
     private val json = Json { ignoreUnknownKeys = true }
+
+    /** Whether the one-time gesture-pad teaching card has been dismissed. */
+    val gestureHintSeen: Flow<Boolean> = context.dataStore.data.map { it[gestureHintKey] ?: false }
+
+    suspend fun setGestureHintSeen() {
+        context.dataStore.edit { it[gestureHintKey] = true }
+    }
 
     val tvs: Flow<List<TvConnection>> = context.dataStore.data.map { prefs ->
         prefs[tvsKey]?.let { runCatching { json.decodeFromString<List<TvConnection>>(it) }.getOrNull() }

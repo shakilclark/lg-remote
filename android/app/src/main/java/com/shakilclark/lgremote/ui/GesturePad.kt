@@ -10,17 +10,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.TouchApp
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -46,8 +53,8 @@ private const val STEP_PX = 44f
  * Recessed gesture pad (010 — Direction C). The centre drives the LG on-screen pointer (glide to
  * move, tap to click — the same pointer socket the D-pad uses); the **right** edge is a volume
  * rocker and the **left** edge a channel rocker (drag up/down for steps, or tap the upper/lower
- * half). Replaces [TouchPad]. The concave fill + hairline border read as a recess (design-system
- * §5.2; the artifact's CSS inset shadow is approximated here with a radial fill).
+ * half). The edges carry a faint always-on affordance so they read as interactive, and [showHint]
+ * raises a one-time teaching card for the two edge gestures.
  */
 @Composable
 fun GesturePad(
@@ -58,6 +65,8 @@ fun GesturePad(
     onVolumeDown: () -> Unit,
     onChannelUp: () -> Unit,
     onChannelDown: () -> Unit,
+    showHint: Boolean = false,
+    onDismissHint: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -130,28 +139,42 @@ fun GesturePad(
         // Left edge — channel; right edge — volume. Drawn after the centre so edge touches win.
         EdgeRocker(
             label = "Channel",
+            hint = "CH",
             onUp = onChannelUp,
             onDown = onChannelDown,
             modifier = Modifier.align(Alignment.CenterStart).fillMaxHeight().width(EDGE_WIDTH),
         )
         EdgeRocker(
             label = "Volume",
+            hint = "VOL",
             onUp = onVolumeUp,
             onDown = onVolumeDown,
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().width(EDGE_WIDTH),
         )
+
+        if (showHint) {
+            GestureHintCard(
+                onDismiss = onDismissHint,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(Space.m),
+            )
+        }
     }
 }
 
-/** A transparent edge strip: vertical drag emits stepped up/down; a tap hits the upper/lower half. */
+/**
+ * A transparent edge strip with a faint always-on affordance (▲ HINT ▼). Vertical drag emits stepped
+ * up/down; a tap hits the upper/lower half.
+ */
 @Composable
 private fun EdgeRocker(
     label: String,
+    hint: String,
     onUp: () -> Unit,
     onDown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val haptics = LocalHapticFeedback.current
+    val faint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
     Box(
         modifier
             .semantics { contentDescription = label }
@@ -182,7 +205,41 @@ private fun EdgeRocker(
                     if (offset.y < size.height / 2f) onUp() else onDown()
                 })
             },
-    )
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(Space.l),
+        ) {
+            Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = null, tint = faint, modifier = Modifier.height(22.dp))
+            Text(hint, style = MaterialTheme.typography.labelMedium, color = faint, modifier = Modifier.rotate(-90f))
+            Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null, tint = faint, modifier = Modifier.height(22.dp))
+        }
+    }
+}
+
+/** One-time teaching card for the two non-obvious edge gestures. */
+@Composable
+private fun GestureHintCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        shape = MaterialTheme.shapes.large,
+        tonalElevation = 3.dp,
+    ) {
+        Column(
+            Modifier.padding(Space.l),
+            verticalArrangement = Arrangement.spacedBy(Space.s),
+        ) {
+            Text("Two gestures to know", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Swipe the right edge for volume, the left edge for channel. Everything else is a tap.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Button(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text("Got it") }
+        }
+    }
 }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 320)
@@ -197,6 +254,7 @@ private fun GesturePadPreview() {
             onVolumeDown = {},
             onChannelUp = {},
             onChannelDown = {},
+            showHint = true,
             modifier = Modifier.fillMaxSize(),
         )
     }

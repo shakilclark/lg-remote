@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
                     val nowPlaying by viewModel.nowPlaying.collectAsStateWithLifecycle()
                     val discovered by viewModel.discovered.collectAsStateWithLifecycle()
                     val scanning by viewModel.scanning.collectAsStateWithLifecycle()
+                    val showGestureHint by viewModel.showGestureHint.collectAsStateWithLifecycle()
                     App(
                         ui = ui,
                         onConnect = viewModel::connectTo,
@@ -70,6 +71,8 @@ class MainActivity : ComponentActivity() {
                         onOpenTvSettings = viewModel::openTvSettings,
                         nowPlaying = nowPlaying,
                         onStop = viewModel::stop,
+                        showGestureHint = showGestureHint,
+                        onDismissGestureHint = viewModel::dismissGestureHint,
                         modifier = Modifier.padding(padding),
                     )
                 }

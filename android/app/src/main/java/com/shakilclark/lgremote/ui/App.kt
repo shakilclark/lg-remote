@@ -55,6 +55,8 @@ fun App(
     discovered: List<com.shakilclark.lgremote.tv.DiscoveredTv> = emptyList(),
     scanning: Boolean = false,
     onScan: () -> Unit = {},
+    showGestureHint: Boolean = false,
+    onDismissGestureHint: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var reconfigure by remember { mutableStateOf(false) }
@@ -119,6 +121,8 @@ fun App(
                 onOpenTvSettings = onOpenTvSettings,
                 nowPlaying = nowPlaying,
                 onStop = onStop,
+                showGestureHint = showGestureHint,
+                onDismissGestureHint = onDismissGestureHint,
             )
             showReconnect -> ReconnectView(onRetry = onRetry, onChange = { reconfigure = true })
             else -> ConnectScreen(
