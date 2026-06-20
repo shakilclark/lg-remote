@@ -47,7 +47,19 @@ class Commands(private val manager: TvConnectionManager) {
     suspend fun fastForward() { manager.request("ssap://media.controls/fastForward") }
     suspend fun stop() { manager.request("ssap://media.controls/stop"); playing = false }
 
-    /** Live now-playing feed: foreground media app + play-state (004). Empty when nothing reports. */
+    /**
+     * Live foreground-app id (004) — the reliable "what's on" signal, present for every app/source
+     * (e.g. `netflix`, `youtube.leanback.v4`, `com.webos.app.hdmi1`). Subscribable.
+     */
+    fun foregroundAppUpdates(): Flow<String?> =
+        (manager.subscribe("ssap://com.webos.applicationManager/getForegroundAppInfo") ?: emptyFlow())
+            .map { it["appId"]?.jsonPrimitive?.contentOrNull?.takeIf { id -> id.isNotBlank() } }
+
+    /**
+     * Live media play-state (004), where the app registers with the webOS media server — many apps
+     * (Netflix, etc.) report an empty array, so this is best-effort; identity comes from
+     * [foregroundAppUpdates].
+     */
     fun mediaUpdates(): Flow<MediaForeground> =
         (manager.subscribe("ssap://com.webos.media/getForegroundAppInfo") ?: emptyFlow())
             .map { parseMediaForeground(it) }

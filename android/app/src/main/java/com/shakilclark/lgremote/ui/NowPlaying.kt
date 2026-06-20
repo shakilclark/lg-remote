@@ -40,7 +40,7 @@ private fun stateLabel(state: PlayState): String = when (state) {
     PlayState.Playing -> "Playing"
     PlayState.Paused -> "Paused"
     PlayState.Stopped -> "Stopped"
-    PlayState.Unknown -> "Playback state unknown"
+    PlayState.Unknown -> "" // TV doesn't report it (e.g. Netflix) — show the app name only
 }
 
 /**
@@ -79,11 +79,14 @@ fun NowPlayingStrip(nowPlaying: NowPlaying, onExpand: () -> Unit, modifier: Modi
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
-                stateLabel(nowPlaying.playState),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            val label = stateLabel(nowPlaying.playState)
+            if (label.isNotEmpty()) {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         Icon(Icons.Filled.ExpandLess, contentDescription = "Expand", tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -124,11 +127,14 @@ fun NowPlayingSheetContent(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Text(
-                    stateLabel(nowPlaying.playState),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                val label = stateLabel(nowPlaying.playState)
+                if (label.isNotEmpty()) {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
         Row(

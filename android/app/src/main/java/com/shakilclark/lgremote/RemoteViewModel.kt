@@ -80,6 +80,10 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     /** Live now-playing snapshot (004) — also the shared source for the future 003 lockscreen. */
     val nowPlaying: StateFlow<NowPlaying?> = _nowPlaying.asStateFlow()
 
+    // Now-playing is the merge of foreground-app identity (always known) + media play-state (best-effort).
+    private val foregroundAppId = MutableStateFlow<String?>(null)
+    private val mediaForeground = MutableStateFlow(MediaForeground(null, PlayState.Unknown))
+
     private val _discovered = MutableStateFlow<List<DiscoveredTv>>(emptyList())
     /** TVs found by network scan (SSDP + port-3001 sweep). */
     val discovered: StateFlow<List<DiscoveredTv>> = _discovered.asStateFlow()
@@ -106,11 +110,11 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
             manager.state.collect { state ->
                 if (state is ConnectionState.Connected) {
                     startVolumeUpdates()
-                    startMediaUpdates()
+                    startNowPlaying()
                     if (_apps.value.isEmpty()) loadApps() // preload the app list
                 } else {
                     stopVolumeUpdates()
-                    stopMediaUpdates()
+                    stopNowPlaying()
                     motionCursor.stop()
                     pointer.close()
                     _inputs.value = emptyList()
@@ -129,25 +133,34 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun startMediaUpdates() {
+    private fun startNowPlaying() {
         if (mediaJob?.isActive == true) return
         mediaJob = viewModelScope.launch {
-            commands.mediaUpdates().collect { mf -> _nowPlaying.value = resolveNowPlaying(mf) }
+            launch { commands.foregroundAppUpdates().collect { foregroundAppId.value = it } }
+            launch { commands.mediaUpdates().collect { mediaForeground.value = it } }
+            combine(foregroundAppId, mediaForeground) { appId, mf -> buildNowPlaying(appId, mf) }
+                .collect { _nowPlaying.value = it }
         }
     }
 
-    private fun stopMediaUpdates() {
+    private fun stopNowPlaying() {
         mediaJob?.cancel()
         mediaJob = null
+        foregroundAppId.value = null
+        mediaForeground.value = MediaForeground(null, PlayState.Unknown)
         _nowPlaying.value = null
     }
 
-    /** Build the now-playing snapshot — shown only when an app is actually playing/paused. */
-    private fun resolveNowPlaying(mf: MediaForeground): NowPlaying? {
-        val id = mf.appId ?: return null
-        if (mf.playState != PlayState.Playing && mf.playState != PlayState.Paused) return null
-        val app = _apps.value.firstOrNull { it.id == id }
-        return NowPlaying(id, app?.title ?: id, app?.iconUrl, mf.playState)
+    /**
+     * Build the now-playing snapshot: identity from the foreground app (reliable for every app), with
+     * real play-state overlaid only when the media server reports it for that same app — otherwise
+     * Unknown (e.g. Netflix, which doesn't register media). Hidden on the TV home/launcher.
+     */
+    private fun buildNowPlaying(appId: String?, mf: MediaForeground): NowPlaying? {
+        if (appId == null || appId in HOME_APP_IDS) return null
+        val app = _apps.value.firstOrNull { it.id == appId }
+        val playState = if (mf.appId == appId) mf.playState else PlayState.Unknown
+        return NowPlaying(appId, app?.title ?: appId, app?.iconUrl, playState)
     }
 
     private fun startVolumeUpdates() {
@@ -269,5 +282,10 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         motionCursor.stop()
         pointer.close()
         manager.disconnect()
+    }
+
+    private companion object {
+        /** Foreground app ids that are the TV's own home/launcher — no now-playing strip for these. */
+        val HOME_APP_IDS = setOf("com.webos.app.home")
     }
 }
