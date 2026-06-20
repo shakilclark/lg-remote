@@ -57,6 +57,9 @@ class MainActivity : ComponentActivity() {
                         inputs = inputs,
                         onLoadInputs = viewModel::loadInputs,
                         onSelectInput = { viewModel.setInput(it.id) },
+                        onCursorStart = viewModel::startCursor,
+                        onCursorStop = viewModel::stopCursor,
+                        onCursorClick = viewModel::cursorClick,
                         modifier = Modifier.padding(padding),
                     )
                 }

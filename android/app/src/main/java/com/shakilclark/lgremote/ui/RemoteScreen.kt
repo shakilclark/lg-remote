@@ -34,6 +34,9 @@ fun RemoteScreen(
     inputs: List<TvInput> = emptyList(),
     onLoadInputs: () -> Unit = {},
     onSelectInput: (TvInput) -> Unit = {},
+    onCursorStart: () -> Unit = {},
+    onCursorStop: () -> Unit = {},
+    onCursorClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -63,6 +66,7 @@ fun RemoteScreen(
             )
         }
         DPad(onNav = onNav)
+        CursorPad(onStart = onCursorStart, onStop = onCursorStop, onClick = onCursorClick)
         AppShortcuts(onLaunch = onLaunchApp)
         InputSwitcher(inputs = inputs, onLoad = onLoadInputs, onSelect = onSelectInput)
     }

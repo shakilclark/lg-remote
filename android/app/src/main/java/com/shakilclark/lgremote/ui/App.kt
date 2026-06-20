@@ -39,6 +39,9 @@ fun App(
     inputs: List<com.shakilclark.lgremote.tv.TvInput> = emptyList(),
     onLoadInputs: () -> Unit = {},
     onSelectInput: (com.shakilclark.lgremote.tv.TvInput) -> Unit = {},
+    onCursorStart: () -> Unit = {},
+    onCursorStop: () -> Unit = {},
+    onCursorClick: () -> Unit = {},
     discovered: List<com.shakilclark.lgremote.tv.DiscoveredTv> = emptyList(),
     scanning: Boolean = false,
     onScan: () -> Unit = {},
@@ -69,6 +72,9 @@ fun App(
                 inputs = inputs,
                 onLoadInputs = onLoadInputs,
                 onSelectInput = onSelectInput,
+                onCursorStart = onCursorStart,
+                onCursorStop = onCursorStop,
+                onCursorClick = onCursorClick,
             )
             showReconnect -> ReconnectView(onRetry = onRetry, onChange = { reconfigure = true })
             else -> ConnectScreen(

@@ -171,14 +171,14 @@ sync. Update validation log.
 **Goal**: hold-and-move drives the LG pointer; tap clicks; release parks it.
 **Independent Test**: pointer tracks phone motion while held; tap clicks; no drift on release.
 
-- [ ] T039 [P] [US5] `cursor/MotionCursor.kt` — register `TYPE_GAME_ROTATION_VECTOR` (fallback
+- [x] T039 [P] [US5] `cursor/MotionCursor.kt` — register `TYPE_GAME_ROTATION_VECTOR` (fallback
   gyroscope) only while held; angular delta → `dx/dy` with dead-zone + low-pass smoothing;
   unregister on release (R5; start SENSITIVITY≈14, DEAD_ZONE≈0.25).
-- [ ] T040 [P] [US5] `cursor/MotionCursorTest.kt` — dead-zone suppresses jitter; smoothing;
+- [x] T040 [P] [US5] `cursor/MotionCursorTest.kt` — dead-zone suppresses jitter; smoothing;
   no output when not held.
-- [ ] T041 [US5] Extend `tv/PointerSocket.kt` — `move(dx,dy)` + `click()` frames; route MotionCursor
+- [x] T041 [US5] Extend `tv/PointerSocket.kt` — `move(dx,dy)` + `click()` frames; route MotionCursor
   output while Connected + held (reuses the US3 socket).
-- [ ] T042 [P] [US5] `ui/CursorPad.kt` — hold-to-move button (active style) + Click; haptic on press.
+- [x] T042 [P] [US5] `ui/CursorPad.kt` — hold-to-move button (active style) + Click; haptic on press.
 
 **Checkpoint / DEMO on TV**: cursor tracks motion, clicks, no drift on release; retune sensitivity
 on-device (SC-007). Update validation log.

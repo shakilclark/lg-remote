@@ -1,11 +1,14 @@
 package com.shakilclark.lgremote
 
 import android.app.Application
+import android.content.Context
+import android.hardware.SensorManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.connection.NetworkMonitor
 import com.shakilclark.lgremote.connection.TvConnectionManager
+import com.shakilclark.lgremote.cursor.MotionCursor
 import com.shakilclark.lgremote.data.TvConnection
 import com.shakilclark.lgremote.data.TvStore
 import com.shakilclark.lgremote.tv.AppKey
@@ -49,6 +52,9 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     )
     private val commands = Commands(manager)
     private val pointer = PointerSocket()
+    private val motionCursor = MotionCursor(
+        app.getSystemService(Context.SENSOR_SERVICE) as SensorManager,
+    ) { dx, dy -> pointer.move(dx, dy) }
     private val network = NetworkMonitor(app)
     private val discovery = TvDiscovery(app)
 
@@ -90,6 +96,7 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
                     startVolumeUpdates()
                 } else {
                     stopVolumeUpdates()
+                    motionCursor.stop()
                     pointer.close()
                     _inputs.value = emptyList()
                 }
@@ -167,6 +174,19 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         pointer.button(button)
     }
 
+    // --- US5 motion cursor (reuses the US3 pointer socket) ---
+    fun startCursor() = dispatch {
+        ensurePointer()
+        motionCursor.start()
+    }
+
+    fun stopCursor() = motionCursor.stop()
+
+    fun cursorClick() = dispatch {
+        ensurePointer()
+        pointer.click()
+    }
+
     // --- US6 app shortcuts ---
     fun launchApp(app: AppKey) = dispatch {
         if (!commands.launchApp(app)) _messages.tryEmit("${app.title} isn't installed on this TV")
@@ -188,6 +208,7 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     override fun onCleared() {
+        motionCursor.stop()
         pointer.close()
         manager.disconnect()
     }
