@@ -45,6 +45,10 @@ adb shell am start -n com.shakilclark.lgremote/.MainActivity  # launch
 adb logcat -s LGRemote                                        # app logs
 ```
 
+**No cable?** Use **adb wireless debugging** — phone → Developer options → *Wireless debugging* → on,
+then `adb pair <phone-ip>:<port>` (enter the 6-digit code) and `adb connect <phone-ip>:<port>`; the
+same `gradlew` commands then push over Wi-Fi. ([details](specs/002-native-android-remote/quickstart.md))
+
 Enter the TV's IP (or scan), accept the pairing prompt on the TV, and you're connected.
 
 **No TV / no phone?** A debug-only `PreviewActivity` renders the full connected UI with sample

@@ -20,6 +20,22 @@ adb shell am start -n com.shakilclark.lgremote/.MainActivity   # launch
 adb logcat -s LGRemote                                          # app logs
 ```
 
+### Wireless debugging (no cable)
+
+Build + install over Wi-Fi — same `gradlew` commands, no USB:
+
+1. Phone → Developer options → **Wireless debugging** → on.
+2. Pair once (Wireless debugging → *Pair device with pairing code*):
+   ```bash
+   adb pair <phone-ip>:<pair-port>      # enter the 6-digit code shown on the phone
+   adb connect <phone-ip>:<debug-port>  # the port under "IP address & Port"
+   ```
+3. `adb devices` shows the phone — now `installDebug`, launch, and logcat all work wirelessly.
+
+No-cable share without `adb`: sync the APK to the phone via **Syncthing** (OSS) and tap it, or
+`python3 -m http.server` in the APK dir and open `http://<mac-ip>:8000/<apk>` on the phone. The CD
+release link (below) is the main share path.
+
 ## Sideload a shareable APK (no Play Store)
 
 ```bash
