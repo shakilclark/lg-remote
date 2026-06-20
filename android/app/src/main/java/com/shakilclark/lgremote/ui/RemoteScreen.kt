@@ -93,10 +93,7 @@ fun RemoteScreen(
             NowPlayingBar(
                 nowPlaying = nowPlaying,
                 onExpand = { showNowPlaying = true },
-                onRewind = onRewind,
                 onPlayPause = onPlayPause,
-                onFastForward = onFastForward,
-                onStop = onStop,
                 modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s),
             )
         }

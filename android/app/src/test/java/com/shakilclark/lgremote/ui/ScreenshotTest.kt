@@ -105,11 +105,19 @@ class ScreenshotTest {
         NowPlayingBar(
             nowPlaying = NowPlaying("netflix", "Netflix", null, PlayState.Paused),
             onExpand = {},
+            onPlayPause = {},
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+
+    @Test
+    fun now_playing_cover() = shot("now_playing_cover") {
+        NowPlayingSheetContent(
+            nowPlaying = NowPlaying("youtube", "YouTube", null, PlayState.Playing),
             onRewind = {},
             onPlayPause = {},
             onFastForward = {},
             onStop = {},
-            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

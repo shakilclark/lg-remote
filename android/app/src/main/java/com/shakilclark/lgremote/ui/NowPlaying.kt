@@ -15,7 +15,9 @@ import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material.icons.rounded.FastRewind
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Speaker
 import androidx.compose.material.icons.rounded.Stop
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,10 +56,7 @@ private fun stateLabel(state: PlayState): String = when (state) {
 fun NowPlayingBar(
     nowPlaying: NowPlaying,
     onExpand: () -> Unit,
-    onRewind: () -> Unit,
     onPlayPause: () -> Unit,
-    onFastForward: () -> Unit,
-    onStop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val loader = rememberTvImageLoader()
@@ -90,17 +89,29 @@ fun NowPlayingBar(
             ) {
                 AppIcon(nowPlaying.iconUrl, nowPlaying.name, loader, Modifier.fillMaxSize().padding(Space.xs))
             }
-            Text(
-                nowPlaying.name,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Column {
+                Text(
+                    nowPlaying.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                val label = stateLabel(nowPlaying.playState)
+                if (label.isNotEmpty()) {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
-        BarKey(Icons.Rounded.FastRewind, "Rewind", onRewind)
-        BarKey(if (nowPlaying.playState == PlayState.Playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow, "Play or pause", onPlayPause)
-        BarKey(Icons.Rounded.FastForward, "Fast forward", onFastForward)
-        BarKey(Icons.Rounded.Stop, "Stop", onStop)
+        // The bar carries one mini play/pause; full transport lives in the cover (tap to expand).
+        BarKey(
+            if (nowPlaying.playState == PlayState.Playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+            "Play or pause",
+            onPlayPause,
+        )
     }
 }
 
@@ -157,6 +168,15 @@ fun NowPlayingSheetContent(
             SheetKey(Icons.Rounded.FastForward, "Fast forward", onFastForward)
             SheetKey(Icons.Rounded.Stop, "Stop", onStop)
         }
+        // Audio-output chip — inactive shell (006/020): present, switching not wired yet.
+        AssistChip(
+            onClick = {},
+            enabled = false,
+            label = { Text("Output") },
+            leadingIcon = {
+                Icon(Icons.Rounded.Speaker, contentDescription = null, modifier = Modifier.size(18.dp))
+            },
+        )
     }
 }
 

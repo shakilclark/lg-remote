@@ -29,7 +29,7 @@ class NowPlayingUiTest {
         var expanded = 0
         compose.setContent {
             LGRemoteTheme {
-                NowPlayingBar(np, onExpand = { expanded++ }, onRewind = {}, onPlayPause = {}, onFastForward = {}, onStop = {})
+                NowPlayingBar(np, onExpand = { expanded++ }, onPlayPause = {})
             }
         }
         compose.onNodeWithText("Netflix").assertExists()
@@ -38,18 +38,15 @@ class NowPlayingUiTest {
     }
 
     @Test
-    fun bar_transport_fires_inline() {
+    fun bar_play_pause_fires() {
         var plays = 0
-        var stops = 0
         compose.setContent {
             LGRemoteTheme {
-                NowPlayingBar(np, onExpand = {}, onRewind = {}, onPlayPause = { plays++ }, onFastForward = {}, onStop = { stops++ })
+                NowPlayingBar(np, onExpand = {}, onPlayPause = { plays++ }) // full transport is in the cover now
             }
         }
         compose.onNodeWithContentDescription("Play or pause").performClick()
-        compose.onNodeWithContentDescription("Stop").performClick()
         assertEquals(1, plays)
-        assertEquals(1, stops)
     }
 
     @Test
