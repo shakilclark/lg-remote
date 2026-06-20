@@ -49,6 +49,30 @@ adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 No developer account required (Principle II / FR-011).
 
+### Signed release via CI (over-the-air install)
+
+`.github/workflows/release.yml` builds + signs a release APK and attaches it to a GitHub Release
+on every `v*` tag — that Release link **is** the phone install (open it on the phone → tap the APK).
+
+One-time setup — make a keystore and add four GitHub Secrets:
+
+```bash
+keytool -genkey -v -keystore release.jks -alias lgremote -keyalg RSA -keysize 2048 -validity 10000
+base64 -i release.jks | pbcopy   # copy the encoded keystore
+```
+
+Add under **repo Settings → Secrets and variables → Actions**:
+- `RELEASE_KEYSTORE_BASE64` — the base64 string from above
+- `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS` (`lgremote`), `RELEASE_KEY_PASSWORD`
+
+Then cut a release:
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+`versionCode` auto-bumps from the CI run number. Keep `release.jks` private — never commit it.
+
 ## Manual validation log (per slice — Principle V)
 
 Each slice is "done" only when checked on the real phone + TV. Record results here.

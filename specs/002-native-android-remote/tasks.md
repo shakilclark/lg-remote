@@ -190,9 +190,9 @@ on-device (SC-007). Update validation log.
 - [x] T043 [P] Off-network detection (phone leaves Wi-Fi) → `OffNetwork` state + recovery copy
   (edge case, FR-009).
 - [ ] T044 [P] App icon + full-screen/edge-to-edge polish; portrait lock; consistent theme/haptics.
-- [ ] T045 [P] `ui/RemoteScreenTest.kt` (Compose) — Connected layout shows volume/dpad/cursor/
+- [x] T045 [P] `ui/RemoteScreenTest.kt` (Compose) — Connected layout shows volume/dpad/cursor/
   shortcuts/inputs; Disconnected shows reconnect affordance.
-- [ ] T046 Release signing: local keystore + `assembleRelease`; document `adb install` in
+- [x] T046 Release signing: local keystore + `assembleRelease`; document `adb install` in
   quickstart.md (FR-011).
 - [ ] T047 Run the full quickstart.md validation log on the real TV; fix any gaps.
 - [x] T048 [P] (Deferred) SSDP discovery slice — `WifiManager.MulticastLock` + M-SEARCH + multi-TV

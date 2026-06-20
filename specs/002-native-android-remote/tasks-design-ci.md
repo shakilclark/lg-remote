@@ -1,5 +1,9 @@
 # Tasks: Design System + Test/CI/CD (002, post-US5)
 
+> ✅ **Complete** — M3 Expressive design system applied, Roborazzi visual-regression goldens,
+> GitHub Actions CI + signed-release CD all shipped. (CD needs the four signing secrets added
+> to enable signed releases — see quickstart.)
+
 Work to (a) apply the **M3 Expressive design system** (`docs/design-system.md`), (b) add a fast,
 CI-friendly **visual-regression test** net (Roborazzi), and (c) stand up **CI/CD** that produces a
 **wirelessly-installable signed APK**. All tooling is free / OSS.
