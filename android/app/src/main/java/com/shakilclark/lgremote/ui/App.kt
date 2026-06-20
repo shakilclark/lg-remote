@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -56,18 +58,32 @@ fun App(
     var reconfigure by remember { mutableStateOf(false) }
     val conn = ui.connection
     val connected = conn is ConnectionState.Connected
+
+    // 008 seamless reconnect: after a brief drop, keep showing the last-known remote (with a corner
+    // "reconnecting" chip) for a grace window instead of flashing the reconnect screen.
+    var lastConnected by remember { mutableStateOf<ConnectionState.Connected?>(null) }
+    var graceExpired by remember { mutableStateOf(false) }
+    LaunchedEffect(connected) {
+        if (connected) { lastConnected = conn as ConnectionState.Connected; graceExpired = false }
+    }
+    val briefDrop = conn is ConnectionState.Connecting || conn is ConnectionState.Disconnected
+    val inGrace = !connected && !reconfigure && lastConnected != null && briefDrop && !graceExpired
+    LaunchedEffect(inGrace) { if (inGrace) { delay(2_500); graceExpired = true } }
+
     val transient = conn is ConnectionState.Connecting ||
         conn is ConnectionState.Disconnected ||
         conn is ConnectionState.OffNetwork
-    val showReconnect = !connected && ui.hasActiveTv && transient && !reconfigure
+    val showReconnect = !connected && ui.hasActiveTv && transient && !reconfigure && !inGrace
+
+    // The remote to render: live state when connected, last-known during the grace window.
+    val remoteState = (conn as? ConnectionState.Connected) ?: lastConnected
 
     Column(
         modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        // The status banner is only shown when there's something to say — a happy connection is
-        // banner-free (redesign). Connecting/disconnected/off-network states still surface it.
-        if (!connected) {
+        // Banner only when there's something to say and we're not keeping the remote up mid-reconnect.
+        if (!connected && !inGrace) {
             ConnectionBanner(state = conn, tvName = ui.activeTvName, hasActiveTv = ui.hasActiveTv)
         }
         when {
@@ -78,8 +94,9 @@ fun App(
                 scanning = scanning,
                 onScan = onScan,
             )
-            connected -> RemoteScreen(
-                state = conn as ConnectionState.Connected,
+            (connected || inGrace) && remoteState != null -> RemoteScreen(
+                state = remoteState,
+                reconnecting = inGrace,
                 onVolumeUp = onVolumeUp,
                 onVolumeDown = onVolumeDown,
                 onToggleMute = onToggleMute,

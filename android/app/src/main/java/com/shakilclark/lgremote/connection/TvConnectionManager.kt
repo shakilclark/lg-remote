@@ -24,7 +24,9 @@ class TvConnectionManager(
     private val clientFactory: () -> SsapClient = { SsapClient(TvTrustManager.client()) },
     private val persistClientKey: suspend (tvId: String, clientKey: String) -> Unit = { _, _ -> },
     private val urlFor: (TvConnection) -> String = { TvTrustManager.wssUrl(it.address) },
-    private val reconnectDelayMs: Long = 5_000,
+    // Fast exponential backoff (008): quick first retry for blips, capped so a dead TV doesn't thrash.
+    private val initialReconnectMs: Long = 300,
+    private val maxReconnectMs: Long = 5_000,
 ) {
     private val _state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected())
     val state: StateFlow<ConnectionState> = _state.asStateFlow()
@@ -32,6 +34,8 @@ class TvConnectionManager(
     private var client: SsapClient? = null
     private var target: TvConnection? = null
     private var eventsJob: Job? = null
+    private var reconnectJob: Job? = null
+    private var reconnectAttempt = 0
     private var wantConnection = false
     private var suspended = false
 
@@ -42,6 +46,23 @@ class TvConnectionManager(
         wantConnection = true
         suspended = false
         target = tv
+        reconnectAttempt = 0
+        reconnectJob?.cancel()
+        openSocket(tv)
+    }
+
+    /**
+     * Reconnect immediately on app resume (008), preempting any pending backoff — so returning from a
+     * lock re-joins instantly instead of waiting out a timer. No-op if already connected/connecting,
+     * pairing, or suspended (off-network).
+     */
+    fun reconnectNow() {
+        if (!wantConnection || suspended) return
+        val st = _state.value
+        if (st is ConnectionState.Connected || st is ConnectionState.Connecting || st is ConnectionState.NeedsPairing) return
+        val tv = target ?: return
+        reconnectJob?.cancel()
+        reconnectAttempt = 0
         openSocket(tv)
     }
 
@@ -65,8 +86,9 @@ class TvConnectionManager(
         eventsJob = scope.launch {
             c.events.collect { event ->
                 _state.value = ConnectionReducer.reduce(_state.value, event)
-                if (event is SsapEvent.Registered && event.clientKey != null) {
-                    persistClientKey(tv.id, event.clientKey)
+                if (event is SsapEvent.Registered) {
+                    reconnectAttempt = 0 // success resets the backoff
+                    if (event.clientKey != null) persistClientKey(tv.id, event.clientKey)
                 }
                 if (event is SsapEvent.Closed || event is SsapEvent.Failure) {
                     scheduleReconnect()
@@ -79,8 +101,11 @@ class TvConnectionManager(
     private fun scheduleReconnect() {
         if (!wantConnection || suspended) return
         val tv = target ?: return
-        scope.launch {
-            delay(reconnectDelayMs)
+        val delayMs = (initialReconnectMs shl reconnectAttempt.coerceAtMost(5)).coerceAtMost(maxReconnectMs)
+        reconnectAttempt++
+        reconnectJob?.cancel()
+        reconnectJob = scope.launch {
+            delay(delayMs)
             if (wantConnection && isActive && _state.value !is ConnectionState.Connected) {
                 openSocket(tv)
             }
@@ -89,6 +114,7 @@ class TvConnectionManager(
 
     fun disconnect() {
         wantConnection = false
+        reconnectJob?.cancel()
         eventsJob?.cancel()
         client?.close()
         client = null

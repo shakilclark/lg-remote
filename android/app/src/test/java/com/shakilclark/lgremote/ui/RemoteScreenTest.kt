@@ -111,6 +111,26 @@ class RemoteScreenTest {
     }
 
     @Test
+    fun reconnecting_shows_the_chip() {
+        compose.setContent {
+            LGRemoteTheme {
+                RemoteScreen(state = connected, onVolumeUp = {}, onVolumeDown = {}, onToggleMute = {}, reconnecting = true)
+            }
+        }
+        compose.onNodeWithContentDescription("Reconnecting").assertExists()
+    }
+
+    @Test
+    fun connected_has_no_reconnecting_chip() {
+        compose.setContent {
+            LGRemoteTheme {
+                RemoteScreen(state = connected, onVolumeUp = {}, onVolumeDown = {}, onToggleMute = {})
+            }
+        }
+        compose.onNodeWithContentDescription("Reconnecting").assertDoesNotExist()
+    }
+
+    @Test
     fun not_connected_shows_reconnect_not_the_remote() {
         compose.setContent {
             LGRemoteTheme {

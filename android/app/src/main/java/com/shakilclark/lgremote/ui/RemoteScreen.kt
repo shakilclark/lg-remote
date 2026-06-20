@@ -1,13 +1,20 @@
 package com.shakilclark.lgremote.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -19,6 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.connection.ConnectionState
@@ -58,6 +68,7 @@ fun RemoteScreen(
     onOpenTvSettings: () -> Unit = {},
     nowPlaying: NowPlaying? = null,
     onStop: () -> Unit = {},
+    reconnecting: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     var showPad by remember { mutableStateOf(false) }
@@ -65,7 +76,8 @@ fun RemoteScreen(
     var showInputs by remember { mutableStateOf(false) }
     var showNowPlaying by remember { mutableStateOf(false) }
 
-    Column(modifier.fillMaxSize()) {
+    Box(modifier.fillMaxSize()) {
+      Column(Modifier.fillMaxSize()) {
         // Now-playing strip — only when something is actually playing (tap to expand).
         if (nowPlaying != null) {
             NowPlayingStrip(
@@ -106,6 +118,10 @@ fun RemoteScreen(
             onOpenInputs = { onLoadInputs(); showInputs = true },
             onOpenTvSettings = onOpenTvSettings,
         )
+      }
+      if (reconnecting) {
+          ReconnectingChip(Modifier.align(Alignment.TopEnd).padding(Space.m))
+      }
     }
 
     if (showPad) {
@@ -176,6 +192,26 @@ fun RemoteScreen(
                 modifier = Modifier.padding(horizontal = Space.xl).padding(bottom = Space.xxl),
             )
         }
+    }
+}
+
+/** Subtle top-right chip shown during the 008 reconnect grace window. */
+@Composable
+private fun ReconnectingChip(modifier: Modifier = Modifier) {
+    Box(
+        modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            .padding(Space.s)
+            .semantics { contentDescription = "Reconnecting" },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            Icons.Filled.Sync,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

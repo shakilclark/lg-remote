@@ -181,6 +181,9 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
 
     fun retry() = viewModelScope.launch { store.activeTv()?.let { manager.connect(it) } }
 
+    /** App returned to the foreground (008) — reconnect instantly, preempting any backoff. */
+    fun onForegrounded() = manager.reconnectNow()
+
     /** Scan for TVs on the LAN — SSDP + TCP port-3001 sweep (manual entry stays as fallback). */
     fun discover() {
         if (_scanning.value) return

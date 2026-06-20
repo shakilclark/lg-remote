@@ -75,6 +75,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** Reconnect instantly whenever the app returns to the foreground (008 seamless reconnect). */
+    override fun onStart() {
+        super.onStart()
+        viewModel.onForegrounded()
+    }
+
     /** Drive TV volume from the phone's hardware rocker while connected (US2 #4). */
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (viewModel.uiState.value.connection is ConnectionState.Connected) {
