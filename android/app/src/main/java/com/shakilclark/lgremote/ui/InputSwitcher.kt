@@ -32,7 +32,12 @@ fun InputSwitcher(
 ) {
     val haptics = LocalHapticFeedback.current
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("INPUTS", color = Muted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+        Text(
+            "INPUTS",
+            color = Muted,
+            style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
         if (inputs.isEmpty()) {
             OutlinedButton(
                 onClick = onLoad,
