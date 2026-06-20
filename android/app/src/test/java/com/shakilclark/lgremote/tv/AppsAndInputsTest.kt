@@ -35,16 +35,18 @@ class AppsAndInputsTest {
     // --- pure resolution / parsing (no network) ---
 
     @Test
-    fun `resolveLaunchPointId matches title case-insensitively`() {
-        val payload = json("""{"launchPoints":[{"title":"youtube","id":"youtube.leanback.v4"},{"title":"Netflix","id":"netflix"}]}""")
-        assertEquals("youtube.leanback.v4", resolveLaunchPointId(payload, AppKey.YouTube))
-        assertEquals("netflix", resolveLaunchPointId(payload, AppKey.Netflix))
+    fun `resolveLaunchPointIdByTitle matches title case-insensitively`() {
+        val payload = json("""{"launchPoints":[{"title":"youtube","id":"youtube.leanback.v4"},{"title":"Netflix","id":"netflix"},{"title":"Settings","id":"com.palm.app.settings"}]}""")
+        assertEquals("youtube.leanback.v4", resolveLaunchPointIdByTitle(payload, AppKey.YouTube.title))
+        assertEquals("netflix", resolveLaunchPointIdByTitle(payload, AppKey.Netflix.title))
+        assertEquals("com.palm.app.settings", resolveLaunchPointIdByTitle(payload, "Settings"))
     }
 
     @Test
-    fun `resolveLaunchPointId returns null when absent so caller falls back`() {
+    fun `resolveLaunchPointIdByTitle returns null when absent so caller falls back`() {
         val payload = json("""{"launchPoints":[{"title":"Disney+","id":"com.disney"}]}""")
-        assertNull(resolveLaunchPointId(payload, AppKey.YouTube))
+        assertNull(resolveLaunchPointIdByTitle(payload, AppKey.YouTube.title))
+        assertNull(resolveLaunchPointIdByTitle(payload, "Settings"))
     }
 
     @Test

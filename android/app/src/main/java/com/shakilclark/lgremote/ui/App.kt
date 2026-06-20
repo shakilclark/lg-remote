@@ -33,15 +33,18 @@ fun App(
     onVolumeUp: () -> Unit = {},
     onVolumeDown: () -> Unit = {},
     onToggleMute: () -> Unit = {},
+    onRewind: () -> Unit = {},
     onPlayPause: () -> Unit = {},
+    onFastForward: () -> Unit = {},
     onNav: (com.shakilclark.lgremote.tv.NavButton) -> Unit = {},
     onLaunchApp: (com.shakilclark.lgremote.tv.AppKey) -> Unit = {},
     inputs: List<com.shakilclark.lgremote.tv.TvInput> = emptyList(),
     onLoadInputs: () -> Unit = {},
     onSelectInput: (com.shakilclark.lgremote.tv.TvInput) -> Unit = {},
-    onCursorStart: () -> Unit = {},
-    onCursorStop: () -> Unit = {},
+    onCursorTouchStart: () -> Unit = {},
+    onCursorMove: (dx: Int, dy: Int) -> Unit = { _, _ -> },
     onCursorClick: () -> Unit = {},
+    onOpenTvSettings: () -> Unit = {},
     discovered: List<com.shakilclark.lgremote.tv.DiscoveredTv> = emptyList(),
     scanning: Boolean = false,
     onScan: () -> Unit = {},
@@ -59,22 +62,36 @@ fun App(
         modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        ConnectionBanner(state = conn, tvName = ui.activeTvName, hasActiveTv = ui.hasActiveTv)
+        // The status banner is only shown when there's something to say — a happy connection is
+        // banner-free (redesign). Connecting/disconnected/off-network states still surface it.
+        if (!connected) {
+            ConnectionBanner(state = conn, tvName = ui.activeTvName, hasActiveTv = ui.hasActiveTv)
+        }
         when {
+            reconfigure -> ConnectScreen(
+                state = conn,
+                onConnect = { a, n -> reconfigure = false; onConnect(a, n) },
+                discovered = discovered,
+                scanning = scanning,
+                onScan = onScan,
+            )
             connected -> RemoteScreen(
                 state = conn as ConnectionState.Connected,
                 onVolumeUp = onVolumeUp,
                 onVolumeDown = onVolumeDown,
                 onToggleMute = onToggleMute,
+                onRewind = onRewind,
                 onPlayPause = onPlayPause,
+                onFastForward = onFastForward,
                 onNav = onNav,
                 onLaunchApp = onLaunchApp,
                 inputs = inputs,
                 onLoadInputs = onLoadInputs,
                 onSelectInput = onSelectInput,
-                onCursorStart = onCursorStart,
-                onCursorStop = onCursorStop,
+                onCursorTouchStart = onCursorTouchStart,
+                onCursorMove = onCursorMove,
                 onCursorClick = onCursorClick,
+                onOpenTvSettings = onOpenTvSettings,
             )
             showReconnect -> ReconnectView(onRetry = onRetry, onChange = { reconfigure = true })
             else -> ConnectScreen(

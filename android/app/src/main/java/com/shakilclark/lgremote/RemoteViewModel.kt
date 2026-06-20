@@ -16,6 +16,7 @@ import com.shakilclark.lgremote.tv.Commands
 import com.shakilclark.lgremote.tv.DiscoveredTv
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.PointerSocket
+import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvDiscovery
 import com.shakilclark.lgremote.tv.TvInput
 import kotlinx.coroutines.Job
@@ -69,8 +70,12 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     /** External inputs, loaded on demand (US7). */
     val inputs: StateFlow<List<TvInput>> = _inputs.asStateFlow()
 
+    private val _apps = MutableStateFlow<List<TvApp>>(emptyList())
+    /** Installed apps from the TV (dynamic app loader); preloaded on connect. */
+    val apps: StateFlow<List<TvApp>> = _apps.asStateFlow()
+
     private val _discovered = MutableStateFlow<List<DiscoveredTv>>(emptyList())
-    /** TVs found by SSDP scan. */
+    /** TVs found by network scan (SSDP + port-3001 sweep). */
     val discovered: StateFlow<List<DiscoveredTv>> = _discovered.asStateFlow()
     private val _scanning = MutableStateFlow(false)
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
@@ -94,6 +99,7 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
             manager.state.collect { state ->
                 if (state is ConnectionState.Connected) {
                     startVolumeUpdates()
+                    if (_apps.value.isEmpty()) loadApps() // preload the app list
                 } else {
                     stopVolumeUpdates()
                     motionCursor.stop()
@@ -145,7 +151,7 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
 
     fun retry() = viewModelScope.launch { store.activeTv()?.let { manager.connect(it) } }
 
-    /** SSDP scan for TVs on the LAN (US: auto-detect; manual entry stays as fallback). */
+    /** Scan for TVs on the LAN — SSDP + TCP port-3001 sweep (manual entry stays as fallback). */
     fun discover() {
         if (_scanning.value) return
         viewModelScope.launch {
@@ -162,6 +168,8 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     fun volumeUp() = dispatch { commands.volumeUp() }
     fun volumeDown() = dispatch { commands.volumeDown() }
     fun playPause() = dispatch { commands.playPause() }
+    fun rewind() = dispatch { commands.rewind() }
+    fun fastForward() = dispatch { commands.fastForward() }
 
     fun toggleMute() {
         val muted = (uiState.value.connection as? ConnectionState.Connected)?.muted ?: false
@@ -174,13 +182,14 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         pointer.button(button)
     }
 
-    // --- US5 motion cursor (reuses the US3 pointer socket) ---
-    fun startCursor() = dispatch {
-        ensurePointer()
-        motionCursor.start()
-    }
+    // --- US5 touchpad cursor (drives the US3 pointer socket directly) ---
+    /** Open the pointer socket as a drag begins, so the first moves land. */
+    fun cursorTouchStart() = dispatch { ensurePointer() }
 
-    fun stopCursor() = motionCursor.stop()
+    /** Send a touchpad drag delta straight to the pointer socket (no sensor, no coroutine churn). */
+    fun cursorMove(dx: Int, dy: Int) {
+        if (dx != 0 || dy != 0) pointer.move(dx, dy)
+    }
 
     fun cursorClick() = dispatch {
         ensurePointer()
@@ -191,6 +200,14 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     fun launchApp(app: AppKey) = dispatch {
         if (!commands.launchApp(app)) _messages.tryEmit("${app.title} isn't installed on this TV")
     }
+
+    /** Bottom-bar ⚙ — open the TV's own settings on-screen. */
+    fun openTvSettings() = dispatch {
+        if (!commands.openSettings()) _messages.tryEmit("Couldn't open TV settings")
+    }
+
+    /** Dynamic app loader — fetch the TV's installed apps (preloaded on connect, refreshable). */
+    fun loadApps() = dispatch { _apps.value = commands.listApps() }
 
     // --- US7 inputs ---
     fun loadInputs() = dispatch { _inputs.value = commands.listInputs() }

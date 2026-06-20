@@ -19,6 +19,9 @@ data class VolumeState(val volume: Int? = null, val muted: Boolean? = null)
 /** An external input/source (US7). */
 data class TvInput(val id: String, val label: String, val connected: Boolean = false)
 
+/** An installed app reported by the TV's launch points (dynamic app loader). */
+data class TvApp(val id: String, val title: String, val iconUrl: String? = null)
+
 /**
  * Control commands over SSAP (US2/US3/US6/US7; contracts/ssap-protocol.md). Stateless except the
  * play/pause toggle, which tracks the last media action (webOS has no reliable play-state query).
@@ -40,6 +43,9 @@ class Commands(private val manager: TvConnectionManager) {
     /** Toggle; default to pause when the state is unknown (matches the 001 behaviour). */
     suspend fun playPause() { if (playing == true) pause() else play() }
 
+    suspend fun rewind() { manager.request("ssap://media.controls/rewind") }
+    suspend fun fastForward() { manager.request("ssap://media.controls/fastForward") }
+
     /** Live volume/mute stream; empty when not connected. */
     fun volumeUpdates(): Flow<VolumeState> =
         (manager.subscribe("ssap://audio/getVolume") ?: emptyFlow()).map { parseVolume(it) }
@@ -59,8 +65,37 @@ class Commands(private val manager: TvConnectionManager) {
 
     private suspend fun resolveAppId(app: AppKey): String = runCatching {
         val res = manager.request("ssap://com.webos.applicationManager/listLaunchPoints")
-        resolveLaunchPointId(res, app) ?: app.wellKnownId
+        resolveLaunchPointIdByTitle(res, app.title) ?: app.wellKnownId
     }.getOrDefault(app.wellKnownId)
+
+    /** All installed apps from the TV's launch points, in the TV's own order (dynamic app loader). */
+    suspend fun listApps(): List<TvApp> =
+        parseLaunchPoints(manager.request("ssap://com.webos.applicationManager/listLaunchPoints"))
+
+    /** Launch an app by its resolved launch-point id. */
+    suspend fun launchAppId(id: String): Boolean {
+        val res = manager.request("ssap://system.launcher/launch", buildJsonObject { put("id", id) })
+        return res["returnValue"]?.jsonPrimitive?.booleanOrNull ?: true
+    }
+
+    /**
+     * Open the TV's own settings on-screen (bottom-bar ⚙). Launches the webOS settings app via the
+     * same launcher used for app shortcuts — resolved by title where possible, falling back to the
+     * well-known settings app id. Returns false if the TV won't launch it.
+     */
+    suspend fun openSettings(): Boolean {
+        val id = runCatching {
+            val res = manager.request("ssap://com.webos.applicationManager/listLaunchPoints")
+            resolveLaunchPointIdByTitle(res, "Settings")
+        }.getOrNull() ?: SETTINGS_APP_ID
+        val res = manager.request("ssap://system.launcher/launch", buildJsonObject { put("id", id) })
+        return res["returnValue"]?.jsonPrimitive?.booleanOrNull ?: true
+    }
+
+    private companion object {
+        /** webOS settings app id; used if the TV's launch-point list has no "Settings" title. */
+        const val SETTINGS_APP_ID = "com.palm.app.settings"
+    }
 
     // --- US7: inputs ---
 
@@ -86,14 +121,30 @@ fun parseVolume(payload: JsonObject): VolumeState {
     return VolumeState(volume, muted)
 }
 
+/**
+ * Parse `listLaunchPoints` → the installed apps in the TV's order. Keeps id + title + the raw icon
+ * string (may be a fetchable URL or a non-servable path — the UI loads it and falls back to a tile).
+ * Pure + unit-tested.
+ */
+fun parseLaunchPoints(payload: JsonObject): List<TvApp> {
+    val points = (payload["launchPoints"] as? kotlinx.serialization.json.JsonArray) ?: return emptyList()
+    return points.mapNotNull { el ->
+        val obj = el as? JsonObject ?: return@mapNotNull null
+        val id = obj["id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
+        val title = obj["title"]?.jsonPrimitive?.contentOrNull ?: id
+        val icon = obj["icon"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+        TvApp(id = id, title = title, iconUrl = icon)
+    }
+}
+
 /** Match a launch-point by title (case-insensitive) → its id. Null if not present. Pure. */
-fun resolveLaunchPointId(payload: JsonObject, app: AppKey): String? {
+fun resolveLaunchPointIdByTitle(payload: JsonObject, title: String): String? {
     val points = (payload["launchPoints"] as? kotlinx.serialization.json.JsonArray) ?: return null
     return points.firstNotNullOfOrNull { el ->
         val obj = el as? JsonObject ?: return@firstNotNullOfOrNull null
-        val title = obj["title"]?.jsonPrimitive?.contentOrNull
+        val pointTitle = obj["title"]?.jsonPrimitive?.contentOrNull
         val id = obj["id"]?.jsonPrimitive?.contentOrNull
-        if (title?.equals(app.title, ignoreCase = true) == true) id else null
+        if (pointTitle?.equals(title, ignoreCase = true) == true) id else null
     }
 }
 

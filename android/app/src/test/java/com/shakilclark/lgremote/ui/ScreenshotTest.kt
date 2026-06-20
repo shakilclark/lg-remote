@@ -48,7 +48,6 @@ class ScreenshotTest {
             onVolumeUp = {},
             onVolumeDown = {},
             onToggleMute = {},
-            onPlayPause = {},
             inputs = listOf(
                 TvInput("HDMI_1", "HDMI 1", connected = false),
                 TvInput("HDMI_2", "PS4 Game Console", connected = true),
@@ -57,8 +56,12 @@ class ScreenshotTest {
     }
 
     @Test
-    fun dpad_cluster() = shot("dpad_cluster") { DPad(onNav = {}) }
+    fun dpad_cluster() = shot("dpad_cluster") { DirectionPad(onNav = {}) }
 
     @Test
-    fun cursor_pad() = shot("cursor_pad") { CursorPad(onStart = {}, onStop = {}, onClick = {}) }
+    fun bottom_bar() = shot("bottom_bar") {
+        BottomBar(
+            onBack = {}, onHome = {}, onOpenPad = {}, onOpenApps = {}, onOpenInputs = {}, onOpenTvSettings = {},
+        )
+    }
 }

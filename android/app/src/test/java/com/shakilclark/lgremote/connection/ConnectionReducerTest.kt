@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.net.ConnectException
+import java.net.NoRouteToHostException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -31,9 +32,22 @@ class ConnectionReducerTest {
     }
 
     @Test
-    fun `unreachable host maps to off-network`() {
-        assertTrue(ConnectionReducer.classifyFailure(ConnectException("refused")) is ConnectionState.OffNetwork)
-        assertTrue(ConnectionReducer.classifyFailure(UnknownHostException("no dns")) is ConnectionState.OffNetwork)
+    fun `a bad or refused IP reads as disconnected, not off-network`() {
+        // Regression: a mistyped/unreachable address (e.g. "192.168.0.7.4") must NOT claim the
+        // phone is off-network — that wrongly says "not on the same network" for a simple typo.
+        val unknown = ConnectionReducer.classifyFailure(UnknownHostException("no dns"))
+        assertTrue(unknown is ConnectionState.Disconnected)
+        assertTrue("IP" in (unknown as ConnectionState.Disconnected).message)
+
+        val refused = ConnectionReducer.classifyFailure(ConnectException("refused"))
+        assertTrue(refused is ConnectionState.Disconnected)
+        assertTrue("IP" in (refused as ConnectionState.Disconnected).message)
+    }
+
+    @Test
+    fun `no route to host maps to off-network`() {
+        // The one genuine "can't reach that subnet" case stays OffNetwork.
+        assertTrue(ConnectionReducer.classifyFailure(NoRouteToHostException("no route")) is ConnectionState.OffNetwork)
     }
 
     @Test

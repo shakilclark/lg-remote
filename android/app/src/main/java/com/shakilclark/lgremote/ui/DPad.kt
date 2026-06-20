@@ -2,7 +2,6 @@ package com.shakilclark.lgremote.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -11,17 +10,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
@@ -45,58 +41,48 @@ import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.MotionSpecs
 import com.shakilclark.lgremote.ui.theme.Space
 
-/** D-pad cluster + OK and a Back/Home/Exit row (US3, design-system §7.2). */
+/**
+ * A symmetrical, full-width +-shaped directional pad (redesign). A 3×3 grid of equal square cells:
+ * Up/Down/Left/Right are identical squares around the accented OK centre, with the four corners
+ * empty. All non-directional actions live in the bottom bar, so there are no diagonal neighbours to
+ * mis-tap. OK sends ENTER, which also serves play/pause in webOS media.
+ */
 @Composable
-fun DPad(onNav: (NavButton) -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.l)) {
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Column(
-                Modifier
-                    .size(260.dp)
-                    .clip(MaterialTheme.shapes.extraLarge)
-                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.extraLarge)
-                    .padding(Space.l),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Arrow(Icons.Filled.KeyboardArrowUp, "Up") { onNav(NavButton.UP) }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Space.s),
-                ) {
-                    Arrow(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Left") { onNav(NavButton.LEFT) }
-                    OkKey { onNav(NavButton.ENTER) }
-                    Arrow(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Right") { onNav(NavButton.RIGHT) }
-                }
-                Arrow(Icons.Filled.KeyboardArrowDown, "Down") { onNav(NavButton.DOWN) }
-            }
+fun DirectionPad(onNav: (NavButton) -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+            EmptyCell()
+            GridKey(Icons.Filled.KeyboardArrowUp, "Up") { onNav(NavButton.UP) }
+            EmptyCell()
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.l)) {
-            WideNav(Icons.AutoMirrored.Filled.ArrowBack, "Back") { onNav(NavButton.BACK) }
-            WideNav(Icons.Filled.Home, "Home") { onNav(NavButton.HOME) }
-            WideNav(Icons.Filled.Close, "Exit") { onNav(NavButton.EXIT) }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+            GridKey(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Left") { onNav(NavButton.LEFT) }
+            OkCell { onNav(NavButton.ENTER) }
+            GridKey(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Right") { onNav(NavButton.RIGHT) }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+            EmptyCell()
+            GridKey(Icons.Filled.KeyboardArrowDown, "Down") { onNav(NavButton.DOWN) }
+            EmptyCell()
         }
     }
 }
 
+/** One empty 1/3-width corner cell — keeps the grid square. */
 @Composable
-private fun Arrow(icon: ImageVector, label: String, onClick: () -> Unit) {
-    ControlKey(onClick = onClick, modifier = Modifier.size(64.dp)) {
-        Icon(icon, contentDescription = label, modifier = Modifier.size(28.dp))
+private fun RowScope.EmptyCell() = Spacer(Modifier.weight(1f).aspectRatio(1f))
+
+/** One arrow cell — a square that's exactly 1/3 of the row width. */
+@Composable
+private fun RowScope.GridKey(icon: ImageVector, label: String, onClick: () -> Unit) {
+    ControlKey(onClick = onClick, modifier = Modifier.weight(1f).aspectRatio(1f)) {
+        Icon(icon, contentDescription = label, modifier = Modifier.size(32.dp))
     }
 }
 
+/** The persistently-accented anchor (§7.2): a primaryContainer circle filling the centre cell. */
 @Composable
-private fun RowScope.WideNav(icon: ImageVector, label: String, onClick: () -> Unit) {
-    ControlKey(onClick = onClick, modifier = Modifier.weight(1f).height(56.dp)) {
-        Icon(icon, contentDescription = label, modifier = Modifier.size(22.dp))
-    }
-}
-
-/** The only persistently-accented control (§7.2): 80dp circle, primaryContainer, stronger press. */
-@Composable
-private fun OkKey(onClick: () -> Unit) {
+private fun RowScope.OkCell(onClick: () -> Unit) {
     val haptics = LocalHapticFeedback.current
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -107,7 +93,8 @@ private fun OkKey(onClick: () -> Unit) {
     )
     Box(
         Modifier
-            .size(80.dp)
+            .weight(1f)
+            .aspectRatio(1f)
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.primaryContainer)
@@ -120,13 +107,13 @@ private fun OkKey(onClick: () -> Unit) {
         Text(
             "OK",
             color = MaterialTheme.colorScheme.onPrimaryContainer,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
         )
     }
 }
 
 @Preview(showBackground = true, widthDp = 360)
 @Composable
-private fun DPadPreview() {
-    LGRemoteTheme { DPad(onNav = {}) }
+private fun DirectionPadPreview() {
+    LGRemoteTheme { DirectionPad(onNav = {}) }
 }
