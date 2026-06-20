@@ -70,6 +70,7 @@ No developer account required. Tests: `cd android && ./gradlew :app:testDebugUni
 
 - **`android/`** — the app (Kotlin + Jetpack Compose). The current product.
 - **`specs/002-native-android-remote/`** — active spec, plan, tasks, quickstart.
+- **`docs/design-system.md`** — Material 3 Expressive UI spec (color/type/shape/motion tokens + component recipes).
 - **`.specify/memory/constitution.md`** — project principles (v1.1.0, post-pivot).
 
 ### Prior art (the original PWA — kept as protocol reference, not the shipping product)
