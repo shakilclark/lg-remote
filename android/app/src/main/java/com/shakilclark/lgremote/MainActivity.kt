@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            LGRemoteTheme {
+            LGRemoteTheme(dynamicColor = true) {
                 val snackbar = remember { SnackbarHostState() }
                 LaunchedEffect(Unit) {
                     viewModel.messages.collect { snackbar.showSnackbar(it) }

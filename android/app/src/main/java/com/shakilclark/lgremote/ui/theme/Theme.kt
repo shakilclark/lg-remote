@@ -1,50 +1,105 @@
 package com.shakilclark.lgremote.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
-// Full M3 role mapping over the electric-red dark brand (design-system §2.2), so every component
-// inherits the brand instead of falling back to Material purple. Dynamic color is intentionally off.
-private val DarkColors = darkColorScheme(
-    primary = AccentSoft, // #E23A5E — main interactive accent
-    onPrimary = Color(0xFF1A0309),
-    primaryContainer = Color(0xFF7A0C25), // OK btn, live chip
-    onPrimaryContainer = Color(0xFFFFD9DF),
-    secondary = Color(0xFFB9C0CF),
-    onSecondary = Color(0xFF1A1D24),
-    secondaryContainer = Panel2,
-    onSecondaryContainer = TextPrimary,
-    tertiary = Ok, // connected accent
-    onTertiary = Color(0xFF06170E),
-    background = Bg,
-    onBackground = TextPrimary,
-    surface = Bg,
-    onSurface = TextPrimary,
-    surfaceContainerLowest = Color(0xFF0A0B0E),
-    surfaceContainerLow = Panel, // #181A21
-    surfaceContainer = Color(0xFF1C1F27),
-    surfaceContainerHigh = Panel2, // #1F222B — resting control fill
-    surfaceContainerHighest = Color(0xFF262A34),
-    surfaceVariant = Panel2,
-    onSurfaceVariant = Muted,
-    outline = Edge, // #2B2F3A
-    outlineVariant = Color(0xFF22252E),
-    error = AccentSoft,
-    onError = Color(0xFF1A0309),
-    scrim = Color(0xCC000000),
+// 010-expressive-redesign: Material 3 Expressive look, themed by Material You.
+// The app follows the system light/dark setting and, on Android 12+, takes its colour from the
+// wallpaper (dynamic colour). When dynamic colour is unavailable it falls back to the fixed
+// Ultraviolet (#7B2FF7) identity below. Tones are representatives of the seed's tonal palette
+// (design-system §2.2/§2.3) — regenerate canonical values with material-color-utilities.
+//
+// This replaces the previous brand-locked, dark-only electric-red scheme. The raw colour vals in
+// Color.kt are kept for the few call sites still importing them directly (App/AppGrid/Connection
+// Banner/ConnectScreen/InputSwitcher) until those are migrated to MaterialTheme.colorScheme.
+
+val UltravioletDark = darkColorScheme(
+    primary = Color(0xFFD7BBFF),
+    onPrimary = Color(0xFF46177D),
+    primaryContainer = Color(0xFF5C2E9F),
+    onPrimaryContainer = Color(0xFFEFDBFF),
+    secondary = Color(0xFFCFC0E2),
+    onSecondary = Color(0xFF352740),
+    secondaryContainer = Color(0xFF4C3D63),
+    onSecondaryContainer = Color(0xFFE9DDFB),
+    tertiary = Color(0xFFF2B5D8),
+    onTertiary = Color(0xFF4A1F38),
+    tertiaryContainer = Color(0xFF5C3A4E),
+    onTertiaryContainer = Color(0xFFFFD8EC),
+    background = Color(0xFF141218),
+    onBackground = Color(0xFFE8E0EE),
+    surface = Color(0xFF141218),
+    onSurface = Color(0xFFE8E0EE),
+    surfaceVariant = Color(0xFF49454F),
+    onSurfaceVariant = Color(0xFFCDC4D6),
+    surfaceContainerLowest = Color(0xFF0E0C12),
+    surfaceContainerLow = Color(0xFF1C1922),
+    surfaceContainer = Color(0xFF221E2A),
+    surfaceContainerHigh = Color(0xFF2A2531),
+    surfaceContainerHighest = Color(0xFF342D40),
+    outline = Color(0xFF4C4456),
+    outlineVariant = Color(0xFF332E3B),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    scrim = Color(0xFF000000),
+)
+
+val UltravioletLight = lightColorScheme(
+    primary = Color(0xFF6E2EC9),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFEFDBFF),
+    onPrimaryContainer = Color(0xFF270056),
+    secondary = Color(0xFF635269),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFECDDFB),
+    onSecondaryContainer = Color(0xFF211A2C),
+    tertiary = Color(0xFF7C5267),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFFFFD8EC),
+    onTertiaryContainer = Color(0xFF301124),
+    background = Color(0xFFFDF7FF),
+    onBackground = Color(0xFF1D1B20),
+    surface = Color(0xFFFDF7FF),
+    onSurface = Color(0xFF1D1B20),
+    surfaceVariant = Color(0xFFE9DFEC),
+    onSurfaceVariant = Color(0xFF4A454E),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFF6ECFC),
+    surfaceContainer = Color(0xFFEFE3F8),
+    surfaceContainerHigh = Color(0xFFE9DDF4),
+    surfaceContainerHighest = Color(0xFFE3D7EE),
+    outline = Color(0xFF7B757F),
+    outlineVariant = Color(0xFFCCC4CF),
+    error = Color(0xFFBA1A1A),
+    onError = Color(0xFFFFFFFF),
+    scrim = Color(0xFF000000),
 )
 
 @Composable
 fun LGRemoteTheme(
-    // The remote is dark-first regardless of system setting; param kept for previews.
     darkTheme: Boolean = isSystemInDarkTheme(),
+    // Material You. Defaults OFF so previews/tests/goldens render the deterministic Ultraviolet
+    // fallback; MainActivity opts the live app into dynamic colour (Android 12+).
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    val context = LocalContext.current
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        darkTheme -> UltravioletDark
+        else -> UltravioletLight
+    }
     MaterialTheme(
-        colorScheme = DarkColors,
+        colorScheme = colorScheme,
         typography = AppTypography,
         shapes = AppShapes,
         content = content,
