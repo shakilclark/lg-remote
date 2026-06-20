@@ -1,0 +1,203 @@
+package com.shakilclark.lgremote.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.TouchApp
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
+import com.shakilclark.lgremote.ui.theme.Space
+import kotlin.math.roundToInt
+
+/** Finger travel → pointer travel gain (matches the prior touchpad feel). */
+private const val GAIN = 1.6f
+
+/** Width of the volume/channel edge rockers. */
+private val EDGE_WIDTH = 64.dp
+
+/** Vertical travel that emits one volume/channel step when dragging an edge. */
+private const val STEP_PX = 44f
+
+/**
+ * Recessed gesture pad (010 — Direction C). The centre drives the LG on-screen pointer (glide to
+ * move, tap to click — the same pointer socket the D-pad uses); the **right** edge is a volume
+ * rocker and the **left** edge a channel rocker (drag up/down for steps, or tap the upper/lower
+ * half). Replaces [TouchPad]. The concave fill + hairline border read as a recess (design-system
+ * §5.2; the artifact's CSS inset shadow is approximated here with a radial fill).
+ */
+@Composable
+fun GesturePad(
+    onTouchStart: () -> Unit,
+    onMove: (dx: Int, dy: Int) -> Unit,
+    onClick: () -> Unit,
+    onVolumeUp: () -> Unit,
+    onVolumeDown: () -> Unit,
+    onChannelUp: () -> Unit,
+    onChannelDown: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val haptics = LocalHapticFeedback.current
+    Box(
+        modifier
+            .clip(MaterialTheme.shapes.large)
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(scheme.surfaceContainerLow, scheme.surfaceContainer),
+                ),
+            )
+            .border(1.dp, scheme.outlineVariant, MaterialTheme.shapes.large),
+    ) {
+        // Centre — pointer move + tap-to-click.
+        Box(
+            Modifier
+                .fillMaxSize()
+                .semantics { contentDescription = "Touchpad — drag to move the pointer, tap to click" }
+                .pointerInput(Unit) {
+                    var carryX = 0f
+                    var carryY = 0f
+                    detectDragGestures(
+                        onDragStart = {
+                            carryX = 0f
+                            carryY = 0f
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onTouchStart()
+                        },
+                        onDrag = { change, drag ->
+                            change.consume()
+                            carryX += drag.x * GAIN
+                            carryY += drag.y * GAIN
+                            val dx = carryX.roundToInt()
+                            val dy = carryY.roundToInt()
+                            if (dx != 0 || dy != 0) {
+                                carryX -= dx
+                                carryY -= dy
+                                onMove(dx, dy)
+                            }
+                        },
+                    )
+                }
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onClick()
+                    })
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Space.s),
+            ) {
+                Icon(
+                    Icons.Rounded.TouchApp,
+                    contentDescription = null,
+                    modifier = Modifier.height(28.dp),
+                    tint = scheme.onSurfaceVariant,
+                )
+                Text(
+                    "Drag to move · tap to click",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = scheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        // Left edge — channel; right edge — volume. Drawn after the centre so edge touches win.
+        EdgeRocker(
+            label = "Channel",
+            onUp = onChannelUp,
+            onDown = onChannelDown,
+            modifier = Modifier.align(Alignment.CenterStart).fillMaxHeight().width(EDGE_WIDTH),
+        )
+        EdgeRocker(
+            label = "Volume",
+            onUp = onVolumeUp,
+            onDown = onVolumeDown,
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().width(EDGE_WIDTH),
+        )
+    }
+}
+
+/** A transparent edge strip: vertical drag emits stepped up/down; a tap hits the upper/lower half. */
+@Composable
+private fun EdgeRocker(
+    label: String,
+    onUp: () -> Unit,
+    onDown: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val haptics = LocalHapticFeedback.current
+    Box(
+        modifier
+            .semantics { contentDescription = label }
+            .pointerInput(Unit) {
+                var acc = 0f
+                detectVerticalDragGestures(
+                    onDragStart = { acc = 0f },
+                    onVerticalDrag = { change, dy ->
+                        change.consume()
+                        acc += dy
+                        // Drag up = "up", drag down = "down"; emit a step per STEP_PX of travel.
+                        while (acc <= -STEP_PX) {
+                            acc += STEP_PX
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onUp()
+                        }
+                        while (acc >= STEP_PX) {
+                            acc -= STEP_PX
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onDown()
+                        }
+                    },
+                )
+            }
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = { offset ->
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    if (offset.y < size.height / 2f) onUp() else onDown()
+                })
+            },
+    )
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 320)
+@Composable
+private fun GesturePadPreview() {
+    LGRemoteTheme {
+        GesturePad(
+            onTouchStart = {},
+            onMove = { _, _ -> },
+            onClick = {},
+            onVolumeUp = {},
+            onVolumeDown = {},
+            onChannelUp = {},
+            onChannelDown = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}

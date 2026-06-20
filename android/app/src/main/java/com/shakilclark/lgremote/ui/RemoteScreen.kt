@@ -51,6 +51,8 @@ fun RemoteScreen(
     state: ConnectionState.Connected,
     onVolumeUp: () -> Unit,
     onVolumeDown: () -> Unit,
+    onChannelUp: () -> Unit = {},
+    onChannelDown: () -> Unit = {},
     onToggleMute: () -> Unit,
     onRewind: () -> Unit = {},
     onPlayPause: () -> Unit = {},
@@ -125,10 +127,14 @@ fun RemoteScreen(
             onDismissRequest = { showPad = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         ) {
-            TouchPad(
+            GesturePad(
                 onTouchStart = onCursorTouchStart,
                 onMove = onCursorMove,
                 onClick = onCursorClick,
+                onVolumeUp = onVolumeUp,
+                onVolumeDown = onVolumeDown,
+                onChannelUp = onChannelUp,
+                onChannelDown = onChannelDown,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(440.dp)

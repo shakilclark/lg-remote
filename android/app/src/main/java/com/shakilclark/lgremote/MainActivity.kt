@@ -52,6 +52,8 @@ class MainActivity : ComponentActivity() {
                         onScan = viewModel::discover,
                         onVolumeUp = viewModel::volumeUp,
                         onVolumeDown = viewModel::volumeDown,
+                        onChannelUp = viewModel::channelUp,
+                        onChannelDown = viewModel::channelDown,
                         onToggleMute = viewModel::toggleMute,
                         onRewind = viewModel::rewind,
                         onPlayPause = viewModel::playPause,
