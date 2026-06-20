@@ -66,6 +66,18 @@ class ScreenshotTest {
     fun dpad_cluster() = shot("dpad_cluster") { DirectionPad(onNav = {}) }
 
     @Test
+    fun command_sheet() = shot("command_sheet") {
+        CommandSheet(
+            onNav = {},
+            apps = emptyList(),
+            onLaunchApp = {},
+            inputs = emptyList(),
+            onSelectInput = {},
+            onOpenTvSettings = {},
+        )
+    }
+
+    @Test
     fun bottom_bar() = shot("bottom_bar") {
         BottomBar(
             onBack = {}, onHome = {}, onOpenPad = {}, onOpenApps = {}, onOpenInputs = {}, onOpenTvSettings = {},
