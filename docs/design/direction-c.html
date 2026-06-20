@@ -1,0 +1,279 @@
+<title>LG Remote — Direction C, full design</title>
+<style>
+  :root{
+    /* Ultraviolet seed #7B2FF7 — dark scheme */
+    --page:#0D0B12;--page-2:#16131C;--pline:#2D2838;--ptext:#ECE8F2;--pmuted:#9C95A8;--seed:#D7BBFF;
+    --display:"SF Pro Display","Segoe UI",system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",sans-serif;
+    --data:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    --surf:#141218;--sc-low:#1C1922;--sc:#2A2531;--sc-high:#342D40;
+    --on:#E8E0EE;--onv:#CDC4D6;--outline:#4C4456;
+    --p:#D7BBFF;--op:#46177D;--pc:#5C2E9F;--opc:#EFDBFF;
+    --sec:#CFC0E2;--scon:#4C3D63;--oscon:#E9DDFB;
+    --ter:#F2B5D8;--tcon:#5C3A4E;--oter:#FFD8EC;
+    --ok-c:#7FD49B;--warn-c:#F2C14E;
+  }
+  body.light{
+    /* Ultraviolet seed #7B2FF7 — light scheme */
+    --page:#EBE5F2;--page-2:#F4EFFA;--pline:#D6CEE2;--ptext:#1D1B20;--pmuted:#5E5868;--seed:#6E2EC9;
+    --surf:#FDF7FF;--sc-low:#F6ECFC;--sc:#EFE3F8;--sc-high:#E9DDF4;
+    --on:#1D1B20;--onv:#4A454E;--outline:#7B757F;
+    --p:#6E2EC9;--op:#FFFFFF;--pc:#EFDBFF;--opc:#270056;
+    --sec:#ECDDFB;--scon:#ECDDFB;--oscon:#211A2C;
+    --ter:#7C5267;--tcon:#FFD8EC;--oter:#301124;
+    --ok-c:#2E7D4F;--warn-c:#8A6500;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;color:var(--ptext);font-family:var(--body);line-height:1.5;letter-spacing:-0.005em;
+    background:radial-gradient(135% 90% at 50% -8%, var(--page-2) 0%, var(--page) 60%) fixed;
+    padding:clamp(20px,5vw,58px) clamp(16px,5vw,52px) 100px;transition:background .4s,color .4s;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+  .eyebrow{font-family:var(--data);font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:var(--pmuted);margin:0 0 14px;}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,5.4vw,54px);line-height:1;letter-spacing:-0.03em;margin:0 0 16px;max-width:15ch;}
+  h1 em{font-style:normal;color:var(--seed);}
+  .lede{max-width:62ch;color:var(--pmuted);font-size:clamp(15px,1.7vw,17px);margin:0;}
+  .lede b{color:var(--ptext);font-weight:600;}
+  .toggle{display:inline-flex;background:var(--page-2);border:1px solid var(--pline);border-radius:999px;padding:4px;gap:2px;flex:none;}
+  .toggle button{border:none;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--pmuted);padding:8px 16px;border-radius:999px;cursor:pointer;transition:.25s;}
+  .toggle button.on{background:var(--seed);color:var(--page);}
+
+  h2{font-family:var(--display);font-weight:750;font-size:clamp(20px,2.6vw,27px);letter-spacing:-0.02em;margin:0;}
+  .section{margin-top:clamp(50px,7vw,84px);}
+  .section .sub{color:var(--pmuted);max-width:60ch;margin:9px 0 0;font-size:15px;}
+
+  /* phone */
+  .phone{position:relative;width:288px;aspect-ratio:9/19.5;background:var(--surf);color:var(--on);
+    border-radius:44px;box-shadow:0 18px 46px -40px rgba(0,0,0,.8), inset 0 0 0 6px rgba(0,0,0,.5);
+    padding:18px 14px 12px;display:flex;flex-direction:column;gap:10px;overflow:hidden;flex:none;transition:background .4s,color .4s;}
+  body.light .phone{box-shadow:0 16px 40px -42px rgba(40,20,80,.45), inset 0 0 0 6px rgba(0,0,0,.06);}
+
+  .appbar{display:flex;align-items:center;gap:7px;}
+  .tvchip{display:inline-flex;align-items:center;gap:7px;background:var(--sc);border-radius:999px;padding:7px 12px;font-size:11.5px;font-weight:600;min-width:0;}
+  .tvchip .live{width:7px;height:7px;border-radius:50%;background:var(--ok-c);flex:none;}
+  .tvchip.scan .live{background:var(--seed);} .tvchip.pair .live{background:var(--warn-c);} .tvchip.off .live{background:var(--outline);}
+  .tvchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sp{flex:1;}
+  .ib{width:36px;height:36px;border-radius:12px;background:var(--sc);border:none;color:var(--on);display:grid;place-items:center;font-size:15px;cursor:pointer;flex:none;}
+  .ib.mic{background:var(--pc);color:var(--opc);} .ib.pw{color:var(--ter);}
+
+  .pad{flex:1;border-radius:26px;position:relative;display:grid;place-items:center;overflow:hidden;
+    background:
+      radial-gradient(circle, color-mix(in srgb,var(--on) 5%, transparent) 1px, transparent 1.4px) 0 0/7px 7px,
+      radial-gradient(135% 118% at 50% 34%, var(--sc-low) 0%, var(--sc) 46%, color-mix(in srgb,#000 26%, var(--sc-low)) 100%);
+    box-shadow:inset 0 10px 24px -8px rgba(0,0,0,.62), inset 0 -3px 9px rgba(255,255,255,.045), inset 0 1px 0 rgba(255,255,255,.05);
+    border:1px solid color-mix(in srgb,var(--on) 7%, transparent);}
+  body.light .pad{
+    background:
+      radial-gradient(circle, color-mix(in srgb,var(--on) 7%, transparent) 1px, transparent 1.4px) 0 0/7px 7px,
+      radial-gradient(135% 118% at 50% 36%, #FFFFFF 0%, var(--sc) 58%, color-mix(in srgb,var(--on) 11%, var(--sc)) 100%);
+    box-shadow:inset 0 7px 15px -9px rgba(70,40,110,.30), inset 0 -2px 7px rgba(255,255,255,.7), inset 0 1px 0 rgba(255,255,255,.85);
+    border:1px solid color-mix(in srgb,var(--on) 10%, transparent);}
+  .hint{position:absolute;color:var(--p);font-size:13px;opacity:.5;font-weight:700;}
+  .hu{top:12px;left:50%;transform:translateX(-50%);} .hd{bottom:14px;left:50%;transform:translateX(-50%);}
+  .hl{left:12px;top:46%;} .hr{right:12px;top:46%;}
+  .el{position:absolute;font-family:var(--data);font-size:8px;letter-spacing:0.1em;color:var(--onv);text-transform:uppercase;}
+  .el-r{right:6px;bottom:38%;writing-mode:vertical-rl;} .el-l{left:6px;bottom:38%;writing-mode:vertical-rl;transform:rotate(180deg);}
+  .ring{width:80px;height:80px;border-radius:50%;background:var(--p);color:var(--op);display:grid;place-items:center;font-weight:800;font-size:15px;box-shadow:0 5px 13px -7px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.18);cursor:pointer;transition:transform .16s,border-radius .26s cubic-bezier(.05,.7,.1,1);}
+  .ring:hover{transform:scale(1.05);border-radius:36%;}
+
+  /* grip / sheet */
+  .grip{height:36px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;color:var(--onv);font-size:10px;cursor:pointer;flex:none;}
+  .grip .bar{width:40px;height:5px;border-radius:999px;background:var(--outline);}
+  .sheet{position:absolute;left:8px;right:8px;bottom:8px;background:var(--sc-high);border-radius:30px;padding:8px 14px 14px;box-shadow:0 -12px 28px -26px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:12px;}
+  .sheet .bar{width:40px;height:5px;border-radius:999px;background:var(--outline);margin:2px auto 2px;opacity:.7;}
+  .segtab{display:flex;background:var(--sc-low);border-radius:999px;padding:4px;gap:2px;}
+  .segtab b{flex:1;text-align:center;font-size:11px;font-weight:600;color:var(--onv);padding:7px 0;border-radius:999px;cursor:pointer;}
+  .segtab b.on{background:var(--p);color:var(--op);}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .keypad button{border:none;background:var(--sc);border-radius:15px;color:var(--on);font:inherit;font-size:17px;font-weight:600;aspect-ratio:1.5/1;cursor:pointer;}
+  .ckeys{display:flex;gap:7px;}
+  .ckeys i{flex:1;height:8px;border-radius:999px;}
+  .agrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+  .app{aspect-ratio:1/1;border-radius:16px;background:var(--sc);display:grid;place-items:center;font-size:11px;color:var(--onv);}
+  .app.f{background:var(--p);color:var(--op);font-weight:700;}
+  .ilist{display:flex;flex-direction:column;gap:7px;}
+  .irow{display:flex;align-items:center;gap:9px;background:var(--sc);border-radius:13px;padding:10px 12px;font-size:12px;}
+  .irow.on{background:var(--p);color:var(--op);font-weight:700;}
+  .irow .dt{width:8px;height:8px;border-radius:3px;background:var(--onv);flex:none;} .irow.on .dt{background:var(--op);}
+
+  /* layout helpers */
+  .pair{display:flex;gap:clamp(20px,4vw,46px);flex-wrap:wrap;align-items:flex-start;margin-top:30px;}
+  .cap{margin-top:14px;text-align:center;}
+  .cap b{display:block;font-family:var(--display);font-size:14.5px;font-weight:700;}
+  .cap small{font-size:12px;color:var(--pmuted);}
+  .col{display:flex;flex-direction:column;align-items:center;}
+
+  .legend{flex:1;min-width:240px;display:flex;flex-direction:column;gap:13px;padding-top:4px;}
+  .lg{display:flex;gap:12px;}
+  .lg .g{width:40px;height:40px;border-radius:13px;background:var(--sc);display:grid;place-items:center;font-size:16px;color:var(--seed);flex:none;}
+  .lg h4{margin:0 0 2px;font-size:14px;font-weight:650;font-family:var(--display);}
+  .lg p{margin:0;font-size:12.5px;color:var(--pmuted);line-height:1.45;}
+
+  /* first-run hint overlay */
+  .scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--surf) 78%,transparent);backdrop-filter:blur(2px);display:flex;flex-direction:column;justify-content:flex-end;padding:18px;z-index:8;}
+  .teach{background:var(--p);color:var(--op);border-radius:24px;padding:16px 16px 14px;}
+  .teach h4{margin:0 0 6px;font-family:var(--display);font-size:15px;}
+  .teach p{margin:0 0 12px;font-size:12.5px;line-height:1.45;opacity:.92;}
+  .teach .row2{display:flex;gap:8px;}
+  .teach .row2 span{flex:1;background:color-mix(in srgb,var(--op) 16%,transparent);border-radius:12px;padding:8px;font-size:10px;text-align:center;}
+  .teach .go{margin-top:12px;width:100%;border:none;background:var(--op);color:var(--p);font:inherit;font-weight:700;font-size:13px;padding:11px;border-radius:999px;cursor:pointer;}
+
+  /* states */
+  .states{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px;}
+  @media(max-width:760px){.states{grid-template-columns:repeat(2,1fr);}}
+  .state{background:var(--page-2);border:1px solid var(--pline);border-radius:18px;padding:16px;}
+  .state .tvchip{margin-bottom:10px;}
+  .state b{display:block;font-family:var(--display);font-size:13.5px;}
+  .state small{font-size:12px;color:var(--pmuted);}
+
+  .note{margin-top:46px;padding-top:22px;border-top:1px solid var(--pline);color:var(--pmuted);font-size:14px;max-width:78ch;}
+  .note b{color:var(--ptext);}
+  .note code{font-family:var(--data);font-size:12.5px;color:var(--seed);background:color-mix(in srgb,var(--seed) 14%,transparent);padding:2px 6px;border-radius:6px;}
+  button:focus-visible{outline:3px solid var(--seed);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <p class="eyebrow">LG Remote · Direction C · gesture pad + command sheet</p>
+      <h1>Calm on top, <em>everything underneath</em></h1>
+    </div>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button id="bDark" class="on" onclick="setMode('dark')">☾ Dark</button>
+      <button id="bLight" onclick="setMode('light')">☀ Light</button>
+    </div>
+  </div>
+  <p class="lede" style="margin-top:18px;">The home surface is a single, quiet gesture pad. The depth of a 50-button remote is one upward drag away — a <b>command sheet</b> with a visible grip, so the hidden is discovered by pulling, never memorised. Material&nbsp;You violet seed; toggle light/dark for contrast.</p>
+
+  <!-- ===== HOME + GESTURES ===== -->
+  <div class="section">
+    <h2>01 · The home surface</h2>
+    <p class="sub">Glide to point, tap to click. Volume and channel live on the edges. The grip at the bottom is the only promise that there's more.</p>
+    <div class="pair">
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib mic">🎤</button><button class="ib pw">⏻</button></div>
+          <div class="pad">
+            <span class="hint hu">▲</span><span class="hint hd">▼</span><span class="hint hl">◀</span><span class="hint hr">▶</span>
+            <span class="el el-r">vol</span><span class="el el-l">ch</span>
+            <span class="ring">OK</span>
+          </div>
+          <div class="grip"><span class="bar"></span>More controls</div>
+        </div>
+        <div class="cap"><b>Home — resting</b><small>One surface, one grip</small></div>
+      </div>
+      <div class="legend">
+        <div class="lg"><span class="g">✥</span><div><h4>Glide &amp; tap</h4><p>Move your thumb to drive the TV pointer; tap anywhere to click. The same motion-cursor engine that's already built.</p></div></div>
+        <div class="lg"><span class="g">⇅</span><div><h4>Edges = volume &amp; channel</h4><p>Swipe the right edge for volume, the left for channel. Hold to ramp. No buttons to aim at — the most-used controls are muscle memory.</p></div></div>
+        <div class="lg"><span class="g">←</span><div><h4>Swipe-in to go back</h4><p>A short swipe from the screen edge is Back; the mic and power stay pinned top-right where you won't hit them by accident.</p></div></div>
+        <div class="lg"><span class="g">⇧</span><div><h4>Pull up for everything else</h4><p>The grip is a real handle — drag it (or tap it) to raise the command sheet. Discoverable on sight, no gesture to learn.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== COMMAND SHEET ===== -->
+  <div class="section">
+    <h2>02 · The command sheet — surfacing the hidden</h2>
+    <p class="sub">One sheet holds the number pad, apps, inputs and keyboard, on a segmented switch. This is where the other 45 buttons went — visible the moment you pull.</p>
+    <div class="pair">
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib mic">🎤</button><button class="ib pw">⏻</button></div>
+          <div class="pad" style="opacity:.45;"><span class="ring">OK</span></div>
+          <div class="sheet">
+            <span class="bar"></span>
+            <div class="segtab"><b class="on">Keypad</b><b>Apps</b><b>Inputs</b><b>Type</b></div>
+            <div class="keypad">
+              <button>1</button><button>2</button><button>3</button>
+              <button>4</button><button>5</button><button>6</button>
+              <button>7</button><button>8</button><button>9</button>
+              <button>⌫</button><button>0</button><button>↵</button>
+            </div>
+            <div class="ckeys"><i style="background:#E5534B"></i><i style="background:#4CAF6A"></i><i style="background:#E8C84C"></i><i style="background:#4C8BE8"></i></div>
+          </div>
+        </div>
+        <div class="cap"><b>Sheet open — Keypad</b><small>Numbers · colored keys</small></div>
+      </div>
+
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib mic">🎤</button><button class="ib pw">⏻</button></div>
+          <div class="pad" style="opacity:.45;"><span class="ring">OK</span></div>
+          <div class="sheet">
+            <span class="bar"></span>
+            <div class="segtab"><b>Keypad</b><b class="on">Apps</b><b>Inputs</b><b>Type</b></div>
+            <div class="agrid">
+              <span class="app f">YT</span><span class="app">N</span><span class="app">D+</span><span class="app">Prime</span>
+              <span class="app">LG</span><span class="app">iP</span><span class="app">Spot</span><span class="app">Plex</span>
+            </div>
+            <div class="ilist"><div class="irow on"><span class="dt"></span>HDMI 1 · Sonos</div></div>
+          </div>
+        </div>
+        <div class="cap"><b>Sheet open — Apps</b><small>Tap a tab to switch</small></div>
+      </div>
+
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib mic">🎤</button><button class="ib pw">⏻</button></div>
+          <div class="pad" style="opacity:.45;"><span class="ring">OK</span></div>
+          <div class="sheet">
+            <span class="bar"></span>
+            <div class="segtab"><b>Keypad</b><b>Apps</b><b class="on">Inputs</b><b>Type</b></div>
+            <div class="ilist">
+              <div class="irow on"><span class="dt"></span>HDMI 1 · Sonos</div>
+              <div class="irow"><span class="dt"></span>HDMI 2 · PS5</div>
+              <div class="irow"><span class="dt"></span>HDMI 3 · Switch</div>
+              <div class="irow"><span class="dt"></span>Live TV</div>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>Sheet open — Inputs</b><small>Source · live state</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FIRST RUN + STATES ===== -->
+  <div class="section">
+    <h2>03 · Teaching &amp; connection states</h2>
+    <p class="sub">One gentle first-run card teaches the two gestures that aren't obvious; the top chip carries every connection state.</p>
+    <div class="pair">
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib mic">🎤</button><button class="ib pw">⏻</button></div>
+          <div class="pad"><span class="ring">OK</span></div>
+          <div class="grip"><span class="bar"></span>More controls</div>
+          <div class="scrim">
+            <div class="teach">
+              <h4>Two things to know</h4>
+              <p>Everything else is a tap. These two are gestures worth a second:</p>
+              <div class="row2"><span>Right edge ⇅<br>Volume</span><span>Left edge ⇅<br>Channel</span></div>
+              <button class="go">Got it</button>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>First run</b><small>Shown once · dismissible</small></div>
+      </div>
+      <div class="legend" style="align-self:center;">
+        <div class="states" style="grid-template-columns:1fr;">
+          <div class="state"><span class="tvchip scan"><span class="live"></span><span>Scanning…</span></span><b>Finding your TV</b><small>Searching the LAN for webOS sets.</small></div>
+          <div class="state"><span class="tvchip pair"><span class="live"></span><span>Pairing · accept on TV</span></span><b>Awaiting prompt</b><small>Confirm the on-screen request once.</small></div>
+          <div class="state"><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><b>Connected</b><small>Green dot, ready. The resting state.</small></div>
+          <div class="state"><span class="tvchip off"><span class="live"></span><span>Off network</span></span><b>Can't reach it</b><small>Same Wi-Fi needed; tap to retry.</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">This is the full <b>Direction C</b> system — home pad, the pull-up command sheet (Keypad / Apps / Inputs / Type), first-run teaching, and the four connection states, in light + dark on the violet seed. It maps cleanly onto the existing build: the pad reuses the motion-cursor engine, the sheet is an M3 <b>bottom sheet</b> with a segmented switch, and every surface is <code>MaterialExpressiveTheme</code> tokens. Next, on your nod: I reskin to your final seed if violet isn't it, then plan the Compose build — new <code>theme/</code> (Material You + light/dark), a <code>GesturePad</code>, the <code>CommandSheet</code>, and rewrite <code>design-system.md</code>.</p>
+</div>
+
+<script>
+  function setMode(m){
+    document.body.classList.toggle('light', m==='light');
+    document.getElementById('bLight').classList.toggle('on', m==='light');
+    document.getElementById('bDark').classList.toggle('on', m!=='light');
+  }
+</script>

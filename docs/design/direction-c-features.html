@@ -1,0 +1,328 @@
+<title>LG Remote — Direction C + features 004/006/008/009</title>
+<style>
+  :root{
+    /* Ultraviolet seed #7B2FF7 — dark scheme */
+    --page:#0D0B12;--page-2:#16131C;--pline:#2D2838;--ptext:#ECE8F2;--pmuted:#9C95A8;--seed:#D7BBFF;
+    --display:"SF Pro Display","Segoe UI",system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",sans-serif;
+    --data:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    --surf:#141218;--sc-low:#1C1922;--sc:#2A2531;--sc-high:#342D40;
+    --on:#E8E0EE;--onv:#CDC4D6;--outline:#4C4456;
+    --p:#D7BBFF;--op:#46177D;--pc:#5C2E9F;--opc:#EFDBFF;
+    --scon:#4C3D63;--oscon:#E9DDFB;--ter:#F2B5D8;--tcon:#5C3A4E;
+    --ok-c:#7FD49B;--warn-c:#F2C14E;
+  }
+  body.light{
+    /* Ultraviolet seed #7B2FF7 — light scheme */
+    --page:#EBE5F2;--page-2:#F4EFFA;--pline:#D6CEE2;--ptext:#1D1B20;--pmuted:#5E5868;--seed:#6E2EC9;
+    --surf:#FDF7FF;--sc-low:#F6ECFC;--sc:#EFE3F8;--sc-high:#E9DDF4;
+    --on:#1D1B20;--onv:#4A454E;--outline:#7B757F;
+    --p:#6E2EC9;--op:#FFFFFF;--pc:#EFDBFF;--opc:#270056;
+    --scon:#ECDDFB;--oscon:#211A2C;--ter:#7C5267;--tcon:#FFD8EC;
+    --ok-c:#2E7D4F;--warn-c:#8A6500;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;color:var(--ptext);font-family:var(--body);line-height:1.5;letter-spacing:-0.005em;
+    background:radial-gradient(135% 90% at 50% -8%, var(--page-2) 0%, var(--page) 60%) fixed;
+    padding:clamp(20px,5vw,58px) clamp(16px,5vw,52px) 100px;transition:background .4s,color .4s;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+  .eyebrow{font-family:var(--data);font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:var(--pmuted);margin:0 0 14px;}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,5vw,52px);line-height:1;letter-spacing:-0.03em;margin:0 0 16px;max-width:16ch;}
+  h1 em{font-style:normal;color:var(--seed);}
+  .lede{max-width:64ch;color:var(--pmuted);font-size:clamp(15px,1.7vw,17px);margin:0;}
+  .lede b{color:var(--ptext);font-weight:600;}
+  .toggle{display:inline-flex;background:var(--page-2);border:1px solid var(--pline);border-radius:999px;padding:4px;gap:2px;flex:none;}
+  .toggle button{border:none;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--pmuted);padding:8px 16px;border-radius:999px;cursor:pointer;transition:.25s;}
+  .toggle button.on{background:var(--seed);color:var(--page);}
+
+  h2{font-family:var(--display);font-weight:750;font-size:clamp(20px,2.6vw,27px);letter-spacing:-0.02em;margin:0;}
+  h2 .spec{font-family:var(--data);font-size:12px;color:var(--seed);letter-spacing:0.1em;margin-left:10px;vertical-align:middle;}
+  .section{margin-top:clamp(50px,7vw,84px);}
+  .section .sub{color:var(--pmuted);max-width:62ch;margin:9px 0 0;font-size:15px;}
+  .pair{display:flex;gap:clamp(20px,4vw,44px);flex-wrap:wrap;align-items:flex-start;margin-top:30px;}
+  .col{display:flex;flex-direction:column;align-items:center;}
+  .cap{margin-top:13px;text-align:center;}
+  .cap b{display:block;font-family:var(--display);font-size:14px;font-weight:700;}
+  .cap small{font-size:12px;color:var(--pmuted);}
+
+  .phone{position:relative;width:280px;aspect-ratio:9/19.5;background:var(--surf);color:var(--on);
+    border-radius:42px;box-shadow:0 18px 44px -38px rgba(0,0,0,.8), inset 0 0 0 6px rgba(0,0,0,.5);
+    padding:17px 13px 11px;display:flex;flex-direction:column;gap:9px;overflow:hidden;flex:none;transition:background .4s,color .4s;}
+  body.light .phone{box-shadow:0 16px 38px -40px rgba(40,20,80,.45), inset 0 0 0 6px rgba(0,0,0,.06);}
+
+  .appbar{display:flex;align-items:center;gap:7px;}
+  .tvchip{display:inline-flex;align-items:center;gap:7px;background:var(--sc);border-radius:999px;padding:7px 12px;font-size:11px;font-weight:600;min-width:0;}
+  .tvchip .live{width:7px;height:7px;border-radius:50%;background:var(--ok-c);flex:none;}
+  .tvchip.warn .live{background:var(--warn-c);} .tvchip.off .live{background:var(--outline);}
+  .tvchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sp{flex:1;}
+  .ib{width:34px;height:34px;border-radius:12px;background:var(--sc);border:none;color:var(--on);display:grid;place-items:center;font-size:14px;flex:none;cursor:pointer;}
+  .ib.mic{background:var(--pc);color:var(--opc);} .ib.pw{color:var(--ter);}
+
+  /* app brand tile */
+  .brand{border-radius:16px;display:grid;place-items:center;font-weight:800;color:#fff;flex:none;}
+  .brand.yt{background:#FF0033;} .brand.nf{background:#E50914;} .brand. d{background:#1A2B6B;}
+
+  /* now-playing bar on home */
+  .pad{flex:1;border-radius:26px;position:relative;display:grid;place-items:center;overflow:hidden;
+    background:
+      radial-gradient(circle, color-mix(in srgb,var(--on) 5%, transparent) 1px, transparent 1.4px) 0 0/7px 7px,
+      radial-gradient(135% 118% at 50% 34%, var(--sc-low) 0%, var(--sc) 46%, color-mix(in srgb,#000 26%, var(--sc-low)) 100%);
+    box-shadow:inset 0 10px 24px -8px rgba(0,0,0,.62), inset 0 -3px 9px rgba(255,255,255,.045), inset 0 1px 0 rgba(255,255,255,.05);
+    border:1px solid color-mix(in srgb,var(--on) 7%, transparent);}
+  body.light .pad{
+    background:
+      radial-gradient(circle, color-mix(in srgb,var(--on) 7%, transparent) 1px, transparent 1.4px) 0 0/7px 7px,
+      radial-gradient(135% 118% at 50% 36%, #FFFFFF 0%, var(--sc) 58%, color-mix(in srgb,var(--on) 11%, var(--sc)) 100%);
+    box-shadow:inset 0 7px 15px -9px rgba(70,40,110,.30), inset 0 -2px 7px rgba(255,255,255,.7), inset 0 1px 0 rgba(255,255,255,.85);
+    border:1px solid color-mix(in srgb,var(--on) 10%, transparent);}
+  .hint{position:absolute;color:var(--p);font-size:12px;opacity:.5;font-weight:700;}
+  .hu{top:10px;left:50%;transform:translateX(-50%);}.hd{bottom:12px;left:50%;transform:translateX(-50%);}
+  .hl{left:10px;top:46%;}.hr{right:10px;top:46%;}
+  .ring{width:74px;height:74px;border-radius:50%;background:var(--p);color:var(--op);display:grid;place-items:center;font-weight:800;font-size:14px;box-shadow:0 4px 11px -6px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.18);}
+  .npbar{display:flex;align-items:center;gap:10px;background:var(--sc-low);border-radius:18px;padding:9px 11px;cursor:pointer;}
+  .npbar .brand{width:30px;height:30px;font-size:13px;border-radius:10px;}
+  .npbar .meta{min-width:0;flex:1;}
+  .npbar .meta b{display:block;font-size:12px;font-weight:600;line-height:1.2;}
+  .npbar .meta small{font-size:10.5px;color:var(--onv);}
+  .npbar .mini{width:34px;height:34px;border-radius:50%;background:var(--p);color:var(--op);display:grid;place-items:center;font-size:14px;flex:none;}
+  .grip{height:22px;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--onv);font-size:9px;flex:none;}
+  .grip .bar{width:38px;height:5px;border-radius:999px;background:var(--outline);}
+
+  /* cover view */
+  .cover{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;position:relative;}
+  .cover .big{width:120px;height:120px;border-radius:28px;font-size:46px;box-shadow:0 8px 18px -14px rgba(0,0,0,.45);}
+  .cover .ttl{font-family:var(--display);font-size:19px;font-weight:700;}
+  .cover .state{font-size:12px;color:var(--onv);display:inline-flex;align-items:center;gap:6px;}
+  .cover .state .d{width:7px;height:7px;border-radius:50%;background:var(--ok-c);}
+  .transport{display:flex;gap:10px;align-items:center;justify-content:center;}
+  .transport .t{width:46px;height:46px;border-radius:50%;background:var(--sc);border:none;color:var(--on);font-size:16px;display:grid;place-items:center;cursor:pointer;}
+  .transport .t.play{width:64px;height:64px;background:var(--p);color:var(--op);font-size:22px;}
+  .soundchip{display:inline-flex;align-items:center;gap:8px;background:var(--scon);color:var(--oscon);border-radius:999px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+
+  /* audio output sheet */
+  .sheet{position:absolute;left:8px;right:8px;bottom:8px;background:var(--sc-high);border-radius:30px;padding:8px 14px 16px;box-shadow:0 -12px 28px -26px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:11px;}
+  .sheet .bar{width:40px;height:5px;border-radius:999px;background:var(--outline);margin:2px auto;opacity:.7;}
+  .segtab{display:flex;background:var(--sc-low);border-radius:999px;padding:4px;gap:2px;overflow:hidden;}
+  .segtab b{flex:1;text-align:center;font-size:10.5px;font-weight:600;color:var(--onv);padding:7px 2px;border-radius:999px;cursor:pointer;white-space:nowrap;}
+  .segtab b.on{background:var(--p);color:var(--op);}
+  .outs{display:flex;flex-direction:column;gap:8px;}
+  .out{display:flex;align-items:center;gap:11px;background:var(--sc);border-radius:14px;padding:11px 13px;font-size:13px;cursor:pointer;}
+  .out .ic{width:30px;height:30px;border-radius:9px;background:var(--sc-low);display:grid;place-items:center;font-size:14px;flex:none;}
+  .out.on{background:var(--p);color:var(--op);font-weight:700;}
+  .out.on .ic{background:color-mix(in srgb,var(--op) 18%,transparent);}
+  .out .chk{margin-left:auto;font-size:14px;}
+  .out.dim{opacity:.5;}
+
+  /* lock screen */
+  .lock{background:linear-gradient(160deg,#241a3d,#0f0c18 70%);color:#fff;}
+  body.light .lock{background:linear-gradient(160deg,#cdbdf2,#9f86d8 70%);color:#1a1330;}
+  .lock .clock{margin-top:18px;text-align:center;}
+  .lock .clock .t{font-family:var(--display);font-size:58px;font-weight:300;line-height:1;letter-spacing:-0.02em;}
+  .lock .clock .dt{font-size:12px;opacity:.8;margin-top:4px;}
+  .lock .sp1{flex:1;}
+  .medianotif{background:color-mix(in srgb,var(--surf) 88%,transparent);backdrop-filter:blur(8px);border-radius:22px;padding:13px;color:var(--on);}
+  .medianotif .hd{display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--onv);margin-bottom:10px;}
+  .medianotif .hd .dot{width:14px;height:14px;border-radius:5px;background:var(--p);}
+  .medianotif .body{display:flex;gap:11px;align-items:center;}
+  .medianotif .brand{width:46px;height:46px;font-size:18px;}
+  .medianotif .info b{display:block;font-size:13px;font-weight:650;}
+  .medianotif .info small{font-size:11px;color:var(--onv);}
+  .medianotif .tr{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+  .medianotif .tr button{background:none;border:none;color:var(--on);cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;}
+  .medianotif .tr .play{background:var(--p);color:var(--op);width:42px;height:42px;}
+  .ico{width:20px;height:20px;display:block;}
+  .t.play .ico{width:26px;height:26px;}
+  .mini .ico{width:18px;height:18px;}
+  .ib .ico{width:16px;height:16px;}
+  .artcover{flex:1;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(150deg,#6a2fb0 0%,#9a2f6e 52%,#180f24 100%);}
+  .artcover .scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.76),rgba(0,0,0,.08) 56%,rgba(0,0,0,.30));}
+  .artcover .ac-top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:flex-end;z-index:2;}
+  .artcover .ac-body{position:relative;z-index:2;padding:16px;color:#fff;display:flex;flex-direction:column;gap:13px;}
+  .artcover .ac-ttl{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.1;}
+  .artcover .ac-sub{font-size:11.5px;opacity:.86;margin-top:3px;}
+  .artcover .transport{justify-content:space-between;}
+  .artcover .transport .t{background:rgba(255,255,255,.16);color:#fff;}
+  .artcover .transport .t.play{background:#fff;color:#221033;}
+  .artcover .soundchip{background:rgba(255,255,255,.18);color:#fff;}
+
+  /* reconnect timeline */
+  .tl{display:flex;flex-direction:column;gap:0;flex:1;min-width:260px;}
+  .step{display:flex;gap:14px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--pline);}
+  .step:last-child{border-bottom:none;}
+  .step .when{font-family:var(--data);font-size:10px;letter-spacing:0.08em;color:var(--seed);width:74px;flex:none;padding-top:3px;text-transform:uppercase;}
+  .step h4{margin:0 0 3px;font-size:14px;font-weight:650;font-family:var(--display);}
+  .step p{margin:0;font-size:12.5px;color:var(--pmuted);line-height:1.45;}
+  .chiprow{display:flex;gap:8px;margin-top:7px;flex-wrap:wrap;}
+  .chip{font-size:11px;border-radius:999px;padding:5px 11px;display:inline-flex;align-items:center;gap:6px;background:var(--page-2);border:1px solid var(--pline);color:var(--ptext);}
+  .chip .d{width:7px;height:7px;border-radius:50%;}
+  .chip .d.ok{background:var(--ok-c);} .chip .d.warn{background:var(--warn-c);} .chip .d.off{background:var(--outline);}
+
+  .note{margin-top:46px;padding-top:22px;border-top:1px solid var(--pline);color:var(--pmuted);font-size:14px;max-width:80ch;}
+  .note b{color:var(--ptext);} .note code{font-family:var(--data);font-size:12.5px;color:var(--seed);background:color-mix(in srgb,var(--seed) 14%,transparent);padding:2px 6px;border-radius:6px;}
+  .honest{display:inline-block;font-family:var(--data);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--warn-c);border:1px solid color-mix(in srgb,var(--warn-c) 40%,transparent);border-radius:999px;padding:3px 9px;margin-top:14px;}
+  button:focus-visible{outline:3px solid var(--seed);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ic-play" viewBox="0 0 24 24"><path d="M8.4 5.6c0-.9 1-1.5 1.8-1l8.1 5.1c.8.5.8 1.6 0 2.1l-8.1 5.1c-.8.5-1.8-.1-1.8-1V5.6z" fill="currentColor"/></symbol>
+  <symbol id="ic-pause" viewBox="0 0 24 24"><rect x="6.4" y="5" width="4" height="14" rx="2" fill="currentColor"/><rect x="13.6" y="5" width="4" height="14" rx="2" fill="currentColor"/></symbol>
+  <symbol id="ic-stop" viewBox="0 0 24 24"><rect x="5.8" y="5.8" width="12.4" height="12.4" rx="3.6" fill="currentColor"/></symbol>
+  <symbol id="ic-rew" viewBox="0 0 24 24"><path d="M11.5 7.3v9.4c0 .8-.9 1.3-1.6.8l-6.3-4.7a1 1 0 0 1 0-1.6l6.3-4.7c.7-.5 1.6 0 1.6.8z" fill="currentColor"/><path d="M21 7.3v9.4c0 .8-.9 1.3-1.6.8l-6.3-4.7a1 1 0 0 1 0-1.6l6.3-4.7c.7-.5 1.6 0 1.6.8z" fill="currentColor"/></symbol>
+  <symbol id="ic-ff" viewBox="0 0 24 24"><path d="M12.5 7.3v9.4c0 .8.9 1.3 1.6.8l6.3-4.7a1 1 0 0 0 0-1.6l-6.3-4.7c-.7-.5-1.6 0-1.6.8z" fill="currentColor"/><path d="M3 7.3v9.4c0 .8.9 1.3 1.6.8l6.3-4.7a1 1 0 0 0 0-1.6L4.6 6.5C3.9 6 3 6.5 3 7.3z" fill="currentColor"/></symbol>
+  <symbol id="ic-voldown" viewBox="0 0 24 24"><path d="M4 9.6c-.6 0-1 .4-1 1v2.8c0 .6.4 1 1 1h2.5l3.6 3c.7.5 1.7 0 1.7-.8V7.4c0-.8-1-1.3-1.7-.8l-3.6 3H4z" fill="currentColor"/><path d="M15.5 12H20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-volup" viewBox="0 0 24 24"><path d="M4 9.6c-.6 0-1 .4-1 1v2.8c0 .6.4 1 1 1h2.5l3.6 3c.7.5 1.7 0 1.7-.8V7.4c0-.8-1-1.3-1.7-.8l-3.6 3H4z" fill="currentColor"/><path d="M17.7 9.8v4.4M15.5 12H20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-mute" viewBox="0 0 24 24"><path d="M4 9.6c-.6 0-1 .4-1 1v2.8c0 .6.4 1 1 1h2.5l3.6 3c.7.5 1.7 0 1.7-.8V7.4c0-.8-1-1.3-1.7-.8l-3.6 3H4z" fill="currentColor"/><path d="M16 10.2l4.2 3.6M20.2 10.2 16 13.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></symbol>
+  <symbol id="ic-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.4M9 20.4h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-out" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <p class="eyebrow">LG Remote · Direction C · folding in 004 · 006 · 008 · 009</p>
+      <h1>The new features, <em>in the design language</em></h1>
+    </div>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button id="bDark" class="on" onclick="setMode('dark')">☾ Dark</button>
+      <button id="bLight" onclick="setMode('light')">☀ Light</button>
+    </div>
+  </div>
+  <p class="lede" style="margin-top:18px;">Each new spec gets a home in Direction C — and each respects what SSAP can actually deliver: <b>app icon + name + play-state only</b>, no fake art, no scrubber, no next/prev. Toggle light/dark.</p>
+
+  <!-- ===== 004 NOW PLAYING ===== -->
+  <div class="section">
+    <h2>Now-playing &amp; cover view <span class="spec">spec 004</span></h2>
+    <p class="sub">When the TV is playing, a now-playing bar docks above the pad — tap it for the immersive cover view. The app's own icon is the artwork; transport is play/pause, stop, rewind, fast-forward.</p>
+    <div class="pair">
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib mic" aria-label="Voice"><svg class="ico"><use href="#ic-mic"/></svg></button><button class="ib pw">⏻</button></div>
+          <div class="npbar"><span class="brand yt">▶</span><span class="meta"><b>YouTube</b><small>Playing · tap for cover</small></span><span class="mini"><svg class="ico"><use href="#ic-pause"/></svg></span></div>
+          <div class="pad"><span class="hint hu">▲</span><span class="hint hd">▼</span><span class="hint hl">◀</span><span class="hint hr">▶</span><span class="ring">OK</span></div>
+          <div class="grip"><span class="bar"></span>More controls</div>
+        </div>
+        <div class="cap"><b>Home with now-playing</b><small>Bar appears only when media is live</small></div>
+      </div>
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><button class="ib" aria-label="Close now playing"><svg class="ico"><use href="#ic-close"/></svg></button><span class="sp"></span><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib">⋯</button></div>
+          <div class="cover">
+            <span class="brand yt big">▶</span>
+            <div><div class="ttl">YouTube</div><div class="state"><span class="d"></span>Playing</div></div>
+            <div class="transport"><button class="t" aria-label="Rewind"><svg class="ico"><use href="#ic-rew"/></svg></button><button class="t play" aria-label="Play/pause"><svg class="ico"><use href="#ic-pause"/></svg></button><button class="t" aria-label="Stop"><svg class="ico"><use href="#ic-stop"/></svg></button><button class="t" aria-label="Fast forward"><svg class="ico"><use href="#ic-ff"/></svg></button></div>
+            <span class="soundchip"><svg class="ico" style="width:15px;height:15px"><use href="#ic-out"/></svg> Soundbar (ARC)</span>
+          </div>
+        </div>
+        <div class="cap"><b>Cover view · app tile</b><small>Default: app icon, no scrubber/title</small></div>
+      </div>
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><button class="ib" aria-label="Close now playing"><svg class="ico"><use href="#ic-close"/></svg></button><span class="sp"></span><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib">⋯</button></div>
+          <div class="artcover">
+            <div class="scrim"></div>
+            <div class="ac-top"><span class="soundchip"><svg class="ico" style="width:15px;height:15px"><use href="#ic-out"/></svg> Soundbar</span></div>
+            <div class="ac-body">
+              <div><div class="ac-ttl">BBC One HD</div><div class="ac-sub">Live TV · channel logo available</div></div>
+              <div class="transport"><button class="t" aria-label="Rewind"><svg class="ico"><use href="#ic-rew"/></svg></button><button class="t play" aria-label="Play/pause"><svg class="ico"><use href="#ic-pause"/></svg></button><button class="t" aria-label="Stop"><svg class="ico"><use href="#ic-stop"/></svg></button><button class="t" aria-label="Fast forward"><svg class="ico"><use href="#ic-ff"/></svg></button></div>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>Cover view · with artwork</b><small>When the source provides it (Live TV · music · DLNA)</small></div>
+      </div>
+    </div>
+    <span class="honest">SSAP truth · art only when the source gives it, else the app tile</span>
+  </div>
+
+  <!-- ===== 006 AUDIO OUTPUT ===== -->
+  <div class="section">
+    <h2>Audio output switcher <span class="spec">spec 006</span></h2>
+    <p class="sub">A new <b>Sound</b> tab in the command sheet (and the chip in cover view) move sound between TV speakers, soundbar, Bluetooth or headphones in one tap. The active output is marked; unavailable ones grey out only after the TV rejects them.</p>
+    <div class="pair">
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><span class="tvchip"><span class="live"></span><span>Living Room TV</span></span><span class="sp"></span><button class="ib mic" aria-label="Voice"><svg class="ico"><use href="#ic-mic"/></svg></button><button class="ib pw">⏻</button></div>
+          <div class="pad" style="opacity:.4;"><span class="ring">OK</span></div>
+          <div class="sheet">
+            <span class="bar"></span>
+            <div class="segtab"><b>Keypad</b><b>Apps</b><b>Inputs</b><b class="on">Sound</b></div>
+            <div class="outs">
+              <div class="out on"><span class="ic">🔊</span>Soundbar (HDMI ARC)<span class="chk">✓</span></div>
+              <div class="out"><span class="ic">📺</span>TV speakers</div>
+              <div class="out"><span class="ic">🎧</span>Bluetooth headphones</div>
+              <div class="out dim"><span class="ic">🔌</span>Optical<span class="chk" style="font-size:10px;opacity:.7;">n/a</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>Sheet · Sound tab</b><small>Same vocabulary as Inputs/Apps</small></div>
+      </div>
+      <div class="tl" style="align-self:center;">
+        <div class="step"><span class="when">tap</span><div><h4>One tap to switch</h4><p>Active output carries the primary fill + check. Tapping another sends <code>changeSoundOutput</code> and the chip in cover view updates live.</p></div></div>
+        <div class="step"><span class="when">rejected</span><div><h4>Honest about availability</h4><p>SSAP can't list which outputs exist, so we show the common set and only grey one out <b>after</b> the TV returns <code>returnValue:false</code> — with a clear "not available right now" line, never a guess.</p></div></div>
+        <div class="step"><span class="when">live</span><div><h4>Reflects external changes</h4><p>Subscribed to <code>getSoundOutput</code> — switch via the physical remote and the app follows.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 009 NOTIFICATION ===== -->
+  <div class="section">
+    <h2>Lock screen &amp; shade controls <span class="spec">spec 009 · absorbs 003</span></h2>
+    <p class="sub">A MediaStyle notification driven by the same now-playing snapshot — volume, mute and play/pause without opening the app. Kept alive while locked by the 008 Tier-2 foreground service.</p>
+    <div class="pair">
+      <div class="col">
+        <div class="phone lock">
+          <div class="appbar"><span class="sp"></span><span style="font-size:11px;opacity:.7;">🔒</span><span class="sp"></span></div>
+          <div class="clock"><div class="t">9:41</div><div class="dt">Saturday, 20 June</div></div>
+          <div class="sp1"></div>
+          <div class="medianotif">
+            <div class="hd"><span class="dot"></span>LG Remote · Living Room TV</div>
+            <div class="body"><span class="brand yt">▶</span><div class="info"><b>YouTube</b><small>Playing on the TV</small></div></div>
+            <div class="tr"><button aria-label="Mute"><svg class="ico"><use href="#ic-mute"/></svg></button><button aria-label="Volume down"><svg class="ico"><use href="#ic-voldown"/></svg></button><button class="play" aria-label="Play/pause"><svg class="ico"><use href="#ic-pause"/></svg></button><button aria-label="Volume up"><svg class="ico"><use href="#ic-volup"/></svg></button><button aria-label="Stop"><svg class="ico"><use href="#ic-stop"/></svg></button></div>
+          </div>
+        </div>
+        <div class="cap"><b>Lock screen</b><small>Control without unlocking</small></div>
+      </div>
+      <div class="tl" style="align-self:center;">
+        <div class="step"><span class="when">why</span><div><h4>The #1 real moment</h4><p>"Phone on the table, screen locked, nudge the volume / pause." No unlock, no app launch, no socket wait.</p></div></div>
+        <div class="step"><span class="when">shows</span><div><h4>Same snapshot as in-app</h4><p>App icon + name + best-effort play-state from 004 — the bar and the notification never diverge.</p></div></div>
+        <div class="step"><span class="when">buttons</span><div><h4>Vol − · mute · play/pause · vol + · stop</h4><p>Each calls the existing <code>Commands</code> over the one live connection. Identical card renders in the shade and the Android 13+ media carousel.</p></div></div>
+        <div class="step"><span class="when">cost</span><div><h4>The honest trade-off</h4><p>A persistent notification + holding the socket while locked (008 Tier 2) is the battery cost of control-while-locked.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 008 RECONNECT ===== -->
+  <div class="section">
+    <h2>Seamless reconnect <span class="spec">spec 008</span></h2>
+    <p class="sub">Lock/unlock should be a visual non-event. The remote stays on screen and usable through a short grace window; the full "can't reach your TV" screen appears only when the TV is genuinely gone.</p>
+    <div class="pair">
+      <div class="tl">
+        <div class="step"><span class="when">0ms</span><div><h4>Unlock → already there</h4><p>The last-known remote is still rendered. Tap immediately and the action is sent or held for the sub-second reconnect. No spinner, no rebuild.</p><div class="chiprow"><span class="chip"><span class="d ok"></span>Living Room TV</span></div></div></div>
+        <div class="step"><span class="when">&lt; grace</span><div><h4>Quiet resume</h4><p>Within the grace window the chip shows a subtle "resuming" — no error screen, controls stay live and optimistic.</p><div class="chiprow"><span class="chip"><span class="d warn"></span>Resuming…</span></div></div></div>
+        <div class="step"><span class="when">&gt; grace</span><div><h4>Only now, the real screen</h4><p>If the TV is actually off/asleep/off-network past the grace window, the full reconnect screen appears — the one honest "can't reach it" moment.</p><div class="chiprow"><span class="chip"><span class="d off"></span>Off network · retry</span></div></div></div>
+      </div>
+      <div class="col">
+        <div class="phone">
+          <div class="appbar"><span class="tvchip warn"><span class="live"></span><span>Resuming…</span></span><span class="sp"></span><button class="ib mic" aria-label="Voice"><svg class="ico"><use href="#ic-mic"/></svg></button><button class="ib pw">⏻</button></div>
+          <div class="npbar" style="opacity:.85;"><span class="brand yt">▶</span><span class="meta"><b>YouTube</b><small>Holding · reconnecting</small></span><span class="mini"><svg class="ico"><use href="#ic-pause"/></svg></span></div>
+          <div class="pad"><span class="hint hu">▲</span><span class="hint hd">▼</span><span class="hint hl">◀</span><span class="hint hr">▶</span><span class="ring">OK</span></div>
+          <div class="grip"><span class="bar"></span>More controls</div>
+        </div>
+        <div class="cap"><b>During grace</b><small>Still usable — no disconnect flash</small></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">All four specs now live in Direction C without breaking its calm: <b>004</b> is a docking now-playing bar + cover view, <b>006</b> is a Sound tab in the same command sheet, <b>009</b> is the system media notification mirroring 004's snapshot, and <b>008</b> turns reconnects into a chip state instead of a screen. Everything obeys the SSAP truth — app + play-state only, no invented metadata. Seed is the violet placeholder; it follows whichever violet you lock from the family. Say the word and I'll merge these into one master Direction C artifact, then move to the Compose build plan.</p>
+</div>
+
+<script>
+  function setMode(m){
+    document.body.classList.toggle('light', m==='light');
+    document.getElementById('bLight').classList.toggle('on', m==='light');
+    document.getElementById('bDark').classList.toggle('on', m!=='light');
+  }
+</script>

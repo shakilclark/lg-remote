@@ -1,0 +1,241 @@
+<title>LG Remote — Notification controls</title>
+<style>
+  :root{
+    --page:#0D0B12;--page-2:#16131C;--pline:#2D2838;--ptext:#ECE8F2;--pmuted:#9C95A8;--seed:#D7BBFF;
+    --display:"SF Pro Display","Segoe UI",system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",sans-serif;
+    --data:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    --surf:#141218;--sc-low:#1C1922;--sc:#2A2531;--sc-high:#342D40;
+    --on:#E8E0EE;--onv:#CDC4D6;--outline:#4C4456;
+    --p:#D7BBFF;--op:#46177D;--pc:#5C2E9F;--opc:#EFDBFF;
+    --scon:#4C3D63;--oscon:#E9DDFB;--ok-c:#7FD49B;--shade:#0A0910;
+  }
+  body.light{
+    --page:#EBE5F2;--page-2:#F4EFFA;--pline:#D6CEE2;--ptext:#1D1B20;--pmuted:#5E5868;--seed:#6E2EC9;
+    --surf:#FDF7FF;--sc-low:#F6ECFC;--sc:#EFE3F8;--sc-high:#E9DDF4;
+    --on:#1D1B20;--onv:#4A454E;--outline:#7B757F;
+    --p:#6E2EC9;--op:#FFFFFF;--pc:#EFDBFF;--opc:#270056;
+    --scon:#ECDDFB;--oscon:#211A2C;--ok-c:#2E7D4F;--shade:#E4DCEF;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;color:var(--ptext);font-family:var(--body);line-height:1.5;letter-spacing:-0.005em;
+    background:radial-gradient(135% 90% at 50% -8%, var(--page-2) 0%, var(--page) 60%) fixed;
+    padding:clamp(20px,5vw,58px) clamp(16px,5vw,52px) 100px;transition:background .4s,color .4s;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+  .eyebrow{font-family:var(--data);font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:var(--pmuted);margin:0 0 14px;}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,5vw,52px);line-height:1;letter-spacing:-0.03em;margin:0 0 16px;max-width:15ch;}
+  h1 em{font-style:normal;color:var(--seed);}
+  .lede{max-width:64ch;color:var(--pmuted);font-size:clamp(15px,1.7vw,17px);margin:0;}
+  .lede b{color:var(--ptext);font-weight:600;}
+  .toggle{display:inline-flex;background:var(--page-2);border:1px solid var(--pline);border-radius:999px;padding:4px;gap:2px;flex:none;}
+  .toggle button{border:none;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--pmuted);padding:8px 16px;border-radius:999px;cursor:pointer;transition:.25s;}
+  .toggle button.on{background:var(--seed);color:var(--page);}
+
+  .row{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:44px;}
+  @media(max-width:980px){.row{grid-template-columns:repeat(2,1fr);max-width:620px;margin-inline:auto;}}
+  @media(max-width:520px){.row{grid-template-columns:1fr;max-width:300px;}}
+  .col{display:flex;flex-direction:column;align-items:center;gap:13px;}
+  .cap{text-align:center;}
+  .cap b{display:block;font-family:var(--display);font-size:14px;font-weight:700;}
+  .cap small{font-size:11.5px;color:var(--pmuted);}
+
+  .phone{position:relative;width:252px;aspect-ratio:9/19.5;border-radius:40px;overflow:hidden;
+    padding:16px 12px 13px;display:flex;flex-direction:column;color:#fff;
+    box-shadow:0 18px 44px -40px rgba(0,0,0,.9), inset 0 0 0 5px rgba(0,0,0,.5);}
+  body.light .phone{box-shadow:0 16px 38px -40px rgba(60,30,110,.6), inset 0 0 0 5px rgba(0,0,0,.06);}
+  .phone.lock{background:linear-gradient(165deg,#2a1d4d,#140f22 60%,#0c0a14);}
+  body.light .phone.lock{color:#1a1330;background:linear-gradient(165deg,#d7c6f5,#b59fe0 55%,#9f86d8);}
+  .phone.shade{background:var(--shade);color:var(--on);}
+
+  .statusbar{display:flex;justify-content:space-between;font-size:10px;opacity:.7;}
+  .clock{text-align:center;margin-top:14px;}
+  .clock .t{font-family:var(--display);font-size:50px;font-weight:300;line-height:1;letter-spacing:-0.02em;}
+  .clock .dt{font-size:11px;opacity:.82;margin-top:3px;}
+  .spacer{flex:1;}
+
+  /* QS hint for shade */
+  .qs{display:flex;gap:7px;margin:14px 0 12px;}
+  .qs i{flex:1;height:34px;border-radius:999px;background:color-mix(in srgb,var(--on) 9%, transparent);}
+  .qs i.on{background:var(--p);}
+  .seclabel{font-size:10px;color:var(--onv);margin:2px 2px 8px;text-transform:uppercase;letter-spacing:0.1em;font-family:var(--data);}
+
+  /* media card */
+  .mcard{background:color-mix(in srgb,var(--surf) 90%,transparent);border-radius:24px;padding:14px;color:var(--on);}
+  .phone.lock .mcard{backdrop-filter:blur(10px);}
+  .mhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px;}
+  .src{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--onv);min-width:0;}
+  .src .dot{width:15px;height:15px;border-radius:5px;background:var(--p);flex:none;}
+  .outchip{display:inline-flex;align-items:center;gap:6px;background:var(--scon);color:var(--oscon);border-radius:999px;padding:5px 11px 5px 9px;font-size:10.5px;font-weight:600;flex:none;cursor:pointer;}
+  .outchip .ico{width:14px;height:14px;}
+  .mbody{display:flex;align-items:center;gap:12px;}
+  .mbody .info{flex:1;min-width:0;}
+  .mbody .info b{display:block;font-size:15px;font-weight:700;font-family:var(--display);line-height:1.15;}
+  .mbody .info small{font-size:11.5px;color:var(--onv);}
+  .art{width:50px;height:50px;border-radius:13px;background:#FF0033;color:#fff;display:grid;place-items:center;flex:none;}
+  .art .ico{width:24px;height:24px;}
+  .mbtns{display:flex;align-items:center;justify-content:space-between;margin-top:13px;}
+  .mbtns button{background:none;border:none;color:var(--on);cursor:pointer;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;}
+  .mbtns .play{background:var(--p);color:var(--op);width:46px;height:46px;}
+  .ico{width:21px;height:21px;display:block;}
+  .play .ico{width:25px;height:25px;}
+
+  /* compact */
+  .mcard.compact .mbody{gap:10px;}
+  .mcard.compact .art{width:42px;height:42px;}
+  .inlinebtns{display:flex;gap:0;flex:none;}
+  .inlinebtns button{width:32px;height:32px;background:none;border:none;color:var(--on);display:grid;place-items:center;cursor:pointer;}
+  .inlinebtns .play{color:var(--p);}
+
+  /* output picker */
+  .scrim{position:absolute;inset:0;background:rgba(0,0,0,.5);}
+  .picker{position:absolute;left:8px;right:8px;bottom:8px;background:var(--sc-high);border-radius:28px;padding:16px 14px 16px;color:var(--on);box-shadow:0 -12px 30px -26px #000;}
+  .picker .ph{font-family:var(--display);font-size:15px;font-weight:700;margin:2px 4px 13px;}
+  .out{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:15px;font-size:13px;cursor:pointer;}
+  .out + .out{margin-top:5px;}
+  .out .ico{width:20px;height:20px;flex:none;color:var(--onv);}
+  .out.on{background:var(--p);color:var(--op);font-weight:700;}
+  .out.on .ico{color:var(--op);}
+  .out .chk{margin-left:auto;}
+  .out .chk .ico{color:var(--op);}
+  .out.dim{opacity:.45;}
+  .out.dim small{margin-left:auto;font-size:10px;font-family:var(--data);}
+
+  .note{margin-top:46px;padding-top:22px;border-top:1px solid var(--pline);color:var(--pmuted);font-size:14px;max-width:80ch;}
+  .note b{color:var(--ptext);} .note code{font-family:var(--data);font-size:12.5px;color:var(--seed);background:color-mix(in srgb,var(--seed) 14%,transparent);padding:2px 6px;border-radius:6px;}
+  button:focus-visible,.outchip:focus-visible,.out:focus-visible{outline:3px solid var(--seed);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ic-play" viewBox="0 0 24 24"><path d="M8.4 5.6c0-.9 1-1.5 1.8-1l8.1 5.1c.8.5.8 1.6 0 2.1l-8.1 5.1c-.8.5-1.8-.1-1.8-1V5.6z" fill="currentColor"/></symbol>
+  <symbol id="ic-pause" viewBox="0 0 24 24"><rect x="6.4" y="5" width="4" height="14" rx="2" fill="currentColor"/><rect x="13.6" y="5" width="4" height="14" rx="2" fill="currentColor"/></symbol>
+  <symbol id="ic-stop" viewBox="0 0 24 24"><rect x="5.8" y="5.8" width="12.4" height="12.4" rx="3.6" fill="currentColor"/></symbol>
+  <symbol id="ic-rew" viewBox="0 0 24 24"><path d="M11.5 7.3v9.4c0 .8-.9 1.3-1.6.8l-6.3-4.7a1 1 0 0 1 0-1.6l6.3-4.7c.7-.5 1.6 0 1.6.8z" fill="currentColor"/><path d="M21 7.3v9.4c0 .8-.9 1.3-1.6.8l-6.3-4.7a1 1 0 0 1 0-1.6l6.3-4.7c.7-.5 1.6 0 1.6.8z" fill="currentColor"/></symbol>
+  <symbol id="ic-ff" viewBox="0 0 24 24"><path d="M12.5 7.3v9.4c0 .8.9 1.3 1.6.8l6.3-4.7a1 1 0 0 0 0-1.6l-6.3-4.7c-.7-.5-1.6 0-1.6.8z" fill="currentColor"/><path d="M3 7.3v9.4c0 .8.9 1.3 1.6.8l6.3-4.7a1 1 0 0 0 0-1.6L4.6 6.5C3.9 6 3 6.5 3 7.3z" fill="currentColor"/></symbol>
+  <symbol id="ic-voldown" viewBox="0 0 24 24"><path d="M4 9.6c-.6 0-1 .4-1 1v2.8c0 .6.4 1 1 1h2.5l3.6 3c.7.5 1.7 0 1.7-.8V7.4c0-.8-1-1.3-1.7-.8l-3.6 3H4z" fill="currentColor"/><path d="M15.5 12H20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-volup" viewBox="0 0 24 24"><path d="M4 9.6c-.6 0-1 .4-1 1v2.8c0 .6.4 1 1 1h2.5l3.6 3c.7.5 1.7 0 1.7-.8V7.4c0-.8-1-1.3-1.7-.8l-3.6 3H4z" fill="currentColor"/><path d="M17.7 9.8v4.4M15.5 12H20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-mute" viewBox="0 0 24 24"><path d="M4 9.6c-.6 0-1 .4-1 1v2.8c0 .6.4 1 1 1h2.5l3.6 3c.7.5 1.7 0 1.7-.8V7.4c0-.8-1-1.3-1.7-.8l-3.6 3H4z" fill="currentColor"/><path d="M16 10.2l4.2 3.6M20.2 10.2 16 13.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-speaker" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="8" rx="2.4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="12" r="1.5" fill="currentColor"/><circle cx="15.5" cy="12" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="ic-tv" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="11.5" rx="2.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 20h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-bt" viewBox="0 0 24 24"><path d="M8 7.5l8 9-4 3.5v-16l4 3.5-8 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="ic-headphone" viewBox="0 0 24 24"><path d="M5 14v-2.5a7 7 0 0 1 14 0V14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3.5" y="13" width="3.6" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.9" y="13" width="3.6" height="6.5" rx="1.6" fill="currentColor"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.4 4.4L19 7.3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <p class="eyebrow">LG Remote · notification controls · spec 009 · V1 locked</p>
+      <h1>One notification, <em>everywhere it shows</em></h1>
+    </div>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button id="bDark" class="on" onclick="setMode('dark')">☾ Dark</button>
+      <button id="bLight" onclick="setMode('light')">☀ Light</button>
+    </div>
+  </div>
+  <p class="lede" style="margin-top:18px;">The same MediaStyle notification on the <b>lock screen</b>, in the <b>shade</b> (expanded and collapsed), with the <b>output chip</b> opening a clean device picker. Five buttons: mute · vol− · play/pause · vol+ · stop. No progress bar — webOS gives no position.</p>
+
+  <div class="row">
+    <!-- Lock screen -->
+    <div class="col">
+      <div class="phone lock">
+        <div class="statusbar"><span>9:41</span><span>🔒</span></div>
+        <div class="clock"><div class="t">9:41</div><div class="dt">Sat, 20 June</div></div>
+        <div class="spacer"></div>
+        <div class="mcard">
+          <div class="mhead"><span class="src"><span class="dot"></span>LG Remote</span><span class="outchip"><svg class="ico"><use href="#ic-speaker"/></svg>Soundbar</span></div>
+          <div class="mbody"><div class="info"><b>YouTube</b><small>Living Room TV · Playing</small></div><span class="art"><svg class="ico"><use href="#ic-play"/></svg></span></div>
+          <div class="mbtns">
+            <button aria-label="Mute"><svg class="ico"><use href="#ic-mute"/></svg></button>
+            <button aria-label="Volume down"><svg class="ico"><use href="#ic-voldown"/></svg></button>
+            <button class="play" aria-label="Play/pause"><svg class="ico"><use href="#ic-pause"/></svg></button>
+            <button aria-label="Volume up"><svg class="ico"><use href="#ic-volup"/></svg></button>
+            <button aria-label="Stop"><svg class="ico"><use href="#ic-stop"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>Lock screen</b><small>Control without unlocking</small></div>
+    </div>
+
+    <!-- Shade expanded -->
+    <div class="col">
+      <div class="phone shade">
+        <div class="statusbar" style="opacity:.6;"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="qs"><i class="on"></i><i></i><i></i><i></i></div>
+        <div class="seclabel">Media</div>
+        <div class="mcard">
+          <div class="mhead"><span class="src"><span class="dot"></span>LG Remote</span><span class="outchip"><svg class="ico"><use href="#ic-speaker"/></svg>Soundbar</span></div>
+          <div class="mbody"><div class="info"><b>YouTube</b><small>Living Room TV · Playing</small></div><span class="art"><svg class="ico"><use href="#ic-play"/></svg></span></div>
+          <div class="mbtns">
+            <button aria-label="Mute"><svg class="ico"><use href="#ic-mute"/></svg></button>
+            <button aria-label="Volume down"><svg class="ico"><use href="#ic-voldown"/></svg></button>
+            <button class="play" aria-label="Play/pause"><svg class="ico"><use href="#ic-pause"/></svg></button>
+            <button aria-label="Volume up"><svg class="ico"><use href="#ic-volup"/></svg></button>
+            <button aria-label="Stop"><svg class="ico"><use href="#ic-stop"/></svg></button>
+          </div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="cap"><b>Shade · expanded</b><small>Full 5-button player</small></div>
+    </div>
+
+    <!-- Shade collapsed -->
+    <div class="col">
+      <div class="phone shade">
+        <div class="statusbar" style="opacity:.6;"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="qs"><i class="on"></i><i></i><i></i><i></i></div>
+        <div class="seclabel">Media</div>
+        <div class="mcard compact">
+          <div class="mhead"><span class="src"><span class="dot"></span>LG Remote · Living Room TV</span></div>
+          <div class="mbody">
+            <span class="art"><svg class="ico"><use href="#ic-play"/></svg></span>
+            <div class="info"><b>YouTube</b><small>Playing</small></div>
+            <div class="inlinebtns">
+              <button aria-label="Volume down"><svg class="ico"><use href="#ic-voldown"/></svg></button>
+              <button class="play" aria-label="Play/pause"><svg class="ico"><use href="#ic-pause"/></svg></button>
+              <button aria-label="Volume up"><svg class="ico"><use href="#ic-volup"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="seclabel" style="margin-top:14px;">Earlier</div>
+        <div class="mcard" style="opacity:.5;"><div class="mbody"><div class="info"><b style="font-size:13px;">Calendar</b><small>Standup · 10:00</small></div></div></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="cap"><b>Shade · collapsed</b><small>3 promoted buttons</small></div>
+    </div>
+
+    <!-- Output picker -->
+    <div class="col">
+      <div class="phone shade">
+        <div class="statusbar" style="opacity:.6;"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="seclabel">Media</div>
+        <div class="mcard" style="opacity:.45;">
+          <div class="mhead"><span class="src"><span class="dot"></span>LG Remote</span></div>
+          <div class="mbody"><div class="info"><b>YouTube</b><small>Living Room TV</small></div><span class="art"><svg class="ico"><use href="#ic-play"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="scrim"></div>
+        <div class="picker">
+          <div class="ph">Play sound on</div>
+          <div class="out on"><svg class="ico"><use href="#ic-speaker"/></svg>Soundbar (HDMI ARC)<span class="chk"><svg class="ico"><use href="#ic-check"/></svg></span></div>
+          <div class="out"><svg class="ico"><use href="#ic-tv"/></svg>TV speakers</div>
+          <div class="out"><svg class="ico"><use href="#ic-bt"/></svg>Bluetooth headphones</div>
+          <div class="out dim"><svg class="ico"><use href="#ic-headphone"/></svg>Optical<small>n/a</small></div>
+        </div>
+      </div>
+      <div class="cap"><b>Output picker</b><small>Tap the chip → switch sound (006)</small></div>
+    </div>
+  </div>
+
+  <p class="note">The fixed output chip now uses a clear <b>speaker/device</b> icon, and tapping it opens the system-style <b>output picker</b> — which <i>is</i> the audio-output switcher (spec 006): active output checked, unavailable ones dimmed only after the TV rejects them. Lock screen and shade render the identical card; collapsed promotes 3 of the 5 buttons. All on Material Symbols Rounded, Ultraviolet, light + dark. Next: fold this into the master set, or start the Compose build plan.</p>
+</div>
+
+<script>
+  function setMode(m){
+    document.body.classList.toggle('light', m==='light');
+    document.getElementById('bLight').classList.toggle('on', m==='light');
+    document.getElementById('bDark').classList.toggle('on', m!=='light');
+  }
+</script>

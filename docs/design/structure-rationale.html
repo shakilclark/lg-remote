@@ -1,0 +1,154 @@
+<title>LG Remote — Structural directions</title>
+<style>
+  :root{
+    --ground:#141519;--raise:#1C1E23;--raise-2:#23262C;--line:#34373F;--line-soft:#2A2D33;
+    --text:#E9EAEE;--muted:#9A9DA8;--faint:#6E727C;--accent:#B6C2FF;--accent-ink:#1A2150;
+    --display:"SF Pro Display","Segoe UI",system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",sans-serif;
+    --data:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    --surf:#101216;--sc-low:#181B20;--sc:#1F232A;--sc-high:#272B33;--on:#E7E9ED;--onv:#A6AAB4;--key-line:#363A43;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;color:var(--text);font-family:var(--body);line-height:1.5;letter-spacing:-0.005em;
+    background:radial-gradient(135% 95% at 50% -8%, #1B1D24 0%, var(--ground) 58%) fixed;
+    padding:clamp(20px,5vw,64px) clamp(16px,5vw,52px) 100px;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  .eyebrow{font-family:var(--data);font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,5.4vw,56px);line-height:1;letter-spacing:-0.03em;margin:0 0 18px;max-width:17ch;}
+  .lede{max-width:64ch;color:#C6C8D1;font-size:clamp(15px,1.7vw,18px);margin:0;}
+  .lede b{color:var(--text);font-weight:600;}
+
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:46px;}
+  @media(max-width:880px){.row{grid-template-columns:1fr;max-width:420px;margin-inline:auto;}}
+
+  .opt{background:var(--raise);border:1px solid var(--line-soft);border-radius:26px;padding:22px 20px 24px;display:flex;flex-direction:column;gap:16px;}
+  .opt.pick{border-color:color-mix(in srgb,var(--accent) 55%,var(--line-soft));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 30%,transparent);}
+  .tag{font-family:var(--data);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px;}
+  .tag .star{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:2px 8px;font-weight:700;letter-spacing:0.08em;}
+  h2{font-family:var(--display);font-weight:750;font-size:22px;letter-spacing:-0.02em;margin:0;}
+  .gist{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5;}
+
+  /* mini phone sketch */
+  .ph{position:relative;width:188px;aspect-ratio:9/19;margin:2px auto 0;background:var(--surf);border-radius:32px;border:1px solid var(--key-line);box-shadow:inset 0 0 0 5px #0A0B0E;padding:14px 11px 11px;display:flex;flex-direction:column;gap:8px;overflow:hidden;}
+  .bar{display:flex;align-items:center;gap:6px;}
+  .chip{flex:1;height:22px;border-radius:999px;background:var(--sc);}
+  .sq{width:22px;height:22px;border-radius:8px;background:var(--sc);flex:none;}
+  .zone{display:grid;grid-template-columns:26px 1fr 26px;gap:7px;align-items:center;flex:1;min-height:0;}
+  .rk{height:100%;max-height:120px;background:var(--sc);border-radius:999px;}
+  .dp{aspect-ratio:1/1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:5px;margin:auto;width:100%;max-width:118px;}
+  .dp span{background:var(--sc);border-radius:11px;}
+  .dp .o{grid-area:2/2;background:var(--accent);border-radius:16px;}
+  .dp .u{grid-area:1/2;} .dp .l{grid-area:2/1;} .dp .r{grid-area:2/3;} .dp .d{grid-area:3/2;}
+  .trio{display:flex;gap:6px;justify-content:center;}
+  .trio i{width:30px;height:22px;border-radius:9px;background:var(--sc-low);border:1px solid var(--line-soft);}
+  .trio i.mid{width:38px;background:var(--sc-high);}
+
+  /* A: pager dots + ghost edge */
+  .ghost{position:absolute;top:54px;right:-26px;width:60px;bottom:54px;background:var(--sc-low);border-radius:24px;opacity:.5;}
+  .dots{display:flex;gap:5px;justify-content:center;align-items:center;}
+  .dots i{width:6px;height:6px;border-radius:50%;background:var(--faint);}
+  .dots i.on{width:18px;border-radius:999px;background:var(--accent);}
+  .swipehint{position:absolute;top:50%;right:6px;transform:translateY(-50%);color:var(--accent);font-size:18px;opacity:.8;}
+
+  /* B: scroll */
+  .scrollcol{flex:1;display:flex;flex-direction:column;gap:7px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 78%,transparent);mask-image:linear-gradient(#000 78%,transparent);}
+  .block{border-radius:13px;background:var(--sc);flex:none;}
+  .block.h1{height:30px;} .block.h2{height:58px;} .block.h3{height:46px;} .block.kp{height:74px;background:repeating-linear-gradient(var(--sc),var(--sc) 17px,var(--surf) 17px,var(--surf) 22px);}
+  .scrollbar{position:absolute;right:6px;top:60px;bottom:30px;width:3px;border-radius:2px;background:linear-gradient(var(--accent) 30%,transparent 30%);opacity:.7;}
+
+  /* C: gesture pad */
+  .pad{flex:1;border-radius:20px;border:1px dashed var(--key-line);background:radial-gradient(circle at 50% 45%,var(--sc) 0%,var(--sc-low) 70%);display:grid;place-items:center;position:relative;color:var(--onv);font-size:10px;text-align:center;}
+  .pad .tapdot{width:34px;height:34px;border-radius:50%;background:var(--accent);opacity:.85;}
+  .ar{position:absolute;color:var(--accent);font-size:13px;opacity:.85;}
+  .ar.up{top:6px;left:50%;transform:translateX(-50%);} .ar.dn{bottom:36px;left:50%;transform:translateX(-50%);}
+  .ar.lf{left:6px;top:46%;} .ar.rt{right:6px;top:46%;}
+  .dock{display:flex;gap:6px;justify-content:center;}
+  .dock i{width:30px;height:30px;border-radius:11px;background:var(--sc);}
+  .dock i.mic{background:var(--accent);}
+
+  .meta{display:flex;flex-direction:column;gap:11px;}
+  .kv{display:flex;gap:9px;font-size:12.5px;line-height:1.4;}
+  .kv b{font-family:var(--data);font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);flex:none;width:54px;padding-top:2px;}
+  .kv span{color:var(--muted);}
+  .kv.good b{color:#7FC99B;} .kv.bad b{color:#E0918B;}
+
+  .note{margin-top:50px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:14.5px;max-width:74ch;}
+  .note b{color:var(--text);}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">LG Remote · structural directions · pick a navigation model</p>
+  <h1>How do you move through it?</h1>
+  <p class="lede">Same goal — a calm, full-time replacement — three different bets on <b>how you get between controls</b>. The bottom-tab version you saw is dropped. Each sketch shows its one defining interaction. Pick a direction (or a blend) and I'll build that one out properly.</p>
+
+  <div class="row">
+    <!-- ============ A: SWIPE PAGER (recommended) ============ -->
+    <div class="opt pick">
+      <span class="tag"><span class="star">Recommended</span> Swipe pager</span>
+      <h2>Pages you swipe</h2>
+      <p class="gist">Each surface is its own full page — <b>Pad · Remote · Apps · Keypad · Inputs</b> — swiped left/right with M3 shared-axis motion. No tab bar stealing height, so controls breathe. Dots show where you are.</p>
+      <div class="ph" aria-hidden="true">
+        <div class="ghost"></div>
+        <div class="bar"><span class="chip"></span><span class="sq"></span><span class="sq"></span></div>
+        <div class="zone"><span class="rk"></span>
+          <div class="dp"><span class="u"></span><span class="l"></span><span class="o"></span><span class="r"></span><span class="d"></span></div>
+          <span class="rk"></span></div>
+        <div class="trio"><i></i><i class="mid"></i><i></i></div>
+        <div class="dots"><i></i><i class="on"></i><i></i><i></i><i></i></div>
+        <span class="swipehint">›</span>
+      </div>
+      <div class="meta">
+        <div class="kv"><b>Navigate</b><span>Swipe between pages · dots to orient</span></div>
+        <div class="kv good"><b>Win</b><span>Fluid &amp; beautiful; every page stays simple; max control height</span></div>
+        <div class="kv bad"><b>Cost</b><span>Hidden pages need a learnable order; dots are the only signpost</span></div>
+      </div>
+    </div>
+
+    <!-- ============ B: SINGLE SCROLL ============ -->
+    <div class="opt">
+      <span class="tag">Single scroll</span>
+      <h2>One long remote</h2>
+      <p class="gist">No navigation at all. Everything on one vertical surface — D-pad &amp; volume up top in the thumb zone, scroll down for number pad, colored keys and apps. One page, one mental model.</p>
+      <div class="ph" aria-hidden="true">
+        <div class="scrollbar"></div>
+        <div class="bar"><span class="chip"></span><span class="sq"></span><span class="sq"></span></div>
+        <div class="scrollcol">
+          <span class="block h2"></span>
+          <span class="block h3"></span>
+          <span class="block h1"></span>
+          <span class="block kp"></span>
+          <span class="block h2"></span>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="kv"><b>Navigate</b><span>Just scroll · nothing hidden</span></div>
+        <div class="kv good"><b>Win</b><span>Zero learning; everything is "down there somewhere"</span></div>
+        <div class="kv bad"><b>Cost</b><span>Long thumb travel; least-used stuff buried; can feel like a list, not a remote</span></div>
+      </div>
+    </div>
+
+    <!-- ============ C: GESTURE PAD ============ -->
+    <div class="opt">
+      <span class="tag">Gesture-first</span>
+      <h2>The whole screen is the remote</h2>
+      <p class="gist">The minimalist pointing-remote idea. The surface <b>is</b> the trackpad: tap = OK, swipe edges = volume / channel, swipe-from-edge = back, long-press = a command palette with everything else. A tiny dock keeps mic, keypad &amp; apps one tap away.</p>
+      <div class="ph" aria-hidden="true">
+        <div class="bar"><span class="chip"></span><span class="sq"></span></div>
+        <div class="pad">
+          <span class="ar up">▲</span><span class="ar dn">▼</span><span class="ar lf">◀</span><span class="ar rt">▶</span>
+          <span class="tapdot"></span>
+        </div>
+        <div class="dock"><i class="mic"></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="meta">
+        <div class="kv"><b>Navigate</b><span>Gestures · long-press palette · mini dock</span></div>
+        <div class="kv good"><b>Win</b><span>Boldest &amp; calmest; one surface; very "M3 Expressive"</span></div>
+        <div class="kv bad"><b>Cost</b><span>Discoverability — hidden gestures need onboarding; risky as a daily driver</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">My lean is <b>the swipe pager</b> — it keeps each surface as simple as the scroll model wants to be, feels far more like a designed remote, and shows off M3 Expressive page motion, without betting the whole experience on hidden gestures. A strong <b>blend</b> also exists: pager for the surfaces, with the <b>Pad page</b> being the full gesture/trackpad area — so power users get gestures without everyone depending on them. Tell me which direction (or blend) and I'll build it out in high fidelity.</p>
+</div>
