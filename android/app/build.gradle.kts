@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.roborazzi)
 }
 
 android {
@@ -38,7 +39,10 @@ android {
         compose = true
     }
     testOptions {
-        unitTests.all { it.useJUnitPlatform() }
+        unitTests {
+            isIncludeAndroidResources = true
+            all { it.useJUnitPlatform() }
+        }
     }
 }
 
@@ -67,6 +71,16 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.kotlinx.coroutines.test)
+
+    // Compose behaviour + Roborazzi screenshot tests (JVM via Robolectric, no emulator)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.rule)
+    testRuntimeOnly(libs.junit.vintage.engine) // run JUnit4 (Robolectric) tests under JUnitPlatform
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     // Compose UI tests
     androidTestImplementation(platform(libs.androidx.compose.bom))
