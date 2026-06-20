@@ -5,23 +5,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.shakilclark.lgremote.connection.ConnectionState
-import com.shakilclark.lgremote.ui.theme.Muted
 import com.shakilclark.lgremote.tv.AppKey
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
+import com.shakilclark.lgremote.ui.theme.Space
 
-/** The connected remote (US2 controls + US3 nav + US6 shortcuts + US7 inputs; US5 adds cursor). */
+/** The connected remote (US2 controls + US3 nav + US5 cursor + US6 shortcuts + US7 inputs). */
 @Composable
 fun RemoteScreen(
     state: ConnectionState.Connected,
@@ -40,15 +39,11 @@ fun RemoteScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = Space.s),
+        verticalArrangement = Arrangement.spacedBy(Space.xl),
     ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            VolumePad(
-                onUp = onVolumeUp,
-                onDown = onVolumeDown,
-                modifier = Modifier.weight(1f),
-            )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.l)) {
+            VolumePad(onUp = onVolumeUp, onDown = onVolumeDown, modifier = Modifier.weight(1f))
             PlaybackBar(
                 muted = state.muted,
                 onToggleMute = onToggleMute,
@@ -59,8 +54,8 @@ fun RemoteScreen(
         state.volume?.let { vol ->
             Text(
                 "Volume $vol",
-                color = Muted,
-                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -72,7 +67,7 @@ fun RemoteScreen(
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780)
+@Preview(showBackground = true, widthDp = 360, heightDp = 820)
 @Composable
 private fun RemotePreview() {
     LGRemoteTheme {
