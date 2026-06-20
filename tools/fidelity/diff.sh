@@ -26,5 +26,10 @@ echo "$SURFACES" | while read -r name golden w h; do
     --window-size="$w,$h" --screenshot="$refpng" "file://$ref" >/dev/null 2>&1
   magick "$refpng" -resize "${w}x${h}!" "$refpng" >/dev/null 2>&1
   rmse=$(compare -metric RMSE "$refpng" "$GOLD/$golden.png" "$diffpng" 2>&1)
-  printf "%-20s %-20s %s\n" "$name" "$rmse" "$diffpng"
+  # structural (de-noised): blur + downscale washes out AA/font/glyph noise → layout/colour/shadow only
+  rs="$OUT/$name.ref.s.png"; gs="$OUT/$name.gold.s.png"
+  magick "$refpng"            -blur 0x2 -resize 25% "$rs" >/dev/null 2>&1
+  magick "$GOLD/$golden.png"  -blur 0x2 -resize 25% "$gs" >/dev/null 2>&1
+  srmse=$(compare -metric RMSE "$rs" "$gs" "$OUT/$name.diff.s.png" 2>&1)
+  printf "%-16s structural=%-20s raw=%-20s\n" "$name" "$srmse" "$rmse"
 done
