@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Window/launch background = the Ultraviolet light surface (Theme.kt UltravioletLight.surface),
+         so the cold-start window matches the Compose surface and never flashes black in light mode.
+         Dark override in values-night/colors.xml. -->
+    <color name="window_background">#FDF7FF</color>
+</resources>
