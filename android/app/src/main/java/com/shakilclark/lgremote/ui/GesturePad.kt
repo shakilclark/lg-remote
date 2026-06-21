@@ -42,10 +42,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.ImageShader
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.ShaderBrush
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -256,37 +253,32 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean, muted:
 private fun OkButton(pressed: Boolean) {
     val scheme = MaterialTheme.colorScheme
     val dark = scheme.surface.luminance() < 0.5f
-    // A genuine concave bowl: fill dialled well below the pad, lighter pooled low (top-lit recess),
-    // darker toward the rim, a concentrated dark crescent up top, and a bright specular lip at the
-    // bottom inner wall. Mode-aware so dark mode reads properly black, not a flat grey disc.
-    // On press it sinks: the crest shadow deepens and the fill darkens a touch (subtle, animated).
+    // Matches web target A: a light, low-contrast lilac disc dialled just below the pad, with a soft
+    // inset top shadow (purple-tinted, like the web's rgba(70,40,110)) and a faint bright bottom lip —
+    // gentle depth, not a dark bowl. Mode-aware. On press it sinks: the top shadow deepens, fill darkens
+    // a touch, the lip dims (subtle, animated).
     val press by animateFloatAsState(
         if (pressed) 1f else 0f, animationSpec = tween(durationMillis = 90), label = "okPress",
     )
-    val fill = lerp(scheme.surfaceContainerHigh, Color.Black, (if (dark) 0.22f else 0.10f) + press * 0.06f)
-    val rim = lerp(fill, Color.Black, if (dark) 0.45f else 0.35f)
-    val crestA = (if (dark) 0.62f else 0.40f) + press * 0.18f
-    val lipA = (if (dark) 0.06f else 0.45f) * (1f - press * 0.4f)
+    val fill = lerp(scheme.surfaceContainerHigh, Color.Black, (if (dark) 0.12f else 0.045f) + press * 0.05f)
+    val crestTint = lerp(Color.Black, scheme.primary, 0.20f) // soft purple-black, like the web shadow
+    val crestA = (if (dark) 0.30f else 0.20f) + press * 0.16f
+    val lipA = (if (dark) 0.03f else 0.15f) * (1f - press * 0.4f)
     Box(
         Modifier
             .size(80.dp)
             .clip(CircleShape)
             .drawWithCache {
-                val bowl = Brush.radialGradient(
-                    0f to fill, 1f to rim,
-                    center = Offset(size.width * 0.5f, size.height * 0.66f),
-                    radius = size.maxDimension * 0.62f,
-                )
                 val crest = Brush.verticalGradient(
-                    0f to Color.Black.copy(alpha = crestA), 0.55f to Color.Transparent,
-                    startY = 0f, endY = size.height * 0.5f,
+                    0f to crestTint.copy(alpha = crestA), 1f to Color.Transparent,
+                    startY = 0f, endY = size.height * 0.22f,
                 )
                 val lip = Brush.verticalGradient(
                     0f to Color.Transparent, 1f to Color.White.copy(alpha = lipA),
-                    startY = size.height * 0.78f, endY = size.height,
+                    startY = size.height * 0.90f, endY = size.height,
                 )
                 onDrawBehind {
-                    drawRect(bowl)
+                    drawRect(fill)
                     drawRect(crest)
                     drawRect(lip)
                 }
@@ -334,24 +326,31 @@ private fun BoxScope.Corner(
  * The pad's recessed surface (design-system §5.2) — a **directionally-lit inset tray**, not a bowl: a
  * flat, even field (a centred radial reads as a bulging sphere on-device), with depth coming from a soft
  * shadow down the top lip + side walls and a lit bottom lip — the cue your eye reads as "sunken panel".
- * A faint **cross-hatch mesh** (woven 45°/-45° lines) gives it a rubbery tactility. The mesh is a tiny
- * tiled bitmap (cached by [drawWithCache] + repeated by the GPU), so dragging stays cheap.
+ * A **cross-hatch mesh** (woven 45°/-45° lines) gives it a rubbery tactility — drawn with exact geometry
+ * (6dp perpendicular spacing, 1dp lines, matching the web ref's 1px/6px hatch) into a bitmap that's
+ * cached by [drawWithCache] and rebuilt only when the size changes, so dragging stays cheap.
  */
 private fun Modifier.recessedWell(surface: Color, onSurface: Color): Modifier =
     drawWithCache {
-        val sp = 6.dp.toPx().toInt().coerceAtLeast(3) // mesh spacing
-        val tile = ImageBitmap(sp, sp)
+        val mw = size.width.toInt().coerceAtLeast(1)
+        val mh = size.height.toInt().coerceAtLeast(1)
+        val meshBmp = ImageBitmap(mw, mh)
+        val meshCanvas = Canvas(meshBmp)
         val meshPaint = Paint().apply {
-            color = onSurface.copy(alpha = 0.035f) // muted: AA on-device reads hotter than the .05 web ref
-            strokeWidth = 1f
+            color = onSurface.copy(alpha = 0.05f) // matches the web ref hatch alpha
+            strokeWidth = 1.dp.toPx() // density-correct ~1px line
             isAntiAlias = true
         }
-        Canvas(tile).apply {
-            // Corner-to-corner diagonals; tiled they form continuous 45°/-45° cross-hatch.
-            drawLine(Offset(0f, 0f), Offset(sp.toFloat(), sp.toFloat()), meshPaint)
-            drawLine(Offset(sp.toFloat(), 0f), Offset(0f, sp.toFloat()), meshPaint)
+        val fh = mh.toFloat()
+        val step = 6.dp.toPx() * 1.41421f // intercept step for 6dp perpendicular line spacing
+        var k = -fh
+        while (k <= mw) { // "\" diagonals (slope +1)
+            meshCanvas.drawLine(Offset(k, 0f), Offset(k + fh, fh), meshPaint); k += step
         }
-        val mesh = ShaderBrush(ImageShader(tile, TileMode.Repeated, TileMode.Repeated))
+        k = 0f
+        while (k <= mw + fh) { // "/" diagonals (slope -1)
+            meshCanvas.drawLine(Offset(k, 0f), Offset(k - fh, fh), meshPaint); k += step
+        }
         // Flat field: the overhang shades the very top, then it settles to an even surface. No radial.
         val field = Brush.verticalGradient(
             0f to lerp(surface, Color.Black, 0.05f), 0.16f to surface, 1f to surface,
@@ -375,7 +374,7 @@ private fun Modifier.recessedWell(surface: Color, onSurface: Color): Modifier =
         )
         onDrawBehind {
             drawRect(field)
-            drawRect(mesh)
+            drawImage(meshBmp)
             drawRect(topShadow, size = Size(size.width, topPx))
             drawRect(leftShadow, size = Size(sidePx, size.height))
             drawRect(rightShadow, topLeft = Offset(size.width - sidePx, 0f), size = Size(sidePx, size.height))
