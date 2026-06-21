@@ -1,0 +1,20 @@
+<!-- Fidelity ref: NOW-PLAYING BAR, full-bleed 411x56, Ultraviolet light. Ported from
+     docs/design/direction-c-features.html §004 npbar + the app's NowPlayingBar: a surfaceContainerHigh
+     pill (large/28dp) with a 36dp icon tile (surfaceContainerHighest, letter fallback), app name +
+     play-state, and a mini play/pause at the trailing edge (PlayArrow when paused — the golden fixture). -->
+<style>
+  :root{--surf:#FDF7FF;--sc-high:#E9DDF4;--sc-highest:#E3D7EE;--on:#1D1B20;--onv:#4A454E;}
+  *{box-sizing:border-box;margin:0;}
+  html,body{width:411px;height:56px;background:var(--surf);font-family:system-ui,sans-serif;}
+  .bar{display:flex;align-items:center;gap:8px;height:56px;background:var(--sc-high);border-radius:28px;padding:8px 8px 8px 12px;}
+  .ico{width:36px;height:36px;border-radius:14px;background:var(--sc-highest);display:grid;place-items:center;font-size:20px;font-weight:400;color:var(--onv);flex:none;}
+  .meta{flex:1;min-width:0;padding-left:4px;}
+  .meta .t{font-size:14px;font-weight:600;color:var(--on);line-height:1.2;}
+  .meta .s{font-size:11px;color:var(--onv);}
+  .play{width:40px;height:40px;display:grid;place-items:center;color:var(--on);font-size:18px;flex:none;}
+</style>
+<div class="bar">
+  <div class="ico">N</div>
+  <div class="meta"><div class="t">Netflix</div><div class="s">Paused</div></div>
+  <div class="play">&#9654;</div>
+</div>

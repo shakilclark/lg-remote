@@ -10,11 +10,13 @@ OUT="$ROOT/tools/fidelity/out"
 GOLD="$ROOT/android/app/src/test/screenshots"
 mkdir -p "$OUT"
 
-# surface  golden-basename  width  height
+# surface  golden-basename  width  height   (height = the golden's true px — keep in sync)
 SURFACES="
 home remote_connected 411 1200
-command-sheet command_sheet 411 480
-cover now_playing_cover 411 333
+command-sheet command_sheet 411 472
+cover now_playing_cover 411 345
+app-grid app_grid 411 320
+now-playing-bar now_playing_bar 411 56
 "
 
 echo "surface              RMSE (0=identical)   diff image"

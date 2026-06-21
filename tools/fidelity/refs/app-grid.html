@@ -1,0 +1,19 @@
+<!-- Fidelity ref: APP GRID (Apps tab populated), full-bleed 411x320, Ultraviolet light. Mirrors the
+     app_grid golden's fixture: 4-column grid of 60dp tonal tiles (letter fallback, no network in test)
+     with the app name beneath. Tile = surfaceContainerHigh / medium (20dp) corner; label onSurfaceVariant. -->
+<style>
+  :root{--surf:#FDF7FF;--sc-high:#E9DDF4;--on:#1D1B20;--onv:#4A454E;}
+  *{box-sizing:border-box;margin:0;}
+  html,body{width:411px;height:320px;background:var(--surf);font-family:system-ui,sans-serif;}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);column-gap:8px;row-gap:16px;padding:6px 0 0;}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .tile{width:60px;height:60px;border-radius:20px;background:var(--sc-high);display:grid;place-items:center;font-size:22px;font-weight:400;color:var(--onv);}
+  .lbl{font-size:11px;color:var(--onv);text-align:center;white-space:nowrap;}
+</style>
+<div class="grid">
+  <div class="cell"><div class="tile">Y</div><div class="lbl">YouTube</div></div>
+  <div class="cell"><div class="tile">N</div><div class="lbl">Netflix</div></div>
+  <div class="cell"><div class="tile">D</div><div class="lbl">Disney+</div></div>
+  <div class="cell"><div class="tile">B</div><div class="lbl">BBC iPlayer</div></div>
+  <div class="cell"><div class="tile">P</div><div class="lbl">Prime Video</div></div>
+</div>

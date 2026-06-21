@@ -1,22 +1,29 @@
-<!-- Fidelity ref: NOW-PLAYING COVER, full-bleed 411x333, Ultraviolet light, de-noised. -->
+<!-- Fidelity ref: NOW-PLAYING COVER, full-bleed 411x345, Ultraviolet light. Ported from
+     docs/design/direction-c-features.html §004: 132dp app tile (icon = cover; letter fallback in the
+     golden), title + dotted play-state, transport (rewind · play/pause · stop · fast-forward) with the
+     play key emphasised (primary-filled, larger), and the inactive Output chip (006/020 shell). The app
+     renders rounded-square keys (native M3 finish) rather than the mockup's circles. -->
 <style>
-  :root{--surf:#FDF7FF;--sc:#EFE3F8;--sc-high:#E9DDF4;--on:#1D1B20;--onv:#4A454E;--p:#6E2EC9;--op:#FFFFFF;--scon:#ECDDFB;--oscon:#211A2C;}
+  :root{--surf:#FDF7FF;--sc:#EFE3F8;--sc-high:#E9DDF4;--on:#1D1B20;--onv:#4A454E;--p:#6E2EC9;--op:#FFFFFF;--scon:#ECDDFB;--oscon:#211A2C;--ok-c:#2E7D4F;}
   *{box-sizing:border-box;margin:0;}
-  html,body{width:411px;height:333px;background:var(--surf);font-family:system-ui,sans-serif;}
-  .cover{display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 16px;}
-  .tile{width:120px;height:120px;border-radius:28px;background:var(--sc-high);}
-  .ttl{font-size:19px;font-weight:700;color:var(--on);}
-  .state{font-size:13px;color:var(--onv);display:inline-flex;align-items:center;gap:6px;}
+  html,body{width:411px;height:345px;background:var(--surf);font-family:system-ui,sans-serif;}
+  .cover{display:flex;flex-direction:column;align-items:center;gap:16px;padding:2px 16px 0;}
+  .tile{width:132px;height:132px;border-radius:28px;background:var(--sc-high);display:grid;place-items:center;font-size:22px;font-weight:400;color:var(--onv);}
+  .titleblock{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .ttl{font-size:22px;font-weight:700;color:var(--on);}
+  .state{font-size:14px;color:var(--onv);display:inline-flex;align-items:center;gap:8px;}
   .state::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--p);}
   .trans{display:flex;gap:16px;align-items:center;}
-  .k{width:60px;height:60px;border-radius:20px;background:var(--sc);}
+  .k{width:60px;height:60px;border-radius:20px;background:var(--sc-high);}
   .k.play{width:72px;height:72px;border-radius:24px;background:var(--p);}
-  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--scon);color:var(--oscon);border-radius:999px;padding:8px 14px;font-size:13px;opacity:.55;}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--scon);color:var(--oscon);border-radius:999px;padding:9px 16px;font-size:14px;opacity:.55;}
 </style>
 <div class="cover">
-  <div class="tile"></div>
-  <div class="ttl">YouTube</div>
-  <div class="state">Playing</div>
+  <div class="tile">Y</div>
+  <div class="titleblock">
+    <div class="ttl">YouTube</div>
+    <div class="state">Playing</div>
+  </div>
   <div class="trans"><span class="k"></span><span class="k play"></span><span class="k"></span><span class="k"></span></div>
   <span class="chip">Output</span>
 </div>

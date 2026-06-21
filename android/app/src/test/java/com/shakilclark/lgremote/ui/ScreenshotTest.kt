@@ -2,6 +2,8 @@ package com.shakilclark.lgremote.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -44,7 +46,14 @@ class ScreenshotTest {
     )
 
     private fun shot(name: String, content: @Composable () -> Unit) {
-        compose.setContent { LGRemoteTheme { content() } }
+        // Wrap in a surface-coloured Surface so goldens render on the real fallback background
+        // (dynamic-off light = #FDF7FF), matching the on-device look and the fidelity refs — not the
+        // bare Robolectric #FAFAFA default. tonalElevation 0 keeps it flat (no elevation tint).
+        compose.setContent {
+            LGRemoteTheme {
+                Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) { content() }
+            }
+        }
         compose.onRoot().captureRoboImage("src/test/screenshots/$name.png", roborazziOptions = options)
     }
 
