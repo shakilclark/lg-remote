@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.tv.TvInput
-import com.shakilclark.lgremote.ui.theme.Muted
 
 /**
  * Inputs sheet body (US7, redesign): the list is pre-filtered to inputs that have a connection, so
@@ -36,12 +35,12 @@ fun InputSwitcher(
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             "INPUTS",
-            color = Muted,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
         )
         if (inputs.isEmpty()) {
-            Text("No connected inputs", color = Muted, style = MaterialTheme.typography.bodyMedium)
+            Text("No connected inputs", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
         } else {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 inputs.forEach { input ->

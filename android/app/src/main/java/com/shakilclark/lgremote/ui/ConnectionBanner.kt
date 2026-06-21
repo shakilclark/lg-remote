@@ -23,14 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.connection.ConnectionState
-import com.shakilclark.lgremote.ui.theme.AccentSoft
-import com.shakilclark.lgremote.ui.theme.Muted
-import com.shakilclark.lgremote.ui.theme.Ok
+import com.shakilclark.lgremote.ui.theme.LocalStatusColors
 import com.shakilclark.lgremote.ui.theme.Space
-import com.shakilclark.lgremote.ui.theme.Warn
 
 /** Always-visible connection-state chip (FR-009, design-system §7.6). Title + sub-line + status dot;
  *  the dot breathes while connected. */
@@ -42,6 +38,15 @@ fun ConnectionBanner(
     modifier: Modifier = Modifier,
 ) {
     val banner = bannerContent(state, tvName, hasActiveTv)
+    val status = LocalStatusColors.current
+    val scheme = MaterialTheme.colorScheme
+    val dotColor = when (banner.dot) {
+        Dot.Success -> status.success
+        Dot.Warn -> status.warn
+        Dot.Error -> scheme.error
+        Dot.Offline -> scheme.outline
+        Dot.Neutral -> scheme.onSurfaceVariant
+    }
     val pulse = rememberInfiniteTransition(label = "dotPulse")
     val dotAlpha by pulse.animateFloat(
         initialValue = 0.4f,
@@ -64,7 +69,7 @@ fun ConnectionBanner(
                 .size(11.dp)
                 .alpha(if (banner.pulse) dotAlpha else 1f)
                 .clip(CircleShape)
-                .background(banner.dot),
+                .background(dotColor),
         )
         Column {
             Text(banner.title, style = MaterialTheme.typography.titleMedium)
@@ -75,19 +80,21 @@ fun ConnectionBanner(
     }
 }
 
-private data class Banner(val dot: Color, val title: String, val sub: String?, val pulse: Boolean)
+private enum class Dot { Success, Warn, Error, Offline, Neutral }
+
+private data class Banner(val dot: Dot, val title: String, val sub: String?, val pulse: Boolean)
 
 private fun bannerContent(state: ConnectionState, tvName: String?, hasActiveTv: Boolean): Banner = when (state) {
-    is ConnectionState.Connected -> Banner(Ok, tvName ?: "Connected", "Connected", pulse = true)
-    ConnectionState.Connecting -> Banner(Warn, tvName ?: "Connecting…", "Connecting…", pulse = false)
-    is ConnectionState.NeedsPairing -> Banner(Warn, tvName ?: "Pairing", state.message, pulse = false)
+    is ConnectionState.Connected -> Banner(Dot.Success, tvName ?: "Connected", "Connected", pulse = true)
+    ConnectionState.Connecting -> Banner(Dot.Warn, tvName ?: "Connecting…", "Connecting…", pulse = false)
+    is ConnectionState.NeedsPairing -> Banner(Dot.Warn, tvName ?: "Pairing", state.message, pulse = false)
     // First run (no remembered TV) shouldn't look like an error — keep it neutral.
     is ConnectionState.Disconnected ->
         if (hasActiveTv) {
-            Banner(AccentSoft, tvName ?: "Disconnected", state.message, pulse = false)
+            Banner(Dot.Error, tvName ?: "Disconnected", state.message, pulse = false)
         } else {
-            Banner(Muted, "Not connected", "Add your TV to get started", pulse = false)
+            Banner(Dot.Neutral, "Not connected", "Add your TV to get started", pulse = false)
         }
-    is ConnectionState.OffNetwork -> Banner(AccentSoft, "Off network", state.message, pulse = false)
-    ConnectionState.PermissionRequired -> Banner(AccentSoft, "Permission needed", "Allow local-network access", pulse = false)
+    is ConnectionState.OffNetwork -> Banner(Dot.Offline, "Off network", state.message, pulse = false)
+    ConnectionState.PermissionRequired -> Banner(Dot.Error, "Permission needed", "Allow local-network access", pulse = false)
 }

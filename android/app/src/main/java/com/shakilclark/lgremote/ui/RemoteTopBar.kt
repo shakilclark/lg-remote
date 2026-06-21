@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
-import com.shakilclark.lgremote.ui.theme.Ok
+import com.shakilclark.lgremote.ui.theme.LocalStatusColors
 import com.shakilclark.lgremote.ui.theme.Space
 
 /**
@@ -54,7 +54,7 @@ fun RemoteTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Space.s),
             ) {
-                Box(Modifier.size(8.dp).clip(CircleShape).background(Ok))
+                Box(Modifier.size(8.dp).clip(CircleShape).background(LocalStatusColors.current.success))
                 Text(
                     tvName.ifEmpty { "TV" },
                     style = MaterialTheme.typography.titleMedium,

@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import com.shakilclark.lgremote.tv.TvApp
-import com.shakilclark.lgremote.ui.theme.Muted
 import com.shakilclark.lgremote.ui.theme.Space
 
 /**
@@ -53,7 +52,7 @@ fun AppGrid(
             if (loading) {
                 CircularProgressIndicator()
             } else {
-                Text("No apps found", color = Muted, style = MaterialTheme.typography.bodyMedium)
+                Text("No apps found", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
             }
         }
         return

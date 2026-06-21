@@ -20,8 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shakilclark.lgremote.UiState
+import androidx.compose.material3.MaterialTheme
 import com.shakilclark.lgremote.connection.ConnectionState
-import com.shakilclark.lgremote.ui.theme.Muted
 
 /**
  * Root routing (T019). Mirrors the 001 flow: a known TV that's reconnecting shows the reconnect
@@ -152,7 +152,7 @@ private fun ReconnectView(onRetry: () -> Unit, onChange: () -> Unit) {
         Text("Can't reach your TV", fontSize = 22.sp)
         Text(
             "It may be off or asleep. It'll reconnect automatically when it's back.",
-            color = Muted,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
         Button(onClick = onRetry, modifier = Modifier.padding(top = 12.dp)) { Text("Try now") }

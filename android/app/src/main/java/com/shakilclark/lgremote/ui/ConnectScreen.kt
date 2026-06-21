@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.tv.DiscoveredTv
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
-import com.shakilclark.lgremote.ui.theme.Muted
 
 /** Auto-detect (SSDP) + manual-IP connect + on-screen pairing status (US1, T017). */
 @Composable
@@ -60,7 +59,7 @@ fun ConnectScreen(
         Text(
             if (pairing) (state as ConnectionState.NeedsPairing).message
             else "Scan for your LG TV, or enter its IP. It must be on this Wi-Fi.",
-            color = Muted,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 6.dp, bottom = 18.dp),
         )
