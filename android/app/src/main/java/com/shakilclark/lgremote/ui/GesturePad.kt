@@ -235,10 +235,10 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean) {
     Chevron(180f, Modifier.align(Alignment.BottomCenter).padding(bottom = pad), tint, alpha)
     Chevron(270f, Modifier.align(Alignment.CenterStart).padding(start = pad), tint, alpha)
     Chevron(90f, Modifier.align(Alignment.CenterEnd).padding(end = pad), tint, alpha)
-    Corner(MaterialSymbols.Settings, "Settings", Alignment.TopStart, pad, tint, alpha)
-    Corner(MaterialSymbols.VolumeOff, "Mute", Alignment.TopEnd, pad, tint, alpha)
-    Corner(MaterialSymbols.ArrowBack, "Back", Alignment.BottomStart, pad, tint, alpha)
-    Corner(MaterialSymbols.Home, "Home", Alignment.BottomEnd, pad, tint, alpha)
+    Corner(MaterialSymbols.Settings, Alignment.TopStart, pad, tint, alpha)
+    Corner(MaterialSymbols.VolumeOff, Alignment.TopEnd, pad, tint, alpha)
+    Corner(MaterialSymbols.ArrowBack, Alignment.BottomStart, pad, tint, alpha)
+    Corner(MaterialSymbols.Home, Alignment.BottomEnd, pad, tint, alpha)
 }
 
 @Composable
@@ -255,19 +255,18 @@ private fun BoxScope.Chevron(rotation: Float, modifier: Modifier, tint: Color, a
 @Composable
 private fun BoxScope.Corner(
     symbol: String,
-    label: String,
     alignment: Alignment,
     pad: androidx.compose.ui.unit.Dp,
     tint: Color,
     alpha: Float,
 ) {
-    Column(
-        Modifier.align(alignment).padding(pad).alpha(alpha),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        SymbolIcon(symbol, contentDescription = null, tint = tint, size = 20.dp)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = tint)
-    }
+    SymbolIcon(
+        symbol,
+        contentDescription = null,
+        tint = tint,
+        size = 22.dp,
+        modifier = Modifier.align(alignment).padding(pad).alpha(alpha),
+    )
 }
 
 /**
