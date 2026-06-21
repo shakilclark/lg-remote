@@ -1,12 +1,25 @@
 # Fidelity harness — machine-checked design parity
 
-Renders each design surface as a **full-bleed, Ultraviolet-light reference** at the golden's exact px
-(headless Chrome), then RMSE-compares it to the Roborazzi golden. Lower RMSE = closer to the design.
+Each design surface has a **full-bleed, Ultraviolet-light reference** (`refs/<surface>.html`) rendered at
+the golden's exact px (headless Chrome). The reference is RMSE-compared to the Roborazzi golden; lower =
+closer to the design.
+
+**The gate is a JVM test now** — `FidelityTest` (`android/app/src/test/...`) RMSE-compares each golden
+against the committed reference PNG and fails on drift, so design parity runs in CI with the rest of the
+suite. `diff.sh` is kept for **re-rendering the reference PNGs** and ad-hoc visual diffs.
 
 ```
-./gradlew recordRoborazziDebug --no-configuration-cache   # refresh goldens
-bash tools/fidelity/diff.sh                                # print RMSE + write out/<surface>.diff.png
+# normal gate (parity runs as part of the unit tests):
+./gradlew recordRoborazziDebug   # refresh goldens after a UI change
+./gradlew testDebugUnitTest --tests '*FidelityTest*'   # check parity
+
+# after editing a refs/<surface>.html — re-render + recommit the reference PNG:
+bash tools/fidelity/diff.sh      # renders tools/fidelity/out/<surface>.ref.png (+ prints ImageMagick RMSE)
+cp tools/fidelity/out/<surface>.ref.png android/app/src/test/resources/fidelity/<surface>.png
 ```
+
+The committed references the test reads live in `android/app/src/test/resources/fidelity/<surface>.png`
+(one per `diff.sh` surface row); keep them in sync when a `refs/<surface>.html` changes.
 
 ## What the refs are
 
