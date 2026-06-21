@@ -10,11 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -31,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.tv.DiscoveredTv
+import com.shakilclark.lgremote.ui.components.MaterialSymbols
+import com.shakilclark.lgremote.ui.components.SymbolIcon
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 
 /** Auto-detect (SSDP) + manual-IP connect + on-screen pairing status (US1, T017). */
@@ -70,7 +69,7 @@ fun ConnectScreen(
                 enabled = !busy,
                 modifier = Modifier.fillMaxWidth().height(56.dp).padding(bottom = 10.dp),
             ) {
-                Icon(Icons.Rounded.Tv, contentDescription = null)
+                SymbolIcon(MaterialSymbols.Tv, contentDescription = null)
                 Text("  ${tv.name} · ${tv.address}")
             }
         }

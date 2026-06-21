@@ -12,10 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -34,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.NowPlaying
+import com.shakilclark.lgremote.ui.components.MaterialSymbols
+import com.shakilclark.lgremote.ui.components.SymbolIcon
 import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
@@ -196,10 +195,10 @@ private fun ReconnectingChip(modifier: Modifier = Modifier) {
             .semantics { contentDescription = "Reconnecting" },
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            Icons.Rounded.Sync,
+        SymbolIcon(
+            MaterialSymbols.Sync,
             contentDescription = null,
-            modifier = Modifier.size(18.dp),
+            size = 18.dp,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }

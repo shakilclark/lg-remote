@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +15,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.tv.TvInput
+import com.shakilclark.lgremote.ui.components.MaterialSymbols
+import com.shakilclark.lgremote.ui.components.SymbolIcon
 
 /**
  * Inputs sheet body (US7, redesign): the list is pre-filtered to inputs that have a connection, so
@@ -50,7 +49,7 @@ fun InputSwitcher(
                             onSelect(input)
                         },
                         label = { Text(input.label) },
-                        leadingIcon = { Icon(Icons.Rounded.Tv, contentDescription = null) },
+                        leadingIcon = { SymbolIcon(MaterialSymbols.Tv, contentDescription = null, size = 18.dp) },
                     )
                 }
             }

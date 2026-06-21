@@ -10,11 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Mic
-import androidx.compose.material.icons.rounded.PowerSettingsNew
 import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.shakilclark.lgremote.ui.components.MaterialSymbols
+import com.shakilclark.lgremote.ui.components.SymbolIcon
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.LocalStatusColors
 import com.shakilclark.lgremote.ui.theme.Space
@@ -65,11 +63,11 @@ fun RemoteTopBar(
         Spacer(Modifier.width(Space.s))
         // Voice — inactive shell (020): visibly disabled until the feature lands.
         FilledTonalIconButton(onClick = {}, enabled = false) {
-            Icon(Icons.Rounded.Mic, contentDescription = "Voice (coming soon)")
+            SymbolIcon(MaterialSymbols.Mic, contentDescription = "Voice (coming soon)")
         }
         Spacer(Modifier.width(Space.xs))
         FilledTonalIconButton(onClick = onPowerOff) {
-            Icon(Icons.Rounded.PowerSettingsNew, contentDescription = "Power off")
+            SymbolIcon(MaterialSymbols.PowerSettingsNew, contentDescription = "Power off")
         }
     }
 }

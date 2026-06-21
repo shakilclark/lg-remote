@@ -11,15 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FastForward
-import androidx.compose.material.icons.rounded.FastRewind
-import androidx.compose.material.icons.rounded.Pause
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Speaker
-import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
@@ -39,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.tv.NowPlaying
 import com.shakilclark.lgremote.tv.PlayState
 import com.shakilclark.lgremote.ui.components.ControlKey
+import com.shakilclark.lgremote.ui.components.MaterialSymbols
+import com.shakilclark.lgremote.ui.components.SymbolIcon
 import com.shakilclark.lgremote.ui.theme.Space
 
 private fun stateLabel(state: PlayState): String = when (state) {
@@ -110,7 +103,7 @@ fun NowPlayingBar(
         }
         // The bar carries one mini play/pause; full transport lives in the cover (tap to expand).
         BarKey(
-            if (nowPlaying.playState == PlayState.Playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+            if (nowPlaying.playState == PlayState.Playing) MaterialSymbols.Pause else MaterialSymbols.PlayArrow,
             "Play or pause",
             onPlayPause,
         )
@@ -118,9 +111,9 @@ fun NowPlayingBar(
 }
 
 @Composable
-private fun BarKey(icon: ImageVector, label: String, onClick: () -> Unit) {
+private fun BarKey(symbol: String, label: String, onClick: () -> Unit) {
     IconButton(onClick = onClick) {
-        Icon(icon, contentDescription = label, modifier = Modifier.size(22.dp))
+        SymbolIcon(symbol, contentDescription = label, size = 22.dp)
     }
 }
 
@@ -174,15 +167,15 @@ fun NowPlayingSheetContent(
             }
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.l, Alignment.CenterHorizontally)) {
-            SheetKey(Icons.Rounded.FastRewind, "Rewind", onRewind)
+            SheetKey(MaterialSymbols.FastRewind, "Rewind", onRewind)
             SheetKey(
-                if (nowPlaying.playState == PlayState.Playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                if (nowPlaying.playState == PlayState.Playing) MaterialSymbols.Pause else MaterialSymbols.PlayArrow,
                 "Play or pause",
                 onPlayPause,
                 emphasized = true,
             )
-            SheetKey(Icons.Rounded.Stop, "Stop", onStop)
-            SheetKey(Icons.Rounded.FastForward, "Fast forward", onFastForward)
+            SheetKey(MaterialSymbols.Stop, "Stop", onStop)
+            SheetKey(MaterialSymbols.FastForward, "Fast forward", onFastForward)
         }
         // Audio-output chip — inactive shell (006/020): present, switching not wired yet.
         AssistChip(
@@ -190,18 +183,18 @@ fun NowPlayingSheetContent(
             enabled = false,
             label = { Text("Output") },
             leadingIcon = {
-                Icon(Icons.Rounded.Speaker, contentDescription = null, modifier = Modifier.size(18.dp))
+                SymbolIcon(MaterialSymbols.Speaker, contentDescription = null, size = 18.dp)
             },
         )
     }
 }
 
 @Composable
-private fun SheetKey(icon: ImageVector, label: String, onClick: () -> Unit, emphasized: Boolean = false) {
+private fun SheetKey(symbol: String, label: String, onClick: () -> Unit, emphasized: Boolean = false) {
     val scheme = MaterialTheme.colorScheme
     if (emphasized) {
         // The play/pause is the cover's primary action (004 — direction-c.html): a larger,
-        // primary-filled key the eye lands on first.
+        // primary-filled key the eye lands on first; the glyph itself uses the FILL axis (§7).
         ControlKey(
             onClick = onClick,
             modifier = Modifier.size(72.dp),
@@ -210,11 +203,11 @@ private fun SheetKey(icon: ImageVector, label: String, onClick: () -> Unit, emph
             contentColor = scheme.onPrimary,
             pressedContentColor = scheme.onPrimary,
         ) {
-            Icon(icon, contentDescription = label, modifier = Modifier.size(30.dp))
+            SymbolIcon(symbol, contentDescription = label, size = 30.dp, filled = true)
         }
     } else {
         ControlKey(onClick = onClick, modifier = Modifier.size(60.dp)) {
-            Icon(icon, contentDescription = label, modifier = Modifier.size(26.dp))
+            SymbolIcon(symbol, contentDescription = label, size = 26.dp)
         }
     }
 }

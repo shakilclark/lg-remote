@@ -18,12 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -51,6 +46,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.shakilclark.lgremote.ui.components.MaterialSymbols
+import com.shakilclark.lgremote.ui.components.SymbolIcon
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Space
 import kotlin.math.roundToInt
@@ -246,9 +243,9 @@ private fun EdgeRocker(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Space.l),
         ) {
-            Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = null, tint = faint, modifier = Modifier.height(22.dp))
+            SymbolIcon(MaterialSymbols.KeyboardArrowUp, contentDescription = null, tint = faint, size = 22.dp)
             Text(hint, style = MaterialTheme.typography.labelMedium, color = faint, modifier = Modifier.rotate(-90f))
-            Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null, tint = faint, modifier = Modifier.height(22.dp))
+            SymbolIcon(MaterialSymbols.KeyboardArrowDown, contentDescription = null, tint = faint, size = 22.dp)
         }
     }
 }
@@ -267,7 +264,7 @@ private fun BackCorner(onClick: () -> Unit, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Space.xs),
         ) {
-            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null, modifier = Modifier.height(18.dp))
+            SymbolIcon(MaterialSymbols.ArrowBack, contentDescription = null, size = 18.dp)
             Text("Back", style = MaterialTheme.typography.labelMedium)
         }
     }

@@ -11,14 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.VolumeOff
-import androidx.compose.material.icons.automirrored.rounded.VolumeUp
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -31,12 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.TvApp
+import com.shakilclark.lgremote.ui.components.MaterialSymbols
+import com.shakilclark.lgremote.ui.components.SymbolIcon
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Space
@@ -68,14 +62,15 @@ fun CommandSheet(
         verticalArrangement = Arrangement.spacedBy(Space.m),
     ) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-            QuickAction(Icons.AutoMirrored.Rounded.ArrowBack, "Back") { onNav(NavButton.BACK) }
-            QuickAction(Icons.Rounded.Home, "Home") { onNav(NavButton.HOME) }
+            QuickAction(MaterialSymbols.ArrowBack, "Back") { onNav(NavButton.BACK) }
+            QuickAction(MaterialSymbols.Home, "Home") { onNav(NavButton.HOME) }
             QuickAction(
-                if (muted) Icons.AutoMirrored.Rounded.VolumeOff else Icons.AutoMirrored.Rounded.VolumeUp,
+                if (muted) MaterialSymbols.VolumeOff else MaterialSymbols.VolumeUp,
                 if (muted) "Unmute" else "Mute",
+                filled = muted,
                 onClick = onToggleMute,
             )
-            QuickAction(Icons.Rounded.Settings, "Settings", onClick = onOpenTvSettings)
+            QuickAction(MaterialSymbols.Settings, "Settings", onClick = onOpenTvSettings)
         }
 
         PillSegmented(
@@ -143,10 +138,10 @@ private fun PillSegmented(
 }
 
 @Composable
-private fun RowScope.QuickAction(icon: ImageVector, label: String, onClick: () -> Unit) {
+private fun RowScope.QuickAction(symbol: String, label: String, filled: Boolean = false, onClick: () -> Unit) {
     // Icon-only (label as contentDescription): a row of four labels doesn't fit horizontally.
     FilledTonalButton(onClick = onClick, modifier = Modifier.weight(1f)) {
-        Icon(icon, contentDescription = label, modifier = Modifier.height(20.dp))
+        SymbolIcon(symbol, contentDescription = label, size = 20.dp, filled = filled)
     }
 }
 
