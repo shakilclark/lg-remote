@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -241,25 +242,36 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean) {
 @Composable
 private fun OkButton() {
     val scheme = MaterialTheme.colorScheme
-    val fill = lerp(scheme.surfaceContainerHigh, Color.Black, 0.05f) // darker than the pad surface
-    val shade = lerp(scheme.surfaceContainerHigh, Color.Black, 0.45f) // inset top-shadow tone
+    val dark = scheme.surface.luminance() < 0.5f
+    // A genuine concave bowl: fill dialled well below the pad, lighter pooled low (top-lit recess),
+    // darker toward the rim, a concentrated dark crescent up top, and a bright specular lip at the
+    // bottom inner wall. Mode-aware so dark mode reads properly black, not a flat grey disc.
+    val fill = lerp(scheme.surfaceContainerHigh, Color.Black, if (dark) 0.22f else 0.10f)
+    val rim = lerp(fill, Color.Black, if (dark) 0.45f else 0.35f)
+    val crestA = if (dark) 0.62f else 0.40f
+    val lipA = if (dark) 0.06f else 0.45f
     Box(
         Modifier
             .size(80.dp)
             .clip(CircleShape)
             .drawWithCache {
-                val topShadow = Brush.verticalGradient(
-                    0f to shade.copy(alpha = 0.55f), 1f to Color.Transparent,
+                val bowl = Brush.radialGradient(
+                    0f to fill, 1f to rim,
+                    center = Offset(size.width * 0.5f, size.height * 0.66f),
+                    radius = size.maxDimension * 0.62f,
+                )
+                val crest = Brush.verticalGradient(
+                    0f to Color.Black.copy(alpha = crestA), 0.55f to Color.Transparent,
                     startY = 0f, endY = size.height * 0.5f,
                 )
-                val bottomLip = Brush.verticalGradient(
-                    0f to Color.Transparent, 1f to Color.White.copy(alpha = 0.16f),
-                    startY = size.height * 0.7f, endY = size.height,
+                val lip = Brush.verticalGradient(
+                    0f to Color.Transparent, 1f to Color.White.copy(alpha = lipA),
+                    startY = size.height * 0.78f, endY = size.height,
                 )
                 onDrawBehind {
-                    drawRect(fill)
-                    drawRect(topShadow)
-                    drawRect(bottomLip)
+                    drawRect(bowl)
+                    drawRect(crest)
+                    drawRect(lip)
                 }
             },
         contentAlignment = Alignment.Center,
