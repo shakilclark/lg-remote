@@ -45,12 +45,12 @@ selected/active state.
    sheet you reach by **pulling a visible grip** — discoverable by sight, not by memorising gestures.
 3. **Native to the phone.** Follow the system light/dark; take colour from the wallpaper (Material You)
    on Android 12+, Ultraviolet fallback otherwise. Strong contrast in both modes (WCAG AA).
-4. **Tactile & expressive.** Spring motion, shape-morph on press, haptics, recessed surfaces. The TV is
-   across the room, so the *phone* confirms every action.
+4. **Tactile & expressive.** Spring motion, shape-morph on press, haptics. The TV is across the room,
+   so the *phone* confirms every action.
 5. **Honest to SSAP.** Show only what the TV actually reports — app icon + name + play-state. No
    invented album art, titles, scrubber, or next/previous. Real art only when the source gives it.
-6. **Tonal, not heavy.** Depth comes from tonal surface containers and one recessed well, not stacked
-   drop shadows.
+6. **Tonal, not heavy.** Depth comes from tonal surface containers, not skeuomorphism or stacked drop
+   shadows.
 
 ---
 
@@ -185,12 +185,14 @@ circle → squircle on press; selected nav/segment fills via the Material Symbol
 Separate layers with tonal `surfaceContainer*`, **not** heavy shadows. Drop shadows are deliberately
 light app-wide (e.g. now-playing tile ≈ `0 8px 18px -14px` equivalent; phone-level cards minimal).
 
-### 5.2 The recessed gesture pad (the one piece of "depth")
+### 5.2 The gesture pad (flat tonal M3, not skeuomorphic)
 
-The home gesture pad reads as a **concave well**: a subtle inner shadow (lit from the top) + faint
-dotted texture, with **distinct light/dark treatments** (the dark inset goes muddy if reused in light —
-light mode uses a purple-tinted soft inner shadow + a white bottom highlight). See
-`docs/design/direction-c.html` for the exact feel.
+The home gesture pad is a **flat tonal M3 surface** (`surfaceContainerHigh`, 28dp corners) — depth comes
+from the tonal step against the `surface` background, not from inner shadows, mesh, or rubber textures
+(a skeuomorphic recessed/rubber treatment was tried and dropped; snapshot at git tag
+`experiment/skeuomorphic-clickpad`). The centre **OK** is an M3 Expressive filled-tonal key
+(`primaryContainer`) that shape-morphs (circle → rounded-square) and scales on press. Directional
+chevrons + corner actions are faint at rest and brighten on touch.
 
 ### 5.3 Spacing (4dp base) & touch targets
 
@@ -235,7 +237,7 @@ object MotionSpecs {
 ## 8. Component specs
 
 ### 8.1 Gesture pad (home)
-Recessed well (§5.2) filling the screen between the top bar and the grip. Glide = pointer (reuse the
+Flat tonal M3 surface (§5.2) filling the screen between the top bar and the grip. Glide = pointer (reuse the
 motion-cursor engine); tap = click (centre OK affordance). Faint directional hints; edge zones drive
 volume (right) / channel (left) with hold-to-repeat; edge swipe-in = Back. The OK affordance is the one
 `primary` element and shape-morphs on press.
@@ -287,7 +289,7 @@ Never shown again once dismissed.
 │ [ now-playing bar ]          │  appears only when media is live           (§8.3)
 │                              │
 │        ╭───────────╮         │
-│   ch ◀ │  ( OK )   │ ▶ vol   │  RECESSED gesture pad: glide/tap,           (§8.1)
+│   ch ◀ │  ( OK )   │ ▶ vol   │  flat tonal gesture pad: glide/tap,         (§8.1)
 │        ╰───────────╯         │  edges = channel/volume
 │                              │
 │        ▁▁▁ More controls     │  grip → command sheet                       (§8.2)
@@ -314,7 +316,7 @@ Never shown again once dismissed.
 
 1. **Theme**: BOM bump, `UltravioletLight/Dark` schemes, dynamic-colour resolution, `MaterialExpressiveTheme`. (No behaviour change.)
 2. **Icons**: Material Symbols Rounded swap across existing controls.
-3. **Gesture pad** (recessed well + edges) reusing the motion-cursor engine; retire the old touchpad.
+3. **Gesture pad** (flat tonal surface + edges) reusing the motion-cursor engine; retire the old touchpad.
 4. **Command sheet** (segments) absorbing today's keypad/apps/inputs/bottom-bar; add **Sound** (006).
 5. **Now-playing bar + cover/artwork** (004) restyled.
 6. **Media notification V1** (009) + output picker; **connection chip** (008).

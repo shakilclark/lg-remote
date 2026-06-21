@@ -1,5 +1,6 @@
 package com.shakilclark.lgremote.ui
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -33,18 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -53,7 +44,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.ui.components.MaterialSymbols
@@ -96,12 +86,12 @@ private fun zoneAt(x: Float, y: Float, w: Int, h: Int): PadZone {
 }
 
 /**
- * The clickpad (spec 022 — Direction C). One recessed surface that folds in cursor + D-pad: **glide**
+ * The clickpad (spec 022 — Direction C). One flat tonal M3 surface that folds in cursor + D-pad: **glide**
  * moves the LG on-screen pointer; a **tap** dispatches by zone — the four edges navigate, the centre
  * is OK, and the four corners are actions (TL **Settings**, TR **Mute**, BL **Back**, BR **Home**).
  * Tap vs drag is one `awaitEachGesture` arbitrated by `touchSlop` (tap → zone, drag → cursor glide).
  * Volume is on the phone's hardware buttons (kept off the pad so it can't fight the Right tap-zone or
- * the cursor). Hints are recessed at rest and surface on touch (reduce-motion aware); zones are exposed
+ * the cursor). Hints are faint at rest and surface on touch (reduce-motion aware); zones are exposed
  * as custom accessibility actions (incl. volume up/down).
  */
 @Composable
@@ -142,18 +132,9 @@ fun GesturePad(
 
     Box(
         modifier
-            .clip(RoundedCornerShape(26.dp))
-            .recessedWell(scheme.surfaceContainer, scheme.onSurface)
-            // Dark, skeuomorphic raised-rubber rim: a uniformly dark rubber bezel (a touch darker at the
-            // bottom) framing the recessed well — not the old thin light hairline.
-            .border(
-                width = 2.5.dp,
-                brush = Brush.verticalGradient(
-                    0.0f to lerp(scheme.surfaceContainer, Color.Black, 0.42f),
-                    1.0f to lerp(scheme.surfaceContainer, Color.Black, 0.56f),
-                ),
-                shape = RoundedCornerShape(26.dp),
-            )
+            // M3 Expressive: a flat tonal surface (depth via tonal colour, not shadows/skeuomorphism).
+            .clip(RoundedCornerShape(28.dp))
+            .background(scheme.surfaceContainerHigh)
             .semantics {
                 contentDescription = "Touchpad — glide to move the pointer; tap edges to navigate, " +
                     "centre for OK; corners: Settings, Mute, Back, Home"
@@ -253,46 +234,33 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean, muted:
 }
 
 /**
- * Centre OK — a **recessed rubber** key (chosen in the design workshop). No drop shadow, no bright top:
- * a matte disc dialled slightly darker than the pad, with a soft inset top shadow + a faint bottom lip,
- * so it reads as a dip pressed into the rubber rather than a raised dome. Tones derive from the scheme
- * (surfaceContainerHigh nudged toward black), so it follows the dynamic / statement themes, light + dark.
+ * Centre OK — an M3 Expressive filled-tonal key: a flat `primaryContainer` disc (depth via tonal colour,
+ * not shadow) carrying the high-emphasis click. On press it does the Expressive shape-morph — the circle
+ * relaxes toward a rounded square and scales down a touch — then springs back. Colours come from the
+ * scheme, so it follows dynamic / statement themes, light + dark.
  */
 @Composable
 private fun OkButton(pressed: Boolean) {
     val scheme = MaterialTheme.colorScheme
-    val dark = scheme.surface.luminance() < 0.5f
-    // A light, low-contrast lilac disc dialled just below the pad, with a soft inset top shadow
-    // (purple-tinted, like the web's rgba(70,40,110)). No bottom highlight — a horizontal bright band
-    // across a circle reads as a clipped/cut edge — so depth comes from the top shadow + fill alone.
-    // Mode-aware. On press it sinks: the top shadow deepens and the fill darkens a touch (animated).
-    val press by animateFloatAsState(
-        if (pressed) 1f else 0f, animationSpec = tween(durationMillis = 90), label = "okPress",
+    val corner by animateDpAsState(
+        if (pressed) 26.dp else 42.dp, animationSpec = tween(durationMillis = 150), label = "okCorner",
     )
-    val fill = lerp(scheme.surfaceContainerHigh, Color.Black, (if (dark) 0.12f else 0.045f) + press * 0.05f)
-    val crestTint = lerp(Color.Black, scheme.primary, 0.20f) // soft purple-black, like the web shadow
-    val crestA = (if (dark) 0.30f else 0.20f) + press * 0.16f
+    val scale by animateFloatAsState(
+        if (pressed) 0.93f else 1f, animationSpec = tween(durationMillis = 120), label = "okScale",
+    )
     Box(
         Modifier
-            .size(80.dp)
-            .clip(CircleShape)
-            .drawWithCache {
-                val crest = Brush.verticalGradient(
-                    0f to crestTint.copy(alpha = crestA), 1f to Color.Transparent,
-                    startY = 0f, endY = size.height * 0.22f,
-                )
-                onDrawBehind {
-                    drawRect(fill)
-                    drawRect(crest)
-                }
-            },
+            .size(84.dp)
+            .scale(scale)
+            .clip(RoundedCornerShape(corner))
+            .background(scheme.primaryContainer),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             "OK",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = scheme.onSurfaceVariant,
+            color = scheme.onPrimaryContainer,
         )
     }
 }
@@ -324,66 +292,6 @@ private fun BoxScope.Corner(
         modifier = Modifier.align(alignment).padding(pad).alpha(alpha),
     )
 }
-
-/**
- * The pad's recessed surface (design-system §5.2) — a **directionally-lit inset tray**, not a bowl: a
- * flat, even field (a centred radial reads as a bulging sphere on-device), with depth coming from a soft
- * shadow down the top lip + side walls and a lit bottom lip — the cue your eye reads as "sunken panel".
- * A **cross-hatch mesh** (woven 45°/-45° lines) gives it a rubbery tactility — drawn with exact geometry
- * (6dp perpendicular spacing, 1dp lines, matching the web ref's 1px/6px hatch) into a bitmap that's
- * cached by [drawWithCache] and rebuilt only when the size changes, so dragging stays cheap.
- */
-private fun Modifier.recessedWell(surface: Color, onSurface: Color): Modifier =
-    drawWithCache {
-        val mw = size.width.toInt().coerceAtLeast(1)
-        val mh = size.height.toInt().coerceAtLeast(1)
-        val meshBmp = ImageBitmap(mw, mh)
-        val meshCanvas = Canvas(meshBmp)
-        val meshPaint = Paint().apply {
-            color = onSurface.copy(alpha = 0.05f) // matches the web ref hatch alpha
-            strokeWidth = 1.dp.toPx() // density-correct ~1px line
-            isAntiAlias = true
-        }
-        val fh = mh.toFloat()
-        val step = 6.dp.toPx() * 1.41421f // intercept step for 6dp perpendicular line spacing
-        var k = -fh
-        while (k <= mw) { // "\" diagonals (slope +1)
-            meshCanvas.drawLine(Offset(k, 0f), Offset(k + fh, fh), meshPaint); k += step
-        }
-        k = 0f
-        while (k <= mw + fh) { // "/" diagonals (slope -1)
-            meshCanvas.drawLine(Offset(k, 0f), Offset(k - fh, fh), meshPaint); k += step
-        }
-        // Flat field: the overhang shades the very top, then it settles to an even surface. No radial.
-        val field = Brush.verticalGradient(
-            0f to lerp(surface, Color.Black, 0.05f), 0.16f to surface, 1f to surface,
-        )
-        val topPx = 16.dp.toPx()
-        val sidePx = 12.dp.toPx()
-        val lipPx = 5.dp.toPx()
-        val topShadow = Brush.verticalGradient(
-            0f to Color.Black.copy(alpha = 0.20f), 1f to Color.Transparent, startY = 0f, endY = topPx,
-        )
-        val leftShadow = Brush.horizontalGradient(
-            0f to Color.Black.copy(alpha = 0.08f), 1f to Color.Transparent, startX = 0f, endX = sidePx,
-        )
-        val rightShadow = Brush.horizontalGradient(
-            0f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.08f),
-            startX = size.width - sidePx, endX = size.width,
-        )
-        val bottomLip = Brush.verticalGradient(
-            0f to Color.Transparent, 1f to Color.White.copy(alpha = 0.28f),
-            startY = size.height - lipPx, endY = size.height,
-        )
-        onDrawBehind {
-            drawRect(field)
-            drawImage(meshBmp)
-            drawRect(topShadow, size = Size(size.width, topPx))
-            drawRect(leftShadow, size = Size(sidePx, size.height))
-            drawRect(rightShadow, topLeft = Offset(size.width - sidePx, 0f), size = Size(sidePx, size.height))
-            drawRect(bottomLip, topLeft = Offset(0f, size.height - lipPx), size = Size(size.width, lipPx))
-        }
-    }
 
 /** One-time teaching card for the non-obvious gestures. */
 @Composable
