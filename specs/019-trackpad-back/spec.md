@@ -4,7 +4,8 @@
 
 **Created**: 2026-06-20
 
-**Status**: Draft — options for decision
+**Status**: Superseded by `022-clickpad` (2026-06-21) — the clickpad spec defines the full corner-action
+model (Back/Home/Mute) of which trackpad Back is one part. Kept for the design-options history.
 
 **Relates to**: `010-expressive-redesign` / the `GesturePad`, and the deferred home-inversion (where the
 gesture pad becomes the primary surface and Back is no longer a persistent bottom-bar button).
