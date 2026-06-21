@@ -53,6 +53,7 @@ fun CommandSheet(
     muted: Boolean = false,
     onToggleMute: () -> Unit = {},
     apps: List<TvApp>,
+    appsLoading: Boolean = false,
     onLaunchApp: (TvApp) -> Unit,
     inputs: List<TvInput>,
     onSelectInput: (TvInput) -> Unit,
@@ -85,7 +86,7 @@ fun CommandSheet(
 
         when (selected) {
             0 -> ComingSoon("Number pad", "Channel & PIN entry is coming soon.")
-            1 -> AppGrid(apps = apps, onLaunch = onLaunchApp, modifier = Modifier.fillMaxWidth().height(360.dp))
+            1 -> AppGrid(apps = apps, loading = appsLoading, onLaunch = onLaunchApp, modifier = Modifier.fillMaxWidth().height(360.dp))
             2 -> InputSwitcher(
                 inputs = inputs.filter { it.connected },
                 onSelect = onSelectInput,

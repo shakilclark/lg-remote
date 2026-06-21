@@ -78,6 +78,10 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     /** Installed apps from the TV (dynamic app loader); preloaded on connect. */
     val apps: StateFlow<List<TvApp>> = _apps.asStateFlow()
 
+    private val _appsLoading = MutableStateFlow(false)
+    /** True while the app list is being fetched — lets the grid show a loader, not a false "empty". */
+    val appsLoading: StateFlow<Boolean> = _appsLoading.asStateFlow()
+
     private val _nowPlaying = MutableStateFlow<NowPlaying?>(null)
     /** Live now-playing snapshot (004) — also the shared source for the future 003 lockscreen. */
     val nowPlaying: StateFlow<NowPlaying?> = _nowPlaying.asStateFlow()
@@ -283,7 +287,14 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** Dynamic app loader — fetch the TV's installed apps (preloaded on connect, refreshable). */
-    fun loadApps() = dispatch { _apps.value = commands.listApps() }
+    fun loadApps() = dispatch {
+        _appsLoading.value = true
+        try {
+            _apps.value = commands.listApps()
+        } finally {
+            _appsLoading.value = false
+        }
+    }
 
     // --- US7 inputs ---
     fun loadInputs() = dispatch { _inputs.value = commands.listInputs() }

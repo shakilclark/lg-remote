@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,10 +44,17 @@ fun AppGrid(
     apps: List<TvApp>,
     onLaunch: (TvApp) -> Unit,
     modifier: Modifier = Modifier,
+    loading: Boolean = false,
 ) {
     if (apps.isEmpty()) {
+        // Distinguish "still fetching" from "the TV genuinely reported no apps" — never flash a false
+        // empty during the preload (the list is fetched on connect).
         Box(modifier.fillMaxWidth().padding(Space.xl), contentAlignment = Alignment.Center) {
-            Text("No apps found", color = Muted, style = MaterialTheme.typography.bodyMedium)
+            if (loading) {
+                CircularProgressIndicator()
+            } else {
+                Text("No apps found", color = Muted, style = MaterialTheme.typography.bodyMedium)
+            }
         }
         return
     }
