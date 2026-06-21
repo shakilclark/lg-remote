@@ -9,8 +9,14 @@ arbitrated by `touchSlop` in a single `awaitEachGesture`; **drags routed by star
 drag-only **volume rail** on the right edge (between the TR/BR corners) = volume, glide everywhere
 else = cursor (volume also on the phone hardware buttons). Four corners = **TL TV-Settings, TR Mute,
 BL Back, BR Home**; the empty TL corner took TV-Settings, which (with Back/Home/Mute) emptied the
-command-sheet quick row — now removed. Tap edges = nav, centre = OK; recessed hints surface on touch;
+command-sheet quick row — now removed. Tap edges = nav, centre = OK; faint hints surface on touch;
 zones exposed as custom accessibility actions.
+
+> **Design update (M3 Expressive):** the pad's original skeuomorphic "rubber clicker" treatment
+> (recessed/embossed hints, mesh texture, inset well) was tried and **dropped** in favour of Material 3
+> Expressive conventions — a **flat tonal surface** (`surfaceContainerHigh`) with an M3 filled-tonal,
+> shape-morphing OK key and **faint, low-emphasis** hints that brighten on touch. US4 / FR-004 below
+> reflect this; the skeuomorphic attempt is preserved at git tag `experiment/skeuomorphic-clickpad`.
 
 **Supersedes**: `019-trackpad-back` (which scoped only back-control options on the trackpad — this spec
 defines the full corner-action + tap-nav model, of which Back is one part).
@@ -72,17 +78,19 @@ mode switch.
 2. **Given** the pad, **When** the user taps without moving, **Then** region-nav/click fires and the
    cursor does not jump.
 
-### User Story 4 - Recessed hints, revealed on touch (Priority: P2)
+### User Story 4 - Faint hints, revealed on touch (Priority: P2)
 
-At rest the pad is **clear** — the direction/corner hints are **very subtle, embossed/recessed into the
-surface like markings pressed into a rubber clicker** (barely-there, low-contrast). On **touch-down**
-the hints **surface** (brighten/lift) to confirm the zones, then recede when the finger lifts.
+At rest the pad is **clear** — the direction/corner hints are **very subtle, low-emphasis** glyphs on
+the flat tonal surface (barely-there, `onSurfaceVariant` at low alpha). On **touch-down** the hints
+**brighten** to confirm the zones, then recede when the finger lifts. (Per the M3 Expressive update,
+this replaces the original embossed "rubber clicker" treatment — the surface is flat and tonal, depth
+comes from colour, not skeuomorphic shadow.)
 
 **Why this priority**: Keeps the calm, uncluttered resting surface (the design's core idea) while still
 teaching the zones at the moment of use. Refines the current always-on edge hints.
 
 **Acceptance Scenarios**:
-1. **Given** the pad at rest, **When** no touch is active, **Then** hints are minimal/recessed (not
+1. **Given** the pad at rest, **When** no touch is active, **Then** hints are minimal/low-emphasis (not
    bright overlays).
 2. **Given** the user touches the pad, **When** the touch begins, **Then** the zone hints become
    visible, and **When** released, **Then** they recede.
@@ -123,8 +131,9 @@ command sheet's quick-action row ("More controls") are **removed**, leaving only
   (toggle, with feedback).
 - **FR-003**: The clickpad MUST also support glide-to-move-cursor + tap-to-click (the existing pointer
   engine), disambiguated from region taps by movement.
-- **FR-004**: At rest the pad's hints MUST be subtle/recessed (embossed "rubber clicker" treatment), and
-  MUST surface on touch-down and recede on release.
+- **FR-004**: At rest the pad's hints MUST be subtle/low-emphasis (faint glyphs on the flat tonal M3
+  surface — not the dropped skeuomorphic "rubber clicker" treatment), and MUST brighten on touch-down
+  and recede on release.
 - **FR-005**: Hint reveal/recede MUST respect reduce-motion.
 - **FR-006**: Back / Home / Mute MUST be removed from the command-sheet quick-action row once present on
   the pad; no action appears in two places.
