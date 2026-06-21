@@ -13,12 +13,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -71,18 +69,10 @@ import kotlin.math.roundToInt
 /** Finger travel → pointer travel gain (matches the prior touchpad feel). */
 private const val GAIN = 1.6f
 
-/** Vertical travel (px) that emits one volume step on the edge rail. */
-private const val VOL_STEP_PX = 44f
-
-/** Width of the drag-only volume rail. */
-private val RAIL_WIDTH = 40.dp
-
-/** Corner hit-box size (fraction of pad w/h); central OK dead-zone radius; rail's vertical band. */
+/** Corner hit-box size (fraction of pad w/h) and the central OK dead-zone radius. */
 private const val CORNER_X = 0.30f
 private const val CORNER_Y = 0.24f
 private const val OK_RADIUS = 0.16f
-private const val RAIL_TOP = 0.26f
-private const val RAIL_BOTTOM = 0.74f
 
 private enum class PadZone { Up, Down, Left, Right, Ok, Settings, Mute, Back, Home }
 
@@ -108,12 +98,11 @@ private fun zoneAt(x: Float, y: Float, w: Int, h: Int): PadZone {
 /**
  * The clickpad (spec 022 — Direction C). One recessed surface that folds in cursor + D-pad: **glide**
  * moves the LG on-screen pointer; a **tap** dispatches by zone — the four edges navigate, the centre
- * is OK, and the four corners are actions (TL **Settings**, TR **Mute**, BL **Back**, BR **Home**). A
- * slim **drag-only volume rail** runs down the right edge between the corners (volume is also on the
- * phone's hardware buttons). Tap vs drag is one `awaitEachGesture` arbitrated by `touchSlop`; drags
- * are routed by start zone (rail → volume, elsewhere → cursor) so volume never fights the cursor.
- * Hints are recessed at rest and surface on touch (reduce-motion aware); zones are exposed as custom
- * accessibility actions.
+ * is OK, and the four corners are actions (TL **Settings**, TR **Mute**, BL **Back**, BR **Home**).
+ * Tap vs drag is one `awaitEachGesture` arbitrated by `touchSlop` (tap → zone, drag → cursor glide).
+ * Volume is on the phone's hardware buttons (kept off the pad so it can't fight the Right tap-zone or
+ * the cursor). Hints are recessed at rest and surface on touch (reduce-motion aware); zones are exposed
+ * as custom accessibility actions (incl. volume up/down).
  */
 @Composable
 fun GesturePad(
@@ -156,7 +145,7 @@ fun GesturePad(
             .border(1.dp, scheme.outlineVariant, RoundedCornerShape(26.dp))
             .semantics {
                 contentDescription = "Touchpad — glide to move the pointer; tap edges to navigate, " +
-                    "centre for OK; corners: Settings, Mute, Back, Home; right edge drags volume"
+                    "centre for OK; corners: Settings, Mute, Back, Home"
                 customActions = listOf(
                     CustomAccessibilityAction("Up") { onNav(NavButton.UP); true },
                     CustomAccessibilityAction("Down") { onNav(NavButton.DOWN); true },
@@ -172,57 +161,32 @@ fun GesturePad(
                 )
             }
             .pointerInput(Unit) {
-                val railPx = RAIL_WIDTH.toPx()
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     touched = true
                     val w = size.width
                     val h = size.height
-                    val inRail = down.position.x > w - railPx &&
-                        down.position.y in (h * RAIL_TOP)..(h * RAIL_BOTTOM)
-                    if (inRail) {
-                        // Drag-only volume rail — immediate stepped vertical tracking (no slop).
-                        var acc = 0f
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                            if (!change.pressed) break
-                            acc += change.positionChange().y
-                            change.consume()
-                            while (acc <= -VOL_STEP_PX) {
-                                acc += VOL_STEP_PX
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onVolumeUp()
-                            }
-                            while (acc >= VOL_STEP_PX) {
-                                acc -= VOL_STEP_PX
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onVolumeDown()
-                            }
-                        }
+                    val slop = awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
+                    if (slop == null) {
+                        // Never crossed slop → a tap. Fire the zone at the down position.
+                        tap(zoneAt(down.position.x, down.position.y, w, h))
                     } else {
-                        val slop = awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
-                        if (slop == null) {
-                            // Never crossed slop → a tap. Fire the zone at the down position.
-                            tap(zoneAt(down.position.x, down.position.y, w, h))
-                        } else {
-                            // Crossed slop → glide the pointer.
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onTouchStart()
-                            var carryX = 0f
-                            var carryY = 0f
-                            drag(slop.id) { change ->
-                                val d = change.positionChange()
-                                carryX += d.x * GAIN
-                                carryY += d.y * GAIN
-                                val dx = carryX.roundToInt()
-                                val dy = carryY.roundToInt()
-                                if (dx != 0 || dy != 0) {
-                                    carryX -= dx; carryY -= dy
-                                    onMove(dx, dy)
-                                }
-                                change.consume()
+                        // Crossed slop → glide the pointer (volume lives on the hardware buttons).
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onTouchStart()
+                        var carryX = 0f
+                        var carryY = 0f
+                        drag(slop.id) { change ->
+                            val d = change.positionChange()
+                            carryX += d.x * GAIN
+                            carryY += d.y * GAIN
+                            val dx = carryX.roundToInt()
+                            val dy = carryY.roundToInt()
+                            if (dx != 0 || dy != 0) {
+                                carryX -= dx; carryY -= dy
+                                onMove(dx, dy)
                             }
+                            change.consume()
                         }
                     }
                     touched = false
@@ -275,18 +239,6 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean) {
     Corner(MaterialSymbols.VolumeOff, "Mute", Alignment.TopEnd, pad, tint, alpha)
     Corner(MaterialSymbols.ArrowBack, "Back", Alignment.BottomStart, pad, tint, alpha)
     Corner(MaterialSymbols.Home, "Home", Alignment.BottomEnd, pad, tint, alpha)
-    // Volume rail affordance — a slim dashed strip between the right corners.
-    Box(
-        Modifier.align(Alignment.CenterEnd).fillMaxHeight(RAIL_BOTTOM - RAIL_TOP).width(RAIL_WIDTH)
-            .padding(end = 2.dp).alpha(alpha),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Space.l)) {
-            SymbolIcon(MaterialSymbols.KeyboardArrowUp, contentDescription = null, tint = tint, size = 16.dp)
-            Text("VOL", style = MaterialTheme.typography.labelSmall, color = tint, modifier = Modifier.rotate(-90f))
-            SymbolIcon(MaterialSymbols.KeyboardArrowDown, contentDescription = null, tint = tint, size = 16.dp)
-        }
-    }
 }
 
 @Composable
@@ -362,7 +314,7 @@ private fun GestureHintCard(onDismiss: () -> Unit, modifier: Modifier = Modifier
             Text("How the pad works", style = MaterialTheme.typography.titleMedium)
             Text(
                 "Glide to move the pointer. Tap an edge to navigate, the centre for OK. Corners are " +
-                    "Settings, Mute, Back, Home; drag the right edge for volume.",
+                    "Settings, Mute, Back, Home. Volume is on your phone's volume buttons.",
                 style = MaterialTheme.typography.bodyMedium,
             )
             Button(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text("Got it") }

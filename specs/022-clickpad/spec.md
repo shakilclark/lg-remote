@@ -149,10 +149,10 @@ command sheet's quick-action row ("More controls") are **removed**, leaving only
   paths (region nav and corners reuse `NavButton` injection; glide reuses the cursor engine).
 - The current always-on edge VOL hint and bottom-left Back corner are folded into this unified hint +
   corner model; this spec supersedes `019-trackpad-back`.
-- Volume: resolved to a **drag-only rail** on the right edge (start-zone disambiguated from cursor
-  glide), backed by the phone hardware volume buttons — not a tap-zone, so it doesn't collide with the
-  Right tap or the TR/BR corners. (Research: no shipping TV remote puts volume on the pad; video-player
-  apps overload tap/drag only by partitioning into zones.)
+- Volume: **hardware buttons only** (kept off the pad). A right-edge drag rail was tried but, on device,
+  it collided with the **Right tap-zone** (a slightly-imperfect "tap right" read as a volume drag), so it
+  was dropped — the right edge is now unambiguous Right-nav. Volume stays reachable on the phone's
+  hardware keys and as TalkBack custom actions. (Research: no shipping TV remote puts volume on the pad.)
 - Resolved zone geometry: 3×3 with corner hit-boxes (30%×24%), a central OK dead-zone (radius 0.16),
   and the rest by angle from centre; centre tap = the pointer click (`onClick`). Built; thresholds tuned
   live in the workshop artifact.
