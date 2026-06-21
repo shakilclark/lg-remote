@@ -44,16 +44,6 @@ class RemoteScreenTest {
     }
 
     @Test
-    fun ok_fires_enter_nav() {
-        var nav: NavButton? = null
-        compose.setContent {
-            LGRemoteTheme { DirectionPad(onNav = { nav = it }) } // D-pad lives in the command sheet
-        }
-        compose.onNodeWithText("OK").performClick()
-        assertEquals(NavButton.ENTER, nav)
-    }
-
-    @Test
     fun command_sheet_controls_fire() {
         val navs = mutableListOf<NavButton>()
         var mutes = 0
