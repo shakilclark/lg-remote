@@ -1,5 +1,7 @@
 package com.shakilclark.lgremote.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.VolumeOff
@@ -17,9 +20,6 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -74,16 +77,11 @@ fun CommandSheet(
             QuickAction(Icons.Rounded.Settings, "Settings", onClick = onOpenTvSettings)
         }
 
-        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-            segments.forEachIndexed { i, label ->
-                SegmentedButton(
-                    selected = selected == i,
-                    onClick = { selected = i },
-                    shape = SegmentedButtonDefaults.itemShape(index = i, count = segments.size),
-                    label = { Text(label, style = MaterialTheme.typography.labelMedium) },
-                )
-            }
-        }
+        PillSegmented(
+            segments = segments,
+            selectedIndex = selected,
+            onSelect = { selected = it },
+        )
 
         when (selected) {
             0 -> ComingSoon("Number pad", "Channel & PIN entry is coming soon.")
@@ -95,6 +93,49 @@ fun CommandSheet(
             )
             3 -> ComingSoon("Audio output", "Switch TV speakers / soundbar / Bluetooth — coming soon.")
             else -> ComingSoon("Keyboard", "On-screen text entry is coming soon.")
+        }
+    }
+}
+
+/**
+ * Filled-pill segmented switch (010 — direction-c.html). A fully-rounded tinted track; the selected
+ * segment is a `primary`-filled pill with `onPrimary` text — no outline, divider or checkmark. Colours
+ * come from the Material You scheme (Ultraviolet is only the dynamic-off fallback seed).
+ */
+@Composable
+private fun PillSegmented(
+    segments: List<String>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val pill = RoundedCornerShape(percent = 50)
+    Row(
+        modifier
+            .fillMaxWidth()
+            .clip(pill)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        segments.forEachIndexed { i, label ->
+            val isSelected = i == selectedIndex
+            Box(
+                Modifier
+                    .weight(1f)
+                    .clip(pill)
+                    .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                    .clickable(role = Role.Button) { onSelect(i) }
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
