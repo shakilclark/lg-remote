@@ -289,15 +289,25 @@ private fun BoxScope.Corner(
 
 /**
  * The pad's recessed, textured surface (design-system §5.2): a concave radial (lighter centre →
- * darker edge), a faint 7dp dot texture, and an inset top shadow + highlight so it reads as a well.
+ * darker edge), a faint **cross-hatch mesh** texture (woven 45°/-45° lines — rubbery/tactile), and an
+ * inset top shadow + highlight so it reads as a well. The mesh is a tiny tiled bitmap (cached by
+ * [drawWithCache] + repeated by the GPU), so dragging stays cheap.
  */
 private fun Modifier.recessedWell(surface: Color, surfaceLow: Color, onSurface: Color): Modifier =
     drawWithCache {
-        val tilePx = 7.dp.toPx().toInt().coerceAtLeast(2)
-        val r = 0.6.dp.toPx()
-        val tile = ImageBitmap(tilePx, tilePx)
-        Canvas(tile).drawCircle(Offset(r, r), r, Paint().apply { color = onSurface.copy(alpha = 0.06f) })
-        val dots = ShaderBrush(ImageShader(tile, TileMode.Repeated, TileMode.Repeated))
+        val sp = 6.dp.toPx().toInt().coerceAtLeast(3) // mesh spacing
+        val tile = ImageBitmap(sp, sp)
+        val meshPaint = Paint().apply {
+            color = onSurface.copy(alpha = 0.05f)
+            strokeWidth = 1.2f
+            isAntiAlias = true
+        }
+        Canvas(tile).apply {
+            // Corner-to-corner diagonals; tiled they form continuous 45°/-45° cross-hatch.
+            drawLine(Offset(0f, 0f), Offset(sp.toFloat(), sp.toFloat()), meshPaint)
+            drawLine(Offset(sp.toFloat(), 0f), Offset(0f, sp.toFloat()), meshPaint)
+        }
+        val mesh = ShaderBrush(ImageShader(tile, TileMode.Repeated, TileMode.Repeated))
         val base = Brush.radialGradient(
             0f to surfaceLow,
             0.58f to surface,
@@ -311,7 +321,7 @@ private fun Modifier.recessedWell(surface: Color, surfaceLow: Color, onSurface: 
         )
         onDrawBehind {
             drawRect(base)
-            drawRect(dots)
+            drawRect(mesh)
             drawRect(topShadow, size = Size(size.width, top))
             drawRect(Color.White.copy(alpha = 0.35f), size = Size(size.width, 1.dp.toPx()))
         }
