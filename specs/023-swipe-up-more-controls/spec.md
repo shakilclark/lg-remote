@@ -4,7 +4,12 @@
 
 **Created**: 2026-06-21
 
-**Status**: Draft
+**Status**: Implemented — swipe-up on the grip opens the command sheet (FR-001/002/003/005/007). The
+upward drag commits the reveal once it passes a ~40dp threshold; FR-004 is met as a threshold-triggered
+open rather than continuous finger-tracking of the sheet position (the sheet is an M3
+`ModalBottomSheet`). Dismiss is the sheet's own swipe-down / scrim tap. The reveal uses
+`ModalBottomSheet`'s default animation (same as the tap path); a dedicated reduce-motion settle (FR-006)
+remains a follow-up.
 
 **Relates to**: `010-expressive-redesign` (the `Grip` + `CommandSheet` / "More controls"),
 `022-clickpad` (shares the home surface; gestures must be mutually disambiguated).

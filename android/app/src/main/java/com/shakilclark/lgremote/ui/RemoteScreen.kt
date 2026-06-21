@@ -2,6 +2,7 @@ package com.shakilclark.lgremote.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -160,13 +162,32 @@ fun RemoteScreen(
     }
 }
 
-/** The bottom grip that raises the command sheet — the only on-screen promise that there's more. */
+/**
+ * The bottom grip that raises the command sheet — the only on-screen promise that there's more.
+ * Opens on **tap** or on an **upward swipe** from the handle (spec 023). The swipe originates at the
+ * grip, below the clickpad, so it can't steal the pad's nav-taps / cursor glides.
+ */
 @Composable
 private fun Grip(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onOpen)
+            .pointerInput(Unit) {
+                val threshold = 40.dp.toPx() // upward travel that commits the reveal
+                var travel = 0f
+                var fired = false
+                detectVerticalDragGestures(
+                    onDragStart = { travel = 0f; fired = false },
+                ) { change, dy ->
+                    travel += dy
+                    if (!fired && travel <= -threshold) {
+                        fired = true
+                        onOpen()
+                    }
+                    change.consume()
+                }
+            }
             .semantics(mergeDescendants = true) { contentDescription = "More controls" }
             .padding(vertical = Space.s),
         horizontalAlignment = Alignment.CenterHorizontally,
