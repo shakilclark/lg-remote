@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -32,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import com.shakilclark.lgremote.tv.TvApp
+import com.shakilclark.lgremote.ui.components.appHaptics
 import com.shakilclark.lgremote.ui.theme.Space
 
 /**
@@ -74,7 +74,7 @@ fun AppGrid(
 
 @Composable
 private fun AppTile(app: TvApp, imageLoader: ImageLoader, onClick: () -> Unit) {
-    val haptics = LocalHapticFeedback.current
+    val haptics = appHaptics()
     Column(
         Modifier
             .width(76.dp)

@@ -11,12 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.components.MaterialSymbols
 import com.shakilclark.lgremote.ui.components.SymbolIcon
+import com.shakilclark.lgremote.ui.components.appHaptics
 
 /**
  * Inputs sheet body (US7, redesign): the list is pre-filtered to inputs that have a connection, so
@@ -30,7 +30,7 @@ fun InputSwitcher(
     onSelect: (TvInput) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val haptics = LocalHapticFeedback.current
+    val haptics = appHaptics()
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             "INPUTS",

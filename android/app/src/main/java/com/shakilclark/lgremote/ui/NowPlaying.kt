@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -31,6 +30,7 @@ import com.shakilclark.lgremote.tv.NowPlaying
 import com.shakilclark.lgremote.tv.PlayState
 import com.shakilclark.lgremote.ui.components.ControlKey
 import com.shakilclark.lgremote.ui.components.MaterialSymbols
+import com.shakilclark.lgremote.ui.components.appHaptics
 import com.shakilclark.lgremote.ui.components.SymbolIcon
 import com.shakilclark.lgremote.ui.theme.Space
 
@@ -55,7 +55,7 @@ fun NowPlayingBar(
     modifier: Modifier = Modifier,
 ) {
     val loader = rememberTvImageLoader()
-    val haptics = LocalHapticFeedback.current
+    val haptics = appHaptics()
     Row(
         modifier
             .fillMaxWidth()

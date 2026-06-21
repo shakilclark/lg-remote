@@ -41,13 +41,13 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.ui.components.MaterialSymbols
 import com.shakilclark.lgremote.ui.components.SymbolIcon
+import com.shakilclark.lgremote.ui.components.appHaptics
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Space
 import kotlin.math.roundToInt
@@ -81,7 +81,7 @@ fun GesturePad(
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
-    val haptics = LocalHapticFeedback.current
+    val haptics = appHaptics()
     Box(
         modifier
             .clip(RoundedCornerShape(26.dp))
@@ -205,7 +205,7 @@ private fun EdgeRocker(
     onDown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val haptics = LocalHapticFeedback.current
+    val haptics = appHaptics()
     val faint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
     Box(
         modifier

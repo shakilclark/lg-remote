@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import com.shakilclark.lgremote.ui.components.LocalHapticsEnabled
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,6 +49,7 @@ class MainActivity : ComponentActivity() {
                     val showGestureHint by viewModel.showGestureHint.collectAsStateWithLifecycle()
                     val hapticsEnabled by viewModel.hapticsEnabled.collectAsStateWithLifecycle()
                     val tvAddress by viewModel.activeAddress.collectAsStateWithLifecycle()
+                    CompositionLocalProvider(LocalHapticsEnabled provides hapticsEnabled) {
                     App(
                         ui = ui,
                         onConnect = viewModel::connectTo,
@@ -85,6 +88,7 @@ class MainActivity : ComponentActivity() {
                         onDismissGestureHint = viewModel::dismissGestureHint,
                         modifier = Modifier.padding(padding),
                     )
+                    }
                 }
             }
         }
