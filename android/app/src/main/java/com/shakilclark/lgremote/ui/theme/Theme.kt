@@ -14,12 +14,13 @@ import androidx.compose.ui.platform.LocalContext
 // 010-expressive-redesign: Material 3 Expressive look, themed by Material You.
 // The app follows the system light/dark setting and, on Android 12+, takes its colour from the
 // wallpaper (dynamic colour). When dynamic colour is unavailable it falls back to the fixed
-// Ultraviolet (#7B2FF7) identity below. Tones are representatives of the seed's tonal palette
-// (design-system §2.2/§2.3) — regenerate canonical values with material-color-utilities.
+// Ultraviolet (#7B2FF7) identity below.
 //
-// This replaces the previous brand-locked, dark-only electric-red scheme. The raw colour vals in
-// Color.kt are kept for the few call sites still importing them directly (App/AppGrid/Connection
-// Banner/ConnectScreen/InputSwitcher) until those are migrated to MaterialTheme.colorScheme.
+// Tones: the visible roles (primary/surface/containers/outline) are the device-validated design
+// values from design-system §2.2/§2.3 — deliberately kept rather than re-toned. The remaining roles
+// (error/inverse/surfaceDim/Bright/surfaceTint) are canonical values for the #7B2FF7 seed, generated
+// with the Material Theme Builder algorithm — see tools/theme/ (`node tools/theme/gen.mjs`) to
+// regenerate or verify the full scheme against the seed.
 
 val UltravioletDark = darkColorScheme(
     primary = Color(0xFFD7BBFF),
@@ -49,6 +50,14 @@ val UltravioletDark = darkColorScheme(
     outlineVariant = Color(0xFF332E3B),
     error = Color(0xFFFFB4AB),
     onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFB4AB),
+    inverseSurface = Color(0xFFE6E1E6),
+    inverseOnSurface = Color(0xFF323033),
+    inversePrimary = Color(0xFF7423F0),
+    surfaceDim = Color(0xFF141316),
+    surfaceBright = Color(0xFF3B383C),
+    surfaceTint = Color(0xFFD7BBFF),
     scrim = Color(0xFF000000),
 )
 
@@ -80,6 +89,14 @@ val UltravioletLight = lightColorScheme(
     outlineVariant = Color(0xFFCCC4CF),
     error = Color(0xFFBA1A1A),
     onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFFFDAD6),
+    onErrorContainer = Color(0xFF410002),
+    inverseSurface = Color(0xFF323033),
+    inverseOnSurface = Color(0xFFF5EFF4),
+    inversePrimary = Color(0xFFD2BBFF),
+    surfaceDim = Color(0xFFDED8DD),
+    surfaceBright = Color(0xFFFDF8FD),
+    surfaceTint = Color(0xFF6E2EC9),
     scrim = Color(0xFF000000),
 )
 

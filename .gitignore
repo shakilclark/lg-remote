@@ -5,3 +5,8 @@ backend/public/
 .env*
 .DS_Store
 lgtv2-keyfile-*
+
+# theme generator (tools/theme)
+tools/theme/node_modules/
+tools/theme/package-lock.json
+tools/theme/scheme.*
