@@ -110,6 +110,7 @@ fun RemoteScreen(
             onOpenTvSettings = onOpenTvSettings,
             onVolumeUp = onVolumeUp,
             onVolumeDown = onVolumeDown,
+            muted = state.muted == true,
             showHint = showGestureHint,
             onDismissHint = onDismissGestureHint,
             modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s),

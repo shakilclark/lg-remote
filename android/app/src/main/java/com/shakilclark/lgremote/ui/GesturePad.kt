@@ -116,6 +116,7 @@ fun GesturePad(
     onOpenTvSettings: () -> Unit,
     onVolumeUp: () -> Unit,
     onVolumeDown: () -> Unit,
+    muted: Boolean = false,
     showHint: Boolean = false,
     onDismissHint: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -196,7 +197,7 @@ fun GesturePad(
             },
         contentAlignment = Alignment.Center,
     ) {
-        HintOverlay(touched = touched, reduceMotion = reduce)
+        HintOverlay(touched = touched, reduceMotion = reduce, muted = muted)
 
         // Centre OK — the primary click affordance (rim-emboss, slight tint).
         OkButton()
@@ -215,7 +216,7 @@ fun GesturePad(
  * rail's affordance. Faint/embossed at rest; brighter on touch; the reveal respects reduce-motion.
  */
 @Composable
-private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean) {
+private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean, muted: Boolean) {
     val tint = MaterialTheme.colorScheme.onSurfaceVariant
     val alpha by animateFloatAsState(
         targetValue = if (touched) 0.55f else 0.14f,
@@ -228,7 +229,8 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean) {
     Chevron(270f, Modifier.align(Alignment.CenterStart).padding(start = pad), tint, alpha)
     Chevron(90f, Modifier.align(Alignment.CenterEnd).padding(end = pad), tint, alpha)
     Corner(MaterialSymbols.Settings, Alignment.TopStart, pad, tint, alpha)
-    Corner(MaterialSymbols.VolumeOff, Alignment.TopEnd, pad, tint, alpha)
+    // Reflects live TV state: crossed-out speaker when muted, speaker-with-waves when sound is on.
+    Corner(if (muted) MaterialSymbols.VolumeOff else MaterialSymbols.VolumeUp, Alignment.TopEnd, pad, tint, alpha)
     Corner(MaterialSymbols.ArrowBack, Alignment.BottomStart, pad, tint, alpha)
     Corner(MaterialSymbols.Home, Alignment.BottomEnd, pad, tint, alpha)
 }
