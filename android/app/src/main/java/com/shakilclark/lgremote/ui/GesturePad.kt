@@ -233,16 +233,16 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean) {
 }
 
 /**
- * Centre OK — a rim-embossed key with a slight primary tint (chosen in the design workshop). A raised
- * disc (soft drop shadow) with a lit top → base → faintly-tinted lower rim gradient and a primary "OK".
- * All tints derive from the scheme, so it follows the dynamic / statement themes.
+ * Centre OK — a rim-embossed **tonal** key (chosen in the design workshop). A raised disc (soft drop
+ * shadow) with a lit top → base → faint darker lower rim gradient and a muted "OK". Tones derive from
+ * the scheme (surfaceContainerHigh), so it follows the dynamic / statement themes.
  */
 @Composable
 private fun OkButton() {
     val scheme = MaterialTheme.colorScheme
-    val base = lerp(scheme.surfaceContainerHigh, scheme.primary, 0.12f)
-    val top = lerp(base, Color.White, 0.30f)   // lit top edge (emboss highlight)
-    val rim = lerp(base, scheme.primary, 0.22f) // faint tinted lower rim
+    val base = scheme.surfaceContainerHigh
+    val top = lerp(base, Color.White, 0.30f)        // lit top edge (emboss highlight)
+    val rim = lerp(base, scheme.onSurface, 0.12f)   // faint darker lower rim
     Box(
         Modifier
             .size(80.dp)
@@ -254,7 +254,7 @@ private fun OkButton() {
             "OK",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = scheme.primary,
+            color = scheme.onSurfaceVariant,
         )
     }
 }
