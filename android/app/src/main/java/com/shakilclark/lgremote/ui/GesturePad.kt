@@ -144,7 +144,16 @@ fun GesturePad(
         modifier
             .clip(RoundedCornerShape(26.dp))
             .recessedWell(scheme.surfaceContainer, scheme.onSurface)
-            .border(1.dp, scheme.outlineVariant, RoundedCornerShape(26.dp))
+            // Dark, skeuomorphic raised-rubber rim: a uniformly dark rubber bezel (a touch darker at the
+            // bottom) framing the recessed well — not the old thin light hairline.
+            .border(
+                width = 2.5.dp,
+                brush = Brush.verticalGradient(
+                    0.0f to lerp(scheme.surfaceContainer, Color.Black, 0.42f),
+                    1.0f to lerp(scheme.surfaceContainer, Color.Black, 0.56f),
+                ),
+                shape = RoundedCornerShape(26.dp),
+            )
             .semantics {
                 contentDescription = "Touchpad — glide to move the pointer; tap edges to navigate, " +
                     "centre for OK; corners: Settings, Mute, Back, Home"
@@ -253,17 +262,16 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean, muted:
 private fun OkButton(pressed: Boolean) {
     val scheme = MaterialTheme.colorScheme
     val dark = scheme.surface.luminance() < 0.5f
-    // Matches web target A: a light, low-contrast lilac disc dialled just below the pad, with a soft
-    // inset top shadow (purple-tinted, like the web's rgba(70,40,110)) and a faint bright bottom lip —
-    // gentle depth, not a dark bowl. Mode-aware. On press it sinks: the top shadow deepens, fill darkens
-    // a touch, the lip dims (subtle, animated).
+    // A light, low-contrast lilac disc dialled just below the pad, with a soft inset top shadow
+    // (purple-tinted, like the web's rgba(70,40,110)). No bottom highlight — a horizontal bright band
+    // across a circle reads as a clipped/cut edge — so depth comes from the top shadow + fill alone.
+    // Mode-aware. On press it sinks: the top shadow deepens and the fill darkens a touch (animated).
     val press by animateFloatAsState(
         if (pressed) 1f else 0f, animationSpec = tween(durationMillis = 90), label = "okPress",
     )
     val fill = lerp(scheme.surfaceContainerHigh, Color.Black, (if (dark) 0.12f else 0.045f) + press * 0.05f)
     val crestTint = lerp(Color.Black, scheme.primary, 0.20f) // soft purple-black, like the web shadow
     val crestA = (if (dark) 0.30f else 0.20f) + press * 0.16f
-    val lipA = (if (dark) 0.03f else 0.15f) * (1f - press * 0.4f)
     Box(
         Modifier
             .size(80.dp)
@@ -273,14 +281,9 @@ private fun OkButton(pressed: Boolean) {
                     0f to crestTint.copy(alpha = crestA), 1f to Color.Transparent,
                     startY = 0f, endY = size.height * 0.22f,
                 )
-                val lip = Brush.verticalGradient(
-                    0f to Color.Transparent, 1f to Color.White.copy(alpha = lipA),
-                    startY = size.height * 0.90f, endY = size.height,
-                )
                 onDrawBehind {
                     drawRect(fill)
                     drawRect(crest)
-                    drawRect(lip)
                 }
             },
         contentAlignment = Alignment.Center,
