@@ -2,6 +2,8 @@ package com.shakilclark.lgremote.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -38,7 +40,8 @@ class RemoteScreenTest {
             }
         }
         compose.onNodeWithContentDescription("Touchpad", substring = true).assertExists() // gesture pad
-        compose.onNodeWithContentDescription("More controls").assertExists() // grip → command sheet
+        // Two entry points to the command sheet now: the grip drag-handle + the top-bar Tune button.
+        compose.onAllNodesWithContentDescription("More controls").onFirst().assertExists()
     }
 
     @Test

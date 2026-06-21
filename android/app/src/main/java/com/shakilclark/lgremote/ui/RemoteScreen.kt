@@ -2,7 +2,6 @@ package com.shakilclark.lgremote.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,20 +12,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -39,6 +44,10 @@ import com.shakilclark.lgremote.tv.TvApp
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Space
+import kotlinx.coroutines.launch
+
+/** Peek height of the command sheet at rest — sized to the grip handle so no sheet content shows. */
+private val GRIP_PEEK = 48.dp
 
 /**
  * The connected remote (Direction C). Top to bottom: the connection top bar (chip + voice + power),
@@ -80,69 +89,83 @@ fun RemoteScreen(
     onDismissGestureHint: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    var showCommands by remember { mutableStateOf(false) }
     var showNowPlaying by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    // Standard (non-modal) bottom sheet: the grip is its drag handle at a peek height, so dragging it
+    // tracks the finger 1:1 and flings/settles open or closed (spec 023 — replaces the laggy
+    // open-on-threshold ModalBottomSheet). Never fully hidden → the grip is always a visible promise.
+    val sheetState = rememberStandardBottomSheetState(
+        initialValue = SheetValue.PartiallyExpanded,
+        skipHiddenState = true,
+    )
+    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
+    // Pull the TV inputs the moment the sheet begins to open.
+    LaunchedEffect(sheetState) {
+        snapshotFlow { sheetState.targetValue }.collect { if (it == SheetValue.Expanded) onLoadInputs() }
+    }
+    fun toggleSheet() {
+        scope.launch {
+            if (sheetState.currentValue == SheetValue.Expanded) sheetState.partialExpand()
+            else sheetState.expand()
+        }
+    }
 
     Box(modifier.fillMaxSize()) {
-      Column(Modifier.fillMaxSize()) {
-        // Top bar: connection chip + voice (inactive shell) + power.
-        RemoteTopBar(
-            tvName = tvName,
-            onPowerOff = onPowerOff,
-            onOpenSettings = onOpenSettings,
-            modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s),
-        )
-        // Now-playing strip — only when something is actually playing (tap to expand).
-        if (nowPlaying != null) {
-            NowPlayingBar(
-                nowPlaying = nowPlaying,
-                onExpand = { showNowPlaying = true },
-                onPlayPause = onPlayPause,
+      BottomSheetScaffold(
+          scaffoldState = scaffoldState,
+          sheetPeekHeight = GRIP_PEEK,
+          sheetDragHandle = { Grip(onTap = ::toggleSheet) },
+          sheetContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+          containerColor = MaterialTheme.colorScheme.surface,
+          sheetContent = {
+              CommandSheet(
+                  apps = apps,
+                  appsLoading = appsLoading,
+                  onLaunchApp = { onLaunchApp(it); scope.launch { sheetState.partialExpand() } },
+                  inputs = inputs,
+                  onSelectInput = { onSelectInput(it); scope.launch { sheetState.partialExpand() } },
+                  modifier = Modifier.fillMaxWidth().padding(bottom = Space.xxl),
+              )
+          },
+      ) { innerPadding ->
+        Column(Modifier.fillMaxSize().padding(innerPadding).padding(bottom = GRIP_PEEK)) {
+            // Top bar: connection chip + More-controls (Tune) + voice (inactive shell) + power.
+            RemoteTopBar(
+                tvName = tvName,
+                onPowerOff = onPowerOff,
+                onOpenSettings = onOpenSettings,
+                onOpenMore = ::toggleSheet,
                 modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s),
             )
+            // Now-playing strip — only when something is actually playing (tap to expand).
+            if (nowPlaying != null) {
+                NowPlayingBar(
+                    nowPlaying = nowPlaying,
+                    onExpand = { showNowPlaying = true },
+                    onPlayPause = onPlayPause,
+                    modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s),
+                )
+            }
+            // Home (Direction C): the gesture pad is the primary surface — glide/tap to point & click.
+            GesturePad(
+                onTouchStart = onCursorTouchStart,
+                onMove = onCursorMove,
+                onClick = onCursorClick,
+                onNav = onNav,
+                onMute = onToggleMute,
+                onOpenTvSettings = onOpenTvSettings,
+                onVolumeUp = onVolumeUp,
+                onVolumeDown = onVolumeDown,
+                muted = state.muted == true,
+                showHint = showGestureHint,
+                onDismissHint = onDismissGestureHint,
+                modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s),
+            )
         }
-        // Home (Direction C): the gesture pad is the primary surface — glide/tap to point & click,
-        // right edge = volume, left edge = channel.
-        GesturePad(
-            onTouchStart = onCursorTouchStart,
-            onMove = onCursorMove,
-            onClick = onCursorClick,
-            onNav = onNav,
-            onMute = onToggleMute,
-            onOpenTvSettings = onOpenTvSettings,
-            onVolumeUp = onVolumeUp,
-            onVolumeDown = onVolumeDown,
-            muted = state.muted == true,
-            showHint = showGestureHint,
-            onDismissHint = onDismissGestureHint,
-            modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s),
-        )
-        // Grip — pulls up the command sheet (keys / apps / inputs / mute / settings). Back is
-        // intentionally not surfaced on the home yet — that affordance is being redesigned.
-        Grip(
-            onOpen = { onLoadInputs(); showCommands = true },
-            modifier = Modifier.fillMaxWidth().padding(vertical = Space.s),
-        )
       }
       if (reconnecting) {
           ReconnectingChip(Modifier.align(Alignment.TopEnd).padding(Space.m))
       }
-    }
-
-    if (showCommands) {
-        ModalBottomSheet(
-            onDismissRequest = { showCommands = false },
-            sheetState = rememberModalBottomSheetState(),
-        ) {
-            CommandSheet(
-                apps = apps,
-                appsLoading = appsLoading,
-                onLaunchApp = { onLaunchApp(it); showCommands = false },
-                inputs = inputs,
-                onSelectInput = { onSelectInput(it); showCommands = false },
-                modifier = Modifier.padding(bottom = Space.xxl),
-            )
-        }
     }
 
     if (showNowPlaying && nowPlaying != null) {
@@ -163,31 +186,17 @@ fun RemoteScreen(
 }
 
 /**
- * The bottom grip that raises the command sheet — the only on-screen promise that there's more.
- * Opens on **tap** or on an **upward swipe** from the handle (spec 023). The swipe originates at the
- * grip, below the clickpad, so it can't steal the pad's nav-taps / cursor glides.
+ * The command sheet's **drag handle** (spec 023): a visible grip + "More controls" label. The host
+ * [BottomSheetScaffold] makes the sheet track the finger when you drag this handle up/down and settle
+ * open/closed by velocity; a **tap** toggles it via [onTap]. Because it lives on the sheet (below the
+ * clickpad), it can't steal the pad's nav-taps / cursor glides.
  */
 @Composable
-private fun Grip(onOpen: () -> Unit, modifier: Modifier = Modifier) {
+private fun Grip(onTap: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier
             .clip(MaterialTheme.shapes.large)
-            .clickable(onClick = onOpen)
-            .pointerInput(Unit) {
-                val threshold = 40.dp.toPx() // upward travel that commits the reveal
-                var travel = 0f
-                var fired = false
-                detectVerticalDragGestures(
-                    onDragStart = { travel = 0f; fired = false },
-                ) { change, dy ->
-                    travel += dy
-                    if (!fired && travel <= -threshold) {
-                        fired = true
-                        onOpen()
-                    }
-                    change.consume()
-                }
-            }
+            .clickable(onClick = onTap)
             .semantics(mergeDescendants = true) { contentDescription = "More controls" }
             .padding(vertical = Space.s),
         horizontalAlignment = Alignment.CenterHorizontally,

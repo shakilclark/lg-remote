@@ -29,15 +29,17 @@ import com.shakilclark.lgremote.ui.theme.LocalStatusColors
 import com.shakilclark.lgremote.ui.theme.Space
 
 /**
- * Home top bar (010 — direction-c.html appbar): a connection chip (TV name + live dot), a voice
- * button, and a power button. Voice is an inactive shell pending its feature (020); power is wired
- * to system/turnOff.
+ * Home top bar (010 — direction-c.html appbar): a connection chip (TV name + live dot), a **More
+ * controls** trigger (Tune), a voice button, and a power button. The Tune button is a manual,
+ * non-gesture way to raise the command sheet (alongside the grip / swipe-up, spec 023). Voice is an
+ * inactive shell pending its feature (020); power is wired to system/turnOff.
  */
 @Composable
 fun RemoteTopBar(
     tvName: String,
     onPowerOff: () -> Unit,
     onOpenSettings: () -> Unit = {},
+    onOpenMore: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -65,6 +67,11 @@ fun RemoteTopBar(
             }
         }
         Spacer(Modifier.width(Space.s))
+        // More controls — manual trigger for the command sheet (grip/swipe is the other way in).
+        FilledTonalIconButton(onClick = onOpenMore) {
+            SymbolIcon(MaterialSymbols.Tune, contentDescription = "More controls")
+        }
+        Spacer(Modifier.width(Space.xs))
         // Voice — inactive shell (020): visibly disabled until the feature lands.
         FilledTonalIconButton(onClick = {}, enabled = false) {
             SymbolIcon(MaterialSymbols.Mic, contentDescription = "Voice (coming soon)")

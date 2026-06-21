@@ -5,7 +5,7 @@
      Volume is on the hardware buttons. Hints faint at rest. Background = surface #FDF7FF. -->
 <style>
   :root{
-    --surf:#FDF7FF;--sc:#EFE3F8;--sc-high:#E9DDF4;
+    --surf:#FDF7FF;--sc:#EFE3F8;--sc-high:#E9DDF4;--sc-low:#F4EEFA;
     --on:#1D1B20;--onv:#4A454E;--outline:#7B757F;
     --p:#6E2EC9;--op:#FFFFFF;--ok-c:#2E7D4F;
     --pc:#E9DDFF;--opc:#23005C;
@@ -18,6 +18,7 @@
   .tvchip{display:inline-flex;align-items:center;gap:8px;background:var(--sc-high);border-radius:999px;padding:8px 14px;font-size:16px;font-weight:600;color:var(--on);flex:1;}
   .tvchip .live{width:8px;height:8px;border-radius:50%;background:var(--ok-c);flex:none;}
   .ib{width:44px;height:40px;border-radius:20px;display:grid;place-items:center;font-size:16px;flex:none;border:none;}
+  .ib.more{background:var(--sc-high);color:var(--onv);}
   .ib.mic{background:var(--sc-high);color:var(--onv);opacity:.5;}
   .ib.pw{background:var(--sc-high);color:var(--on);}
 
@@ -34,12 +35,14 @@
   .corner{position:absolute;color:var(--onv);opacity:.16;font-size:20px;}
   .tl{top:12px;left:14px} .tr{top:12px;right:14px} .bl{bottom:12px;left:14px} .br{bottom:12px;right:14px}
 
-  .grip{padding:10px 0 14px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--onv);font-size:12px;}
+  /* command-sheet peek (standard BottomSheetScaffold drag handle): grip + label on surfaceContainerLow */
+  .grip{background:var(--sc-low);border-radius:28px 28px 0 0;padding:9px 0 12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--onv);font-size:12px;}
   .grip .bar{width:40px;height:5px;border-radius:999px;background:var(--outline);}
 </style>
 <div class="col">
   <div class="appbar">
     <span class="tvchip"><span class="live"></span>TV</span>
+    <button class="ib more">&#127899;</button>
     <button class="ib mic"></button>
     <button class="ib pw">&#9211;</button>
   </div>
