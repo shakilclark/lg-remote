@@ -10,6 +10,12 @@
 `docs/design-system.md` §2, and `tools/theme/` (the seed→scheme generator — each statement theme is a
 Material Theme Builder seed run through it).
 
+**Depends on**: `024-app-settings` — the picker is now hosted as the **Appearance sub-screen** of the
+app Settings interface (reached from a Settings row), per the settings research. The standalone
+top-bar bottom-sheet described below is demoted to an OPTIONAL quick-switch shortcut; the canonical
+home is Settings → Appearance. Where this spec says "bottom sheet / top-bar icon", read "Appearance
+sub-screen (with an optional quick-switch sheet)".
+
 **Input**: User description: "theme picker, with statement Material 3 Expressive designs: Obsidian
 Glass, Willy Wonka, Vaporwave, Punk, Simply Red. Researched for UX patterns for the switcher, colour
 themes."
