@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material.icons.rounded.FastRewind
@@ -159,14 +160,28 @@ fun NowPlayingSheetContent(
             )
             val label = stateLabel(nowPlaying.playState)
             if (label.isNotEmpty()) {
-                Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Space.xs),
+                ) {
+                    Box(
+                        Modifier.size(8.dp).clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                    )
+                    Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(Space.l, Alignment.CenterHorizontally)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.l, Alignment.CenterHorizontally)) {
             SheetKey(Icons.Rounded.FastRewind, "Rewind", onRewind)
-            SheetKey(if (nowPlaying.playState == PlayState.Playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow, "Play or pause", onPlayPause)
-            SheetKey(Icons.Rounded.FastForward, "Fast forward", onFastForward)
+            SheetKey(
+                if (nowPlaying.playState == PlayState.Playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                "Play or pause",
+                onPlayPause,
+                emphasized = true,
+            )
             SheetKey(Icons.Rounded.Stop, "Stop", onStop)
+            SheetKey(Icons.Rounded.FastForward, "Fast forward", onFastForward)
         }
         // Audio-output chip — inactive shell (006/020): present, switching not wired yet.
         AssistChip(
@@ -181,8 +196,24 @@ fun NowPlayingSheetContent(
 }
 
 @Composable
-private fun SheetKey(icon: ImageVector, label: String, onClick: () -> Unit) {
-    ControlKey(onClick = onClick, modifier = Modifier.size(60.dp)) {
-        Icon(icon, contentDescription = label, modifier = Modifier.size(26.dp))
+private fun SheetKey(icon: ImageVector, label: String, onClick: () -> Unit, emphasized: Boolean = false) {
+    val scheme = MaterialTheme.colorScheme
+    if (emphasized) {
+        // The play/pause is the cover's primary action (004 — direction-c.html): a larger,
+        // primary-filled key the eye lands on first.
+        ControlKey(
+            onClick = onClick,
+            modifier = Modifier.size(72.dp),
+            containerColor = scheme.primary,
+            pressedContainerColor = scheme.primary,
+            contentColor = scheme.onPrimary,
+            pressedContentColor = scheme.onPrimary,
+        ) {
+            Icon(icon, contentDescription = label, modifier = Modifier.size(30.dp))
+        }
+    } else {
+        ControlKey(onClick = onClick, modifier = Modifier.size(60.dp)) {
+            Icon(icon, contentDescription = label, modifier = Modifier.size(26.dp))
+        }
     }
 }

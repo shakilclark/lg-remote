@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,10 @@ import com.shakilclark.lgremote.ui.theme.MotionSpecs
 fun ControlKey(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    pressedContainerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    pressedContentColor: Color = MaterialTheme.colorScheme.primary,
     content: @Composable () -> Unit,
 ) {
     val haptics = LocalHapticFeedback.current
@@ -41,14 +46,14 @@ fun ControlKey(
     val pressed by interaction.collectIsPressedAsState()
     val scheme = MaterialTheme.colorScheme
 
-    val fill = if (pressed) scheme.surfaceContainerHighest else scheme.surfaceContainerHigh
+    val fill = if (pressed) pressedContainerColor else containerColor
     val overlay by animateFloatAsState(
         targetValue = if (pressed) 0.06f else 0f,
         animationSpec = MotionSpecs.spatialFast,
         label = "controlKeyOverlay",
     )
     val glyph by animateColorAsState(
-        targetValue = if (pressed) scheme.primary else scheme.onSurface,
+        targetValue = if (pressed) pressedContentColor else contentColor,
         animationSpec = MotionSpecs.effects,
         label = "controlKeyGlyph",
     )
