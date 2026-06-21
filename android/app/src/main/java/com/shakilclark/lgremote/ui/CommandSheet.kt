@@ -34,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.TvApp
@@ -171,7 +170,7 @@ private fun ComingSoon(title: String, detail: String) {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360)
+@ThemePreviews
 @Composable
 private fun CommandSheetPreview() {
     LGRemoteTheme {

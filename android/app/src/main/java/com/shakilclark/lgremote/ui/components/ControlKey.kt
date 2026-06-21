@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.tooling.preview.Preview
+import com.shakilclark.lgremote.ui.ThemePreviews
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.MotionSpecs
@@ -73,7 +73,7 @@ fun ControlKey(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ControlKeyPreview() {
     LGRemoteTheme {

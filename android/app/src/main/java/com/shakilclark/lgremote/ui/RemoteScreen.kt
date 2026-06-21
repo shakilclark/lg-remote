@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.tv.NavButton
@@ -205,7 +204,7 @@ private fun ReconnectingChip(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 760)
+@ThemePreviews
 @Composable
 private fun RemotePreview() {
     LGRemoteTheme {

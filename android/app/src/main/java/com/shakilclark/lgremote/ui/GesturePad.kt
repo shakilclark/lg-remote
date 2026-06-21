@@ -50,7 +50,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Space
@@ -298,7 +297,7 @@ private fun GestureHintCard(onDismiss: () -> Unit, modifier: Modifier = Modifier
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 320)
+@ThemePreviews
 @Composable
 private fun GesturePadPreview() {
     LGRemoteTheme {

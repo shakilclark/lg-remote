@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shakilclark.lgremote.connection.ConnectionState
@@ -128,7 +127,7 @@ fun ConnectScreen(
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780)
+@ThemePreviews
 @Composable
 private fun ConnectPreview() {
     LGRemoteTheme {
@@ -140,7 +139,7 @@ private fun ConnectPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 780)
+@ThemePreviews
 @Composable
 private fun PairingPreview() {
     LGRemoteTheme { ConnectScreen(ConnectionState.NeedsPairing(), { _, _ -> }) }
