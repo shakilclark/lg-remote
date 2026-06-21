@@ -19,14 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.shakilclark.lgremote.BuildConfig
 import com.shakilclark.lgremote.UiState
 import androidx.compose.material3.MaterialTheme
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.ui.settings.AppearanceScreen
+import com.shakilclark.lgremote.ui.settings.LicensesScreen
+import com.shakilclark.lgremote.ui.settings.SettingsScreen
 
 /**
  * Root routing (T019). Mirrors the 001 flow: a known TV that's reconnecting shows the reconnect
  * view (not the scanner); an unconfigured app shows ConnectScreen; connected shows the remote.
  */
+private enum class SettingsRoute { None, Settings, Appearance, Licenses }
+
 @Composable
 fun App(
     ui: UiState,
@@ -57,11 +63,18 @@ fun App(
     scanning: Boolean = false,
     onScan: () -> Unit = {},
     onPowerOff: () -> Unit = {},
+    tvAddress: String? = null,
+    hapticsEnabled: Boolean = true,
+    onForgetTv: () -> Unit = {},
+    onSetHaptics: (Boolean) -> Unit = {},
+    onResetHints: () -> Unit = {},
     showGestureHint: Boolean = false,
     onDismissGestureHint: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var reconfigure by remember { mutableStateOf(false) }
+    var settingsRoute by remember { mutableStateOf(SettingsRoute.None) }
+    val versionLabel = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
     val conn = ui.connection
     val connected = conn is ConnectionState.Connected
 
@@ -83,6 +96,31 @@ fun App(
 
     // The remote to render: live state when connected, last-known during the grace window.
     val remoteState = (conn as? ConnectionState.Connected) ?: lastConnected
+
+    when (settingsRoute) {
+        SettingsRoute.Settings -> {
+            SettingsScreen(
+                tvName = ui.activeTvName ?: "",
+                tvAddress = tvAddress,
+                themeSummary = "System · Ultraviolet",
+                hapticsEnabled = hapticsEnabled,
+                versionLabel = versionLabel,
+                onBack = { settingsRoute = SettingsRoute.None },
+                onRescan = onScan,
+                onRepair = onRetry,
+                onForget = { onForgetTv(); settingsRoute = SettingsRoute.None },
+                onOpenAppearance = { settingsRoute = SettingsRoute.Appearance },
+                onToggleHaptics = onSetHaptics,
+                onResetHints = onResetHints,
+                onOpenLicenses = { settingsRoute = SettingsRoute.Licenses },
+                modifier = modifier,
+            )
+            return
+        }
+        SettingsRoute.Appearance -> { AppearanceScreen(onBack = { settingsRoute = SettingsRoute.Settings }, modifier = modifier); return }
+        SettingsRoute.Licenses -> { LicensesScreen(onBack = { settingsRoute = SettingsRoute.Settings }, modifier = modifier); return }
+        SettingsRoute.None -> Unit
+    }
 
     Column(
         modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 12.dp),
@@ -126,6 +164,7 @@ fun App(
                 onStop = onStop,
                 tvName = ui.activeTvName ?: "",
                 onPowerOff = onPowerOff,
+                onOpenSettings = { settingsRoute = SettingsRoute.Settings },
                 showGestureHint = showGestureHint,
                 onDismissGestureHint = onDismissGestureHint,
             )

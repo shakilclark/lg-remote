@@ -75,4 +75,10 @@ object MaterialSymbols {
     val Stop = cp(0xE047)
     val Sync = cp(0xE627)
     val Tv = cp(0xE63B)
+    val KeyboardArrowRight = cp(0xE315)
+    val Palette = cp(0xE40A)
+    val Tune = cp(0xE429)
+    val Info = cp(0xE88E)
+    val OpenInNew = cp(0xE89E)
+    val Description = cp(0xE873)
 }

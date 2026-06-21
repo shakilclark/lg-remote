@@ -18,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.ui.components.MaterialSymbols
@@ -35,6 +37,7 @@ import com.shakilclark.lgremote.ui.theme.Space
 fun RemoteTopBar(
     tvName: String,
     onPowerOff: () -> Unit,
+    onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -42,9 +45,10 @@ fun RemoteTopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Surface(
+            onClick = onOpenSettings,
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).semantics { contentDescription = "Settings" },
         ) {
             Row(
                 Modifier.padding(horizontal = Space.m, vertical = Space.s),

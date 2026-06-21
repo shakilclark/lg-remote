@@ -35,6 +35,7 @@ class TvStore(private val context: Context) {
     private val tvsKey = stringPreferencesKey("tvs_json")
     private val activeKey = stringPreferencesKey("active_id")
     private val gestureHintKey = booleanPreferencesKey("gesture_hint_seen")
+    private val hapticsKey = booleanPreferencesKey("haptics_enabled")
     private val json = Json { ignoreUnknownKeys = true }
 
     /** Whether the one-time gesture-pad teaching card has been dismissed. */
@@ -42,6 +43,30 @@ class TvStore(private val context: Context) {
 
     suspend fun setGestureHintSeen() {
         context.dataStore.edit { it[gestureHintKey] = true }
+    }
+
+    /** Reset first-run teaching (Settings → Behaviour) so the gesture-pad card shows again. */
+    suspend fun resetGestureHint() {
+        context.dataStore.edit { it[gestureHintKey] = false }
+    }
+
+    /** App-wide haptic feedback preference (Settings → Behaviour); defaults on. */
+    val hapticsEnabled: Flow<Boolean> = context.dataStore.data.map { it[hapticsKey] ?: true }
+
+    suspend fun setHapticsEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[hapticsKey] = enabled }
+    }
+
+    /** Forget the active TV (Settings → TV/Connection): drop it from the set and clear the active id. */
+    suspend fun forgetActive() {
+        context.dataStore.edit { prefs ->
+            val activeId = prefs[activeKey]
+            val current = prefs[tvsKey]?.let {
+                runCatching { json.decodeFromString<List<TvConnection>>(it) }.getOrNull()
+            } ?: emptyList()
+            prefs[tvsKey] = json.encodeToString(current.filterNot { it.id == activeId })
+            prefs.remove(activeKey)
+        }
     }
 
     val tvs: Flow<List<TvConnection>> = context.dataStore.data.map { prefs ->

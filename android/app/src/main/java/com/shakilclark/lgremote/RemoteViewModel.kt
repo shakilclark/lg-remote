@@ -233,6 +233,29 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    // --- Settings (024) ---
+    /** App-wide haptics preference, for Settings → Behaviour. */
+    val hapticsEnabled: StateFlow<Boolean> =
+        store.hapticsEnabled.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    /** Active TV's address (IP), shown in Settings → TV/Connection. */
+    val activeAddress: StateFlow<String?> =
+        combine(store.activeId, store.tvs) { id, tvs -> tvs.firstOrNull { it.id == id }?.address }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    fun setHaptics(enabled: Boolean) = viewModelScope.launch { store.setHapticsEnabled(enabled) }
+
+    /** Reset first-run teaching so the gesture-pad card shows again. */
+    fun resetHints() = viewModelScope.launch { store.resetGestureHint() }
+
+    /** Forget the active TV: clear it from storage, drop the connection, return to the connect flow. */
+    fun forgetTv() = viewModelScope.launch {
+        store.forgetActive()
+        manager.disconnect()
+        hasActive.value = false
+        activeName.value = null
+    }
+
     // --- US2 controls ---
     fun volumeUp() = dispatch { commands.volumeUp() }
     fun volumeDown() = dispatch { commands.volumeDown() }

@@ -45,6 +45,8 @@ class MainActivity : ComponentActivity() {
                     val discovered by viewModel.discovered.collectAsStateWithLifecycle()
                     val scanning by viewModel.scanning.collectAsStateWithLifecycle()
                     val showGestureHint by viewModel.showGestureHint.collectAsStateWithLifecycle()
+                    val hapticsEnabled by viewModel.hapticsEnabled.collectAsStateWithLifecycle()
+                    val tvAddress by viewModel.activeAddress.collectAsStateWithLifecycle()
                     App(
                         ui = ui,
                         onConnect = viewModel::connectTo,
@@ -74,6 +76,11 @@ class MainActivity : ComponentActivity() {
                         nowPlaying = nowPlaying,
                         onStop = viewModel::stop,
                         onPowerOff = viewModel::powerOff,
+                        tvAddress = tvAddress,
+                        hapticsEnabled = hapticsEnabled,
+                        onForgetTv = viewModel::forgetTv,
+                        onSetHaptics = viewModel::setHaptics,
+                        onResetHints = viewModel::resetHints,
                         showGestureHint = showGestureHint,
                         onDismissGestureHint = viewModel::dismissGestureHint,
                         modifier = Modifier.padding(padding),
