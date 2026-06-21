@@ -4,7 +4,13 @@
 
 **Created**: 2026-06-21
 
-**Status**: Draft
+**Status**: Built (2026-06-21). Resolved design (workshopped in an artifact): one surface, tap vs drag
+arbitrated by `touchSlop` in a single `awaitEachGesture`; **drags routed by start zone** — a slim
+drag-only **volume rail** on the right edge (between the TR/BR corners) = volume, glide everywhere
+else = cursor (volume also on the phone hardware buttons). Four corners = **TL TV-Settings, TR Mute,
+BL Back, BR Home**; the empty TL corner took TV-Settings, which (with Back/Home/Mute) emptied the
+command-sheet quick row — now removed. Tap edges = nav, centre = OK; recessed hints surface on touch;
+zones exposed as custom accessibility actions.
 
 **Supersedes**: `019-trackpad-back` (which scoped only back-control options on the trackpad — this spec
 defines the full corner-action + tap-nav model, of which Back is one part).
@@ -143,7 +149,10 @@ command sheet's quick-action row ("More controls") are **removed**, leaving only
   paths (region nav and corners reuse `NavButton` injection; glide reuses the cursor engine).
 - The current always-on edge VOL hint and bottom-left Back corner are folded into this unified hint +
   corner model; this spec supersedes `019-trackpad-back`.
-- Volume remains on the right edge (rocker) unless a later decision moves it; this spec does not change
-  volume placement.
-- Exact zone geometry, tap/glide thresholds, and centre-OK vs cursor-click reconciliation are design
-  details to settle in `/plan` (flagged, not fixed here).
+- Volume: resolved to a **drag-only rail** on the right edge (start-zone disambiguated from cursor
+  glide), backed by the phone hardware volume buttons — not a tap-zone, so it doesn't collide with the
+  Right tap or the TR/BR corners. (Research: no shipping TV remote puts volume on the pad; video-player
+  apps overload tap/drag only by partitioning into zones.)
+- Resolved zone geometry: 3×3 with corner hit-boxes (30%×24%), a central OK dead-zone (radius 0.16),
+  and the rest by angle from centre; centre tap = the pointer click (`onClick`). Built; thresholds tuned
+  live in the workshop artifact.
