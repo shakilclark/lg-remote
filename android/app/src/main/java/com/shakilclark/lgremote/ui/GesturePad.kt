@@ -233,21 +233,35 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean) {
 }
 
 /**
- * Centre OK — a rim-embossed **tonal** key (chosen in the design workshop). A raised disc (soft drop
- * shadow) with a lit top → base → faint darker lower rim gradient and a muted "OK". Tones derive from
- * the scheme (surfaceContainerHigh), so it follows the dynamic / statement themes.
+ * Centre OK — a **recessed rubber** key (chosen in the design workshop). No drop shadow, no bright top:
+ * a matte disc dialled slightly darker than the pad, with a soft inset top shadow + a faint bottom lip,
+ * so it reads as a dip pressed into the rubber rather than a raised dome. Tones derive from the scheme
+ * (surfaceContainerHigh nudged toward black), so it follows the dynamic / statement themes, light + dark.
  */
 @Composable
 private fun OkButton() {
     val scheme = MaterialTheme.colorScheme
-    val base = scheme.surfaceContainerHigh
-    val top = lerp(base, Color.White, 0.30f)        // lit top edge (emboss highlight)
-    val rim = lerp(base, scheme.onSurface, 0.12f)   // faint darker lower rim
+    val fill = lerp(scheme.surfaceContainerHigh, Color.Black, 0.05f) // darker than the pad surface
+    val shade = lerp(scheme.surfaceContainerHigh, Color.Black, 0.45f) // inset top-shadow tone
     Box(
         Modifier
             .size(80.dp)
-            .shadow(3.dp, CircleShape)
-            .background(Brush.verticalGradient(listOf(top, base, rim))),
+            .clip(CircleShape)
+            .drawWithCache {
+                val topShadow = Brush.verticalGradient(
+                    0f to shade.copy(alpha = 0.55f), 1f to Color.Transparent,
+                    startY = 0f, endY = size.height * 0.5f,
+                )
+                val bottomLip = Brush.verticalGradient(
+                    0f to Color.Transparent, 1f to Color.White.copy(alpha = 0.16f),
+                    startY = size.height * 0.7f, endY = size.height,
+                )
+                onDrawBehind {
+                    drawRect(fill)
+                    drawRect(topShadow)
+                    drawRect(bottomLip)
+                }
+            },
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -298,8 +312,8 @@ private fun Modifier.recessedWell(surface: Color, surfaceLow: Color, onSurface: 
         val sp = 6.dp.toPx().toInt().coerceAtLeast(3) // mesh spacing
         val tile = ImageBitmap(sp, sp)
         val meshPaint = Paint().apply {
-            color = onSurface.copy(alpha = 0.05f)
-            strokeWidth = 1.2f
+            color = onSurface.copy(alpha = 0.035f) // muted: AA on-device reads hotter than the .05 web ref
+            strokeWidth = 1f
             isAntiAlias = true
         }
         Canvas(tile).apply {
