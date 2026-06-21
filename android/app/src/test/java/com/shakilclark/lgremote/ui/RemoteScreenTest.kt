@@ -7,9 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.shakilclark.lgremote.UiState
 import com.shakilclark.lgremote.connection.ConnectionState
-import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,31 +42,15 @@ class RemoteScreenTest {
     }
 
     @Test
-    fun command_sheet_controls_fire() {
-        val navs = mutableListOf<NavButton>()
-        var mutes = 0
-        var settings = 0
+    fun command_sheet_shows_segments() {
         compose.setContent {
             LGRemoteTheme {
-                CommandSheet(
-                    onNav = { navs += it },
-                    muted = false,
-                    onToggleMute = { mutes++ },
-                    apps = emptyList(),
-                    onLaunchApp = {},
-                    inputs = emptyList(),
-                    onSelectInput = {},
-                    onOpenTvSettings = { settings++ },
-                )
+                CommandSheet(apps = emptyList(), onLaunchApp = {}, inputs = emptyList(), onSelectInput = {})
             }
         }
-        compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithContentDescription("Home").performClick()
-        compose.onNodeWithContentDescription("Mute").performClick()
-        compose.onNodeWithContentDescription("Settings").performClick()
-        assertEquals(listOf(NavButton.BACK, NavButton.HOME), navs)
-        assertEquals(1, mutes)
-        assertEquals(1, settings)
+        // Back/Home/Mute/Settings moved to the clickpad corners (022); the sheet is the segmented tabs.
+        compose.onNodeWithText("Apps").assertExists()
+        compose.onNodeWithText("Inputs").assertExists()
     }
 
     @Test

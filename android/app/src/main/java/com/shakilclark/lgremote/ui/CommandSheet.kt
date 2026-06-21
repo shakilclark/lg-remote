@@ -6,12 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -27,31 +25,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.shakilclark.lgremote.tv.NavButton
 import com.shakilclark.lgremote.tv.TvApp
-import com.shakilclark.lgremote.ui.components.MaterialSymbols
-import com.shakilclark.lgremote.ui.components.SymbolIcon
 import com.shakilclark.lgremote.tv.TvInput
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Space
 
 /**
- * The pull-up command surface (010 — direction-c.html). A persistent Back/Home/Mute/Settings quick
- * row over a segmented switch: **Keypad · Apps · Inputs · Sound · Type**. Apps and Inputs are live;
- * Keypad, Sound and Type are **inactive shells** pending their features (see spec 020) and render a
- * disabled layout with an honest "coming soon" note — no fake controls.
+ * The pull-up command surface (010 / 022). A segmented switch — **Keypad · Apps · Inputs · Sound ·
+ * Type** — over the selected tab's content. Apps and Inputs are live; Keypad, Sound and Type are
+ * **inactive shells** pending their features (spec 020) with an honest "coming soon" note. Back / Home
+ * / Mute / TV-settings used to live in a quick row here; they now live on the clickpad corners (022).
  */
 @Composable
 fun CommandSheet(
-    onNav: (NavButton) -> Unit,
-    muted: Boolean = false,
-    onToggleMute: () -> Unit = {},
     apps: List<TvApp>,
     appsLoading: Boolean = false,
     onLaunchApp: (TvApp) -> Unit,
     inputs: List<TvInput>,
     onSelectInput: (TvInput) -> Unit,
-    onOpenTvSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var selected by remember { mutableIntStateOf(1) } // default to Apps (a live segment)
@@ -61,18 +52,6 @@ fun CommandSheet(
         modifier.fillMaxWidth().padding(horizontal = Space.l),
         verticalArrangement = Arrangement.spacedBy(Space.m),
     ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-            QuickAction(MaterialSymbols.ArrowBack, "Back") { onNav(NavButton.BACK) }
-            QuickAction(MaterialSymbols.Home, "Home") { onNav(NavButton.HOME) }
-            QuickAction(
-                if (muted) MaterialSymbols.VolumeOff else MaterialSymbols.VolumeUp,
-                if (muted) "Unmute" else "Mute",
-                filled = muted,
-                onClick = onToggleMute,
-            )
-            QuickAction(MaterialSymbols.Settings, "Settings", onClick = onOpenTvSettings)
-        }
-
         PillSegmented(
             segments = segments,
             selectedIndex = selected,
@@ -137,14 +116,6 @@ private fun PillSegmented(
     }
 }
 
-@Composable
-private fun RowScope.QuickAction(symbol: String, label: String, filled: Boolean = false, onClick: () -> Unit) {
-    // Icon-only (label as contentDescription): a row of four labels doesn't fit horizontally.
-    FilledTonalButton(onClick = onClick, modifier = Modifier.weight(1f)) {
-        SymbolIcon(symbol, contentDescription = label, size = 20.dp, filled = filled)
-    }
-}
-
 /** Inactive-shell placeholder for a segment whose feature isn't wired yet (spec 020). */
 @Composable
 private fun ComingSoon(title: String, detail: String) {
@@ -170,12 +141,10 @@ private fun ComingSoon(title: String, detail: String) {
 private fun CommandSheetPreview() {
     LGRemoteTheme {
         CommandSheet(
-            onNav = {},
             apps = emptyList(),
             onLaunchApp = {},
             inputs = emptyList(),
             onSelectInput = {},
-            onOpenTvSettings = {},
         )
     }
 }

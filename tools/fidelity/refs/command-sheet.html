@@ -1,21 +1,18 @@
-<!-- Fidelity ref: COMMAND SHEET chrome, full-bleed 411x472, Ultraviolet light. Ported from
-     docs/design/direction-c.html §02: a quick-action row (Back/Home/Mute/Settings filled-tonal),
-     the filled-pill segmented switch (selected = primary pill + onPrimary text), then the Apps tab's
-     empty state (the golden renders apps=emptyList; the populated grid is the app_grid surface). -->
+<!-- Fidelity ref: COMMAND SHEET, full-bleed 411x428, Ultraviolet light. The filled-pill segmented
+     switch (selected = primary pill + onPrimary text) over the Apps tab's empty state. The old
+     Back/Home/Mute/Settings quick row moved to the clickpad corners (022), so the sheet is just the
+     segmented tabs + content (the golden renders apps=emptyList; the populated grid is app_grid). -->
 <style>
   :root{--surf:#FDF7FF;--sc-low:#F6ECFC;--sc:#EFE3F8;--sc-high:#E9DDF4;--on:#1D1B20;--onv:#4A454E;--p:#6E2EC9;--op:#FFFFFF;}
   *{box-sizing:border-box;margin:0;}
-  html,body{width:411px;height:488px;background:var(--surf);font-family:system-ui,sans-serif;}
-  .wrap{padding:8px 16px 0;display:flex;flex-direction:column;gap:12px;height:488px;}
-  .qr{display:flex;gap:8px;}
-  .qr button{flex:1;height:40px;border-radius:20px;background:var(--sc-high);border:none;}
+  html,body{width:411px;height:428px;background:var(--surf);font-family:system-ui,sans-serif;}
+  .wrap{padding:8px 16px 0;display:flex;flex-direction:column;gap:12px;height:428px;}
   .seg{display:flex;background:var(--sc-low);border-radius:999px;padding:4px;gap:2px;}
   .seg b{flex:1;text-align:center;font-size:14px;font-weight:600;padding:12px 2px;border-radius:999px;color:var(--onv);}
   .seg b.on{background:var(--p);color:var(--op);}
   .empty{flex:1;display:grid;place-items:center;color:var(--onv);font-size:14px;}
 </style>
 <div class="wrap">
-  <div class="qr"><button></button><button></button><button></button><button></button></div>
   <div class="seg"><b>Keypad</b><b class="on">Apps</b><b>Inputs</b><b>Sound</b><b>Type</b></div>
   <div class="empty">No apps found</div>
 </div>

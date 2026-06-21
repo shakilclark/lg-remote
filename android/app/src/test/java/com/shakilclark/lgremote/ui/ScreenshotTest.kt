@@ -74,12 +74,10 @@ class ScreenshotTest {
     @Test
     fun command_sheet() = shot("command_sheet") {
         CommandSheet(
-            onNav = {},
             apps = emptyList(),
             onLaunchApp = {},
             inputs = emptyList(),
             onSelectInput = {},
-            onOpenTvSettings = {},
         )
     }
 

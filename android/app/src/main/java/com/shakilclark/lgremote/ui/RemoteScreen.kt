@@ -105,9 +105,11 @@ fun RemoteScreen(
             onTouchStart = onCursorTouchStart,
             onMove = onCursorMove,
             onClick = onCursorClick,
+            onNav = onNav,
+            onMute = onToggleMute,
+            onOpenTvSettings = onOpenTvSettings,
             onVolumeUp = onVolumeUp,
             onVolumeDown = onVolumeDown,
-            onBack = { onNav(NavButton.BACK) },
             showHint = showGestureHint,
             onDismissHint = onDismissGestureHint,
             modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s),
@@ -130,15 +132,11 @@ fun RemoteScreen(
             sheetState = rememberModalBottomSheetState(),
         ) {
             CommandSheet(
-                onNav = onNav,
-                muted = state.muted == true,
-                onToggleMute = onToggleMute,
                 apps = apps,
                 appsLoading = appsLoading,
                 onLaunchApp = { onLaunchApp(it); showCommands = false },
                 inputs = inputs,
                 onSelectInput = { onSelectInput(it); showCommands = false },
-                onOpenTvSettings = onOpenTvSettings,
                 modifier = Modifier.padding(bottom = Space.xxl),
             )
         }
