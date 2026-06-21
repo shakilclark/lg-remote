@@ -21,3 +21,13 @@ Key decisions (from /clarify):
 - Motion cursor uses native `SensorManager` (no HTTPS needed). Sideload signed APK (`adb`).
 - UI designed **directly in Compose**; the `001` web UI is only a visual reference.
 <!-- SPECKIT END -->
+
+## Theming & UX work — always use the `material-3` skill
+
+For **all** theming and UX/UI work on this app (colour/tokens, typography, shape, motion,
+components, layout, Material You / dynamic colour, M3 Expressive), **always draw on the installed
+`material-3` skill** (`~/.claude/skills/material-3`) — invoke `/material-3 [component|theme|layout|
+scaffold|audit]` or let it auto-activate. This is the standing reference for Material 3 guidance.
+
+It encodes **generic** M3, so on any conflict `docs/design-system.md` (our decided Direction-C /
+Ultraviolet / native-finish design) is the **source of truth** and wins.
