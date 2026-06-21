@@ -40,10 +40,11 @@ import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 import com.shakilclark.lgremote.ui.theme.Space
 
 /**
- * The connected remote (redesign). Body holds a full-width +-shaped D-pad biased toward the lower
- * half (right-thumb arc) and a vertical volume strip in the bottom-right corner; everything else is
- * the persistent bottom bar. Pad / Apps / Inputs open as bottom sheets; Settings launches the TV's
- * own settings directly. Inputs are filtered to connected sources. One screen, no scroll.
+ * The connected remote (Direction C). Top to bottom: the connection top bar (chip + voice + power),
+ * an optional now-playing bar when media is live (tap to expand the cover sheet), the gesture pad as
+ * the primary surface (glide to point, tap to click; right edge = volume; bottom-left = back), and a
+ * grip that pulls up the command sheet (Keypad / Apps / Inputs / Sound / Type). Inputs are filtered to
+ * connected sources. One screen, no scroll.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
