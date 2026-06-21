@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -196,18 +197,8 @@ fun GesturePad(
     ) {
         HintOverlay(touched = touched, reduceMotion = reduce)
 
-        // Centre OK ring — the primary click affordance.
-        Box(
-            Modifier.size(80.dp).clip(CircleShape).background(scheme.primary),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                "OK",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = scheme.onPrimary,
-            )
-        }
+        // Centre OK — the primary click affordance (rim-emboss, slight tint).
+        OkButton()
 
         if (showHint) {
             GestureHintCard(
@@ -239,6 +230,33 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean) {
     Corner(MaterialSymbols.VolumeOff, Alignment.TopEnd, pad, tint, alpha)
     Corner(MaterialSymbols.ArrowBack, Alignment.BottomStart, pad, tint, alpha)
     Corner(MaterialSymbols.Home, Alignment.BottomEnd, pad, tint, alpha)
+}
+
+/**
+ * Centre OK — a rim-embossed key with a slight primary tint (chosen in the design workshop). A raised
+ * disc (soft drop shadow) with a lit top → base → faintly-tinted lower rim gradient and a primary "OK".
+ * All tints derive from the scheme, so it follows the dynamic / statement themes.
+ */
+@Composable
+private fun OkButton() {
+    val scheme = MaterialTheme.colorScheme
+    val base = lerp(scheme.surfaceContainerHigh, scheme.primary, 0.12f)
+    val top = lerp(base, Color.White, 0.30f)   // lit top edge (emboss highlight)
+    val rim = lerp(base, scheme.primary, 0.22f) // faint tinted lower rim
+    Box(
+        Modifier
+            .size(80.dp)
+            .shadow(3.dp, CircleShape)
+            .background(Brush.verticalGradient(listOf(top, base, rim))),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            "OK",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = scheme.primary,
+        )
+    }
 }
 
 @Composable
