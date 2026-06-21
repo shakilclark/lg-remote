@@ -43,8 +43,23 @@ function kt(name, fn, m) {
   return `val ${name} = ${fn}(\n${lines.join("\n")}\n)`;
 }
 
+function dtcgGroup(m) {
+  const g = {};
+  for (const r of ROLES) if (m[r]) g[r] = { $value: m[r].toUpperCase(), $type: "color" };
+  g.surfaceTint = { $value: m.primary.toUpperCase(), $type: "color" }; // M3 convention
+  return g;
+}
+
 if (process.argv[2] === "json") {
   console.log(JSON.stringify({ seed: SEED, light: theme.light, dark: theme.dark }));
+} else if (process.argv[2] === "dtcg") {
+  // DTCG (Design Tokens Community Group) format — a portable, standard token source shareable between
+  // the Compose theme and the HTML design studies. This is the *canonical* MTB export for the seed;
+  // the app overrides visible tones (see Theme.kt / this dir's README), so treat it as the baseline.
+  console.log(JSON.stringify({
+    $description: `Material Theme Builder canonical export for seed ${SEED} (SchemeTonalSpot, contrast 0).`,
+    color: { light: dtcgGroup(theme.light), dark: dtcgGroup(theme.dark) },
+  }, null, 2));
 } else {
   console.log(`// Generated from seed ${SEED} via the Material Theme Builder algorithm (SchemeTonalSpot, contrast 0).`);
   console.log(`// Do not hand-edit; regenerate with: node tools/theme/gen.mjs`);

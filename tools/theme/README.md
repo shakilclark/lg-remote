@@ -9,6 +9,7 @@ cd tools/theme
 npm install            # one-time (material-dynamic-colors); node_modules is git-ignored
 node gen.mjs           # full canonical Kotlin — both schemes
 node gen.mjs json      # raw role -> hex (light & dark)
+node gen.mjs dtcg > tokens.dtcg.json   # DTCG design-token JSON (portable token source)
 SEED='#RRGGBB' node gen.mjs   # try a different seed
 ```
 

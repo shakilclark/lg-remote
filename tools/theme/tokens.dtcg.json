@@ -1,0 +1,297 @@
+{
+  "$description": "Material Theme Builder canonical export for seed #7B2FF7 (SchemeTonalSpot, contrast 0).",
+  "color": {
+    "light": {
+      "primary": {
+        "$value": "#7423F0",
+        "$type": "color"
+      },
+      "onPrimary": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "primaryContainer": {
+        "$value": "#EADDFF",
+        "$type": "color"
+      },
+      "onPrimaryContainer": {
+        "$value": "#25005A",
+        "$type": "color"
+      },
+      "secondary": {
+        "$value": "#635B70",
+        "$type": "color"
+      },
+      "onSecondary": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "secondaryContainer": {
+        "$value": "#E9DEF8",
+        "$type": "color"
+      },
+      "onSecondaryContainer": {
+        "$value": "#1E182B",
+        "$type": "color"
+      },
+      "tertiary": {
+        "$value": "#7E525E",
+        "$type": "color"
+      },
+      "onTertiary": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "tertiaryContainer": {
+        "$value": "#FFD9E1",
+        "$type": "color"
+      },
+      "onTertiaryContainer": {
+        "$value": "#31101C",
+        "$type": "color"
+      },
+      "error": {
+        "$value": "#BA1A1A",
+        "$type": "color"
+      },
+      "onError": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "errorContainer": {
+        "$value": "#FFDAD6",
+        "$type": "color"
+      },
+      "onErrorContainer": {
+        "$value": "#410002",
+        "$type": "color"
+      },
+      "background": {
+        "$value": "#FFFBFF",
+        "$type": "color"
+      },
+      "onBackground": {
+        "$value": "#1D1B1E",
+        "$type": "color"
+      },
+      "surface": {
+        "$value": "#FDF8FD",
+        "$type": "color"
+      },
+      "onSurface": {
+        "$value": "#1D1B1E",
+        "$type": "color"
+      },
+      "surfaceVariant": {
+        "$value": "#E7E0EB",
+        "$type": "color"
+      },
+      "onSurfaceVariant": {
+        "$value": "#49454E",
+        "$type": "color"
+      },
+      "surfaceDim": {
+        "$value": "#DED8DD",
+        "$type": "color"
+      },
+      "surfaceBright": {
+        "$value": "#FDF8FD",
+        "$type": "color"
+      },
+      "surfaceContainerLowest": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "surfaceContainerLow": {
+        "$value": "#F8F2F7",
+        "$type": "color"
+      },
+      "surfaceContainer": {
+        "$value": "#F2ECF1",
+        "$type": "color"
+      },
+      "surfaceContainerHigh": {
+        "$value": "#ECE6EB",
+        "$type": "color"
+      },
+      "surfaceContainerHighest": {
+        "$value": "#E6E1E6",
+        "$type": "color"
+      },
+      "outline": {
+        "$value": "#7A757F",
+        "$type": "color"
+      },
+      "outlineVariant": {
+        "$value": "#CBC4CF",
+        "$type": "color"
+      },
+      "inverseSurface": {
+        "$value": "#323033",
+        "$type": "color"
+      },
+      "inverseOnSurface": {
+        "$value": "#F5EFF4",
+        "$type": "color"
+      },
+      "inversePrimary": {
+        "$value": "#D2BBFF",
+        "$type": "color"
+      },
+      "scrim": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "surfaceTint": {
+        "$value": "#7423F0",
+        "$type": "color"
+      }
+    },
+    "dark": {
+      "primary": {
+        "$value": "#D2BBFF",
+        "$type": "color"
+      },
+      "onPrimary": {
+        "$value": "#3E008E",
+        "$type": "color"
+      },
+      "primaryContainer": {
+        "$value": "#5900C6",
+        "$type": "color"
+      },
+      "onPrimaryContainer": {
+        "$value": "#EADDFF",
+        "$type": "color"
+      },
+      "secondary": {
+        "$value": "#CDC2DB",
+        "$type": "color"
+      },
+      "onSecondary": {
+        "$value": "#342D40",
+        "$type": "color"
+      },
+      "secondaryContainer": {
+        "$value": "#4A4358",
+        "$type": "color"
+      },
+      "onSecondaryContainer": {
+        "$value": "#E9DEF8",
+        "$type": "color"
+      },
+      "tertiary": {
+        "$value": "#F0B7C6",
+        "$type": "color"
+      },
+      "onTertiary": {
+        "$value": "#4A2530",
+        "$type": "color"
+      },
+      "tertiaryContainer": {
+        "$value": "#643B47",
+        "$type": "color"
+      },
+      "onTertiaryContainer": {
+        "$value": "#FFD9E1",
+        "$type": "color"
+      },
+      "error": {
+        "$value": "#FFB4AB",
+        "$type": "color"
+      },
+      "onError": {
+        "$value": "#690005",
+        "$type": "color"
+      },
+      "errorContainer": {
+        "$value": "#93000A",
+        "$type": "color"
+      },
+      "onErrorContainer": {
+        "$value": "#FFB4AB",
+        "$type": "color"
+      },
+      "background": {
+        "$value": "#1D1B1E",
+        "$type": "color"
+      },
+      "onBackground": {
+        "$value": "#E6E1E6",
+        "$type": "color"
+      },
+      "surface": {
+        "$value": "#141316",
+        "$type": "color"
+      },
+      "onSurface": {
+        "$value": "#E6E1E6",
+        "$type": "color"
+      },
+      "surfaceVariant": {
+        "$value": "#49454E",
+        "$type": "color"
+      },
+      "onSurfaceVariant": {
+        "$value": "#CBC4CF",
+        "$type": "color"
+      },
+      "surfaceDim": {
+        "$value": "#141316",
+        "$type": "color"
+      },
+      "surfaceBright": {
+        "$value": "#3B383C",
+        "$type": "color"
+      },
+      "surfaceContainerLowest": {
+        "$value": "#0F0E11",
+        "$type": "color"
+      },
+      "surfaceContainerLow": {
+        "$value": "#1D1B1E",
+        "$type": "color"
+      },
+      "surfaceContainer": {
+        "$value": "#211F22",
+        "$type": "color"
+      },
+      "surfaceContainerHigh": {
+        "$value": "#2B292D",
+        "$type": "color"
+      },
+      "surfaceContainerHighest": {
+        "$value": "#363438",
+        "$type": "color"
+      },
+      "outline": {
+        "$value": "#948F99",
+        "$type": "color"
+      },
+      "outlineVariant": {
+        "$value": "#49454E",
+        "$type": "color"
+      },
+      "inverseSurface": {
+        "$value": "#E6E1E6",
+        "$type": "color"
+      },
+      "inverseOnSurface": {
+        "$value": "#323033",
+        "$type": "color"
+      },
+      "inversePrimary": {
+        "$value": "#7423F0",
+        "$type": "color"
+      },
+      "scrim": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "surfaceTint": {
+        "$value": "#D2BBFF",
+        "$type": "color"
+      }
+    }
+  }
+}

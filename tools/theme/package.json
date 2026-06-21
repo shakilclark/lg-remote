@@ -6,7 +6,8 @@
   "description": "Canonical Material 3 colour-scheme generator for the Ultraviolet seed (see gen.mjs).",
   "scripts": {
     "gen": "node gen.mjs",
-    "json": "node gen.mjs json"
+    "json": "node gen.mjs json",
+    "dtcg": "node gen.mjs dtcg > tokens.dtcg.json"
   },
   "dependencies": {
     "material-dynamic-colors": "^1.1.2"
