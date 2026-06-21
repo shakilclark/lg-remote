@@ -15,6 +15,8 @@ import com.shakilclark.lgremote.tv.Commands
 import com.shakilclark.lgremote.tv.DiscoveredTv
 import com.shakilclark.lgremote.tv.MediaForeground
 import com.shakilclark.lgremote.tv.NavButton
+import com.shakilclark.lgremote.ui.theme.AppTheme
+import com.shakilclark.lgremote.ui.theme.ThemeMode
 import com.shakilclark.lgremote.tv.NowPlaying
 import com.shakilclark.lgremote.tv.PlayState
 import com.shakilclark.lgremote.tv.PointerSocket
@@ -244,6 +246,17 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun setHaptics(enabled: Boolean) = viewModelScope.launch { store.setHapticsEnabled(enabled) }
+
+    /** Selected theme + light/dark mode (spec 021), persisted; default Dynamic / System. */
+    val appTheme: StateFlow<AppTheme> =
+        store.themeId.map { AppTheme.fromId(it) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppTheme.Dynamic)
+    val themeMode: StateFlow<ThemeMode> =
+        store.themeMode.map { ThemeMode.fromId(it) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ThemeMode.System)
+
+    fun setAppTheme(theme: AppTheme) = viewModelScope.launch { store.setThemeId(theme.name) }
+    fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { store.setThemeMode(mode.name) }
 
     /** Reset first-run teaching so the gesture-pad card shows again. */
     fun resetHints() = viewModelScope.launch { store.resetGestureHint() }

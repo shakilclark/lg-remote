@@ -57,6 +57,21 @@ class TvStore(private val context: Context) {
         context.dataStore.edit { it[hapticsKey] = enabled }
     }
 
+    private val themeIdKey = stringPreferencesKey("theme_id")
+    private val themeModeKey = stringPreferencesKey("theme_mode")
+
+    /** Selected theme + light/dark mode ids (spec 021); null → defaults (Dynamic / System). */
+    val themeId: Flow<String?> = context.dataStore.data.map { it[themeIdKey] }
+    val themeMode: Flow<String?> = context.dataStore.data.map { it[themeModeKey] }
+
+    suspend fun setThemeId(id: String) {
+        context.dataStore.edit { it[themeIdKey] = id }
+    }
+
+    suspend fun setThemeMode(mode: String) {
+        context.dataStore.edit { it[themeModeKey] = mode }
+    }
+
     /** Forget the active TV (Settings → TV/Connection): drop it from the set and clear the active id. */
     suspend fun forgetActive() {
         context.dataStore.edit { prefs ->

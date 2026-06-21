@@ -30,7 +30,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            LGRemoteTheme(dynamicColor = true) {
+            val appTheme by viewModel.appTheme.collectAsStateWithLifecycle()
+            val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+            LGRemoteTheme(theme = appTheme, mode = themeMode) {
                 val snackbar = remember { SnackbarHostState() }
                 LaunchedEffect(Unit) {
                     viewModel.messages.collect { snackbar.showSnackbar(it) }
@@ -84,6 +86,10 @@ class MainActivity : ComponentActivity() {
                         onForgetTv = viewModel::forgetTv,
                         onSetHaptics = viewModel::setHaptics,
                         onResetHints = viewModel::resetHints,
+                        appTheme = appTheme,
+                        themeMode = themeMode,
+                        onSelectTheme = viewModel::setAppTheme,
+                        onSelectThemeMode = viewModel::setThemeMode,
                         showGestureHint = showGestureHint,
                         onDismissGestureHint = viewModel::dismissGestureHint,
                         modifier = Modifier.padding(padding),

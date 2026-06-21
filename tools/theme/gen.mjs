@@ -19,6 +19,7 @@ import mdcDefault from "material-dynamic-colors";
 const mdc = mdcDefault.default || mdcDefault;
 
 const SEED = process.env.SEED || "#7B2FF7";
+const NAME = process.env.NAME || "Ultraviolet";
 
 // Order mirrors a Material Theme Builder Compose export.
 const ROLES = [
@@ -64,7 +65,7 @@ if (process.argv[2] === "json") {
   console.log(`// Generated from seed ${SEED} via the Material Theme Builder algorithm (SchemeTonalSpot, contrast 0).`);
   console.log(`// Do not hand-edit; regenerate with: node tools/theme/gen.mjs`);
   console.log("");
-  console.log(kt("UltravioletLight", "lightColorScheme", theme.light));
+  console.log(kt(`${NAME}Light`, "lightColorScheme", theme.light));
   console.log("");
-  console.log(kt("UltravioletDark", "darkColorScheme", theme.dark));
+  console.log(kt(`${NAME}Dark`, "darkColorScheme", theme.dark));
 }

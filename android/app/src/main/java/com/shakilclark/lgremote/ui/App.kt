@@ -26,6 +26,9 @@ import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.ui.settings.AppearanceScreen
 import com.shakilclark.lgremote.ui.settings.LicensesScreen
 import com.shakilclark.lgremote.ui.settings.SettingsScreen
+import com.shakilclark.lgremote.ui.theme.AppTheme
+import com.shakilclark.lgremote.ui.theme.ThemeMode
+import android.os.Build
 
 /**
  * Root routing (T019). Mirrors the 001 flow: a known TV that's reconnecting shows the reconnect
@@ -68,6 +71,10 @@ fun App(
     onForgetTv: () -> Unit = {},
     onSetHaptics: (Boolean) -> Unit = {},
     onResetHints: () -> Unit = {},
+    appTheme: AppTheme = AppTheme.Ultraviolet,
+    themeMode: ThemeMode = ThemeMode.System,
+    onSelectTheme: (AppTheme) -> Unit = {},
+    onSelectThemeMode: (ThemeMode) -> Unit = {},
     showGestureHint: Boolean = false,
     onDismissGestureHint: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -102,7 +109,7 @@ fun App(
             SettingsScreen(
                 tvName = ui.activeTvName ?: "",
                 tvAddress = tvAddress,
-                themeSummary = "System · Ultraviolet",
+                themeSummary = "${themeMode.label} · ${appTheme.label}",
                 hapticsEnabled = hapticsEnabled,
                 versionLabel = versionLabel,
                 onBack = { settingsRoute = SettingsRoute.None },
@@ -117,7 +124,18 @@ fun App(
             )
             return
         }
-        SettingsRoute.Appearance -> { AppearanceScreen(onBack = { settingsRoute = SettingsRoute.Settings }, modifier = modifier); return }
+        SettingsRoute.Appearance -> {
+            AppearanceScreen(
+                current = appTheme,
+                mode = themeMode,
+                dynamicAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                onSelectTheme = onSelectTheme,
+                onSelectMode = onSelectThemeMode,
+                onBack = { settingsRoute = SettingsRoute.Settings },
+                modifier = modifier,
+            )
+            return
+        }
         SettingsRoute.Licenses -> { LicensesScreen(onBack = { settingsRoute = SettingsRoute.Settings }, modifier = modifier); return }
         SettingsRoute.None -> Unit
     }

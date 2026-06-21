@@ -103,18 +103,22 @@ val UltravioletLight = lightColorScheme(
 
 @Composable
 fun LGRemoteTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Material You. Defaults OFF so previews/tests/goldens render the deterministic Ultraviolet
-    // fallback; MainActivity opts the live app into dynamic colour (Android 12+).
-    dynamicColor: Boolean = false,
+    // Defaults render the deterministic Ultraviolet fallback (previews/tests/goldens). MainActivity
+    // passes the user's selected theme + mode (spec 021); Dynamic = Material You on Android 12+.
+    theme: AppTheme = AppTheme.Ultraviolet,
+    mode: ThemeMode = ThemeMode.System,
     content: @Composable () -> Unit,
 ) {
+    val darkTheme = when (mode) {
+        ThemeMode.Light -> false
+        ThemeMode.Dark -> true
+        ThemeMode.System -> isSystemInDarkTheme()
+    }
     val context = LocalContext.current
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+        theme == AppTheme.Dynamic && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        darkTheme -> UltravioletDark
-        else -> UltravioletLight
+        else -> theme.scheme(darkTheme) ?: if (darkTheme) UltravioletDark else UltravioletLight
     }
     MaterialTheme(
         colorScheme = colorScheme,

@@ -81,4 +81,5 @@ object MaterialSymbols {
     val Info = cp(0xE88E)
     val OpenInNew = cp(0xE89E)
     val Description = cp(0xE873)
+    val Check = cp(0xE668)
 }
