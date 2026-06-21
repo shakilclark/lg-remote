@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.drag
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -125,6 +126,7 @@ fun GesturePad(
     val haptics = appHaptics()
     val reduce = LocalReduceMotion.current
     var touched by remember { mutableStateOf(false) }
+    var okPressed by remember { mutableStateOf(false) }
 
     fun tap(zone: PadZone) {
         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -144,7 +146,7 @@ fun GesturePad(
     Box(
         modifier
             .clip(RoundedCornerShape(26.dp))
-            .recessedWell(scheme.surfaceContainer, scheme.surfaceContainerLowest, scheme.onSurface)
+            .recessedWell(scheme.surfaceContainer, scheme.onSurface)
             .border(1.dp, scheme.outlineVariant, RoundedCornerShape(26.dp))
             .semantics {
                 contentDescription = "Touchpad — glide to move the pointer; tap edges to navigate, " +
@@ -166,9 +168,18 @@ fun GesturePad(
             .pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
-                    touched = true
                     val w = size.width
                     val h = size.height
+                    // OK is its own button: a centre press must NOT engage the pad — no hint reveal,
+                    // no cursor glide. Just press → release = click (with its own pressed state).
+                    if (zoneAt(down.position.x, down.position.y, w, h) == PadZone.Ok) {
+                        okPressed = true
+                        val up = waitForUpOrCancellation()
+                        okPressed = false
+                        if (up != null) tap(PadZone.Ok)
+                        return@awaitEachGesture
+                    }
+                    touched = true
                     val slop = awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
                     if (slop == null) {
                         // Never crossed slop → a tap. Fire the zone at the down position.
@@ -199,8 +210,8 @@ fun GesturePad(
     ) {
         HintOverlay(touched = touched, reduceMotion = reduce, muted = muted)
 
-        // Centre OK — the primary click affordance (rim-emboss, slight tint).
-        OkButton()
+        // Centre OK — the primary click affordance; its own button (presses don't engage the pad).
+        OkButton(pressed = okPressed)
 
         if (showHint) {
             GestureHintCard(
@@ -242,16 +253,20 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean, muted:
  * (surfaceContainerHigh nudged toward black), so it follows the dynamic / statement themes, light + dark.
  */
 @Composable
-private fun OkButton() {
+private fun OkButton(pressed: Boolean) {
     val scheme = MaterialTheme.colorScheme
     val dark = scheme.surface.luminance() < 0.5f
     // A genuine concave bowl: fill dialled well below the pad, lighter pooled low (top-lit recess),
     // darker toward the rim, a concentrated dark crescent up top, and a bright specular lip at the
     // bottom inner wall. Mode-aware so dark mode reads properly black, not a flat grey disc.
-    val fill = lerp(scheme.surfaceContainerHigh, Color.Black, if (dark) 0.22f else 0.10f)
+    // On press it sinks: the crest shadow deepens and the fill darkens a touch (subtle, animated).
+    val press by animateFloatAsState(
+        if (pressed) 1f else 0f, animationSpec = tween(durationMillis = 90), label = "okPress",
+    )
+    val fill = lerp(scheme.surfaceContainerHigh, Color.Black, (if (dark) 0.22f else 0.10f) + press * 0.06f)
     val rim = lerp(fill, Color.Black, if (dark) 0.45f else 0.35f)
-    val crestA = if (dark) 0.62f else 0.40f
-    val lipA = if (dark) 0.06f else 0.45f
+    val crestA = (if (dark) 0.62f else 0.40f) + press * 0.18f
+    val lipA = (if (dark) 0.06f else 0.45f) * (1f - press * 0.4f)
     Box(
         Modifier
             .size(80.dp)
@@ -316,12 +331,13 @@ private fun BoxScope.Corner(
 }
 
 /**
- * The pad's recessed, textured surface (design-system §5.2): a concave radial (lighter centre →
- * darker edge), a faint **cross-hatch mesh** texture (woven 45°/-45° lines — rubbery/tactile), and an
- * inset top shadow + highlight so it reads as a well. The mesh is a tiny tiled bitmap (cached by
- * [drawWithCache] + repeated by the GPU), so dragging stays cheap.
+ * The pad's recessed surface (design-system §5.2) — a **directionally-lit inset tray**, not a bowl: a
+ * flat, even field (a centred radial reads as a bulging sphere on-device), with depth coming from a soft
+ * shadow down the top lip + side walls and a lit bottom lip — the cue your eye reads as "sunken panel".
+ * A faint **cross-hatch mesh** (woven 45°/-45° lines) gives it a rubbery tactility. The mesh is a tiny
+ * tiled bitmap (cached by [drawWithCache] + repeated by the GPU), so dragging stays cheap.
  */
-private fun Modifier.recessedWell(surface: Color, surfaceLow: Color, onSurface: Color): Modifier =
+private fun Modifier.recessedWell(surface: Color, onSurface: Color): Modifier =
     drawWithCache {
         val sp = 6.dp.toPx().toInt().coerceAtLeast(3) // mesh spacing
         val tile = ImageBitmap(sp, sp)
@@ -336,22 +352,34 @@ private fun Modifier.recessedWell(surface: Color, surfaceLow: Color, onSurface: 
             drawLine(Offset(sp.toFloat(), 0f), Offset(0f, sp.toFloat()), meshPaint)
         }
         val mesh = ShaderBrush(ImageShader(tile, TileMode.Repeated, TileMode.Repeated))
-        val base = Brush.radialGradient(
-            0f to surfaceLow,
-            0.58f to surface,
-            1f to lerp(surface, Color.Black, 0.08f),
-            center = Offset(size.width * 0.5f, size.height * 0.36f),
-            radius = size.maxDimension * 0.95f,
+        // Flat field: the overhang shades the very top, then it settles to an even surface. No radial.
+        val field = Brush.verticalGradient(
+            0f to lerp(surface, Color.Black, 0.05f), 0.16f to surface, 1f to surface,
         )
-        val top = 18.dp.toPx()
+        val topPx = 16.dp.toPx()
+        val sidePx = 12.dp.toPx()
+        val lipPx = 5.dp.toPx()
         val topShadow = Brush.verticalGradient(
-            0f to Color.Black.copy(alpha = 0.16f), 1f to Color.Transparent, startY = 0f, endY = top,
+            0f to Color.Black.copy(alpha = 0.20f), 1f to Color.Transparent, startY = 0f, endY = topPx,
+        )
+        val leftShadow = Brush.horizontalGradient(
+            0f to Color.Black.copy(alpha = 0.08f), 1f to Color.Transparent, startX = 0f, endX = sidePx,
+        )
+        val rightShadow = Brush.horizontalGradient(
+            0f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.08f),
+            startX = size.width - sidePx, endX = size.width,
+        )
+        val bottomLip = Brush.verticalGradient(
+            0f to Color.Transparent, 1f to Color.White.copy(alpha = 0.28f),
+            startY = size.height - lipPx, endY = size.height,
         )
         onDrawBehind {
-            drawRect(base)
+            drawRect(field)
             drawRect(mesh)
-            drawRect(topShadow, size = Size(size.width, top))
-            drawRect(Color.White.copy(alpha = 0.35f), size = Size(size.width, 1.dp.toPx()))
+            drawRect(topShadow, size = Size(size.width, topPx))
+            drawRect(leftShadow, size = Size(sidePx, size.height))
+            drawRect(rightShadow, topLeft = Offset(size.width - sidePx, 0f), size = Size(sidePx, size.height))
+            drawRect(bottomLip, topLeft = Offset(0f, size.height - lipPx), size = Size(size.width, lipPx))
         }
     }
 

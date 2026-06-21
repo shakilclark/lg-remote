@@ -20,12 +20,18 @@
   .ib.mic{background:var(--sc-high);color:var(--onv);opacity:.5;}
   .ib.pw{background:var(--sc-high);color:var(--on);}
 
+  /* directionally-lit inset tray (not a sphere): flat field, soft shadow down the top lip + side
+     walls, lit bottom lip. */
   .pad{flex:1;margin:8px 16px;border-radius:28px;position:relative;display:grid;place-items:center;overflow:hidden;
     background:
       repeating-linear-gradient(45deg, color-mix(in srgb,var(--on) 5%, transparent) 0 1px, transparent 1px 6px),
       repeating-linear-gradient(-45deg, color-mix(in srgb,var(--on) 5%, transparent) 0 1px, transparent 1px 6px),
-      radial-gradient(135% 118% at 50% 36%, #FFFFFF 0%, var(--sc) 58%, color-mix(in srgb,var(--on) 11%, var(--sc)) 100%);
-    box-shadow:inset 0 7px 15px -9px rgba(70,40,110,.30), inset 0 -2px 7px rgba(255,255,255,.7), inset 0 1px 0 rgba(255,255,255,.85);
+      linear-gradient(180deg, color-mix(in srgb,var(--on) 5%, var(--sc)) 0%, var(--sc) 16%, var(--sc) 100%);
+    box-shadow:
+      inset 0 9px 14px -8px rgba(0,0,0,.20),
+      inset 9px 0 12px -10px rgba(0,0,0,.08),
+      inset -9px 0 12px -10px rgba(0,0,0,.08),
+      inset 0 -5px 7px -3px rgba(255,255,255,.55);
     border:1px solid color-mix(in srgb,var(--on) 10%, transparent);}
   /* recessed-rubber OK: concave bowl, dark crescent up top, bright specular lip at the bottom */
   .ring{width:80px;height:80px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:16px;
