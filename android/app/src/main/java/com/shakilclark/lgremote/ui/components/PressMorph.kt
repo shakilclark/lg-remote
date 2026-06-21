@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.shakilclark.lgremote.ui.theme.LocalReduceMotion
 import com.shakilclark.lgremote.ui.theme.MotionSpecs
 
 /**
@@ -27,13 +28,16 @@ fun Modifier.pressMorph(
     pressedScale: Float = 0.94f,
 ): Modifier {
     val pressed by interaction.collectIsPressedAsState()
+    // Reduce-motion (design-system §6/§10): drop the spatial morph to a no-op; ControlKey's colour/
+    // glyph tint still gives press feedback as a non-motion "effect".
+    val morph = pressed && !LocalReduceMotion.current
     val corner by animateDpAsState(
-        targetValue = if (pressed) pressedCorner else restCorner,
+        targetValue = if (morph) pressedCorner else restCorner,
         animationSpec = MotionSpecs.spatialDp,
         label = "pressMorphCorner",
     )
     val scale by animateFloatAsState(
-        targetValue = if (pressed) pressedScale else 1f,
+        targetValue = if (morph) pressedScale else 1f,
         animationSpec = MotionSpecs.spatialFast,
         label = "pressMorphScale",
     )

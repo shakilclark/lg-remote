@@ -123,6 +123,7 @@ fun LGRemoteTheme(
     ) {
         CompositionLocalProvider(
             LocalStatusColors provides if (darkTheme) DarkStatusColors else LightStatusColors,
+            LocalReduceMotion provides systemReduceMotion(),
             content = content,
         )
     }

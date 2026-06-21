@@ -13,7 +13,7 @@ mkdir -p "$OUT"
 # surface  golden-basename  width  height   (height = the golden's true px — keep in sync)
 SURFACES="
 home remote_connected 411 1200
-command-sheet command_sheet 411 472
+command-sheet command_sheet 411 488
 cover now_playing_cover 411 345
 app-grid app_grid 411 320
 now-playing-bar now_playing_bar 411 56

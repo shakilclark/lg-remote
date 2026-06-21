@@ -17,12 +17,14 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -76,8 +78,9 @@ private fun AppTile(app: TvApp, imageLoader: ImageLoader, onClick: () -> Unit) {
     Column(
         Modifier
             .width(76.dp)
+            .minimumInteractiveComponentSize()
             .clip(MaterialTheme.shapes.medium)
-            .clickable {
+            .clickable(role = Role.Button) {
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 onClick()
             }

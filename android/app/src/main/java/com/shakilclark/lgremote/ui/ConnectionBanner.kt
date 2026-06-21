@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.shakilclark.lgremote.connection.ConnectionState
+import com.shakilclark.lgremote.ui.theme.LocalReduceMotion
 import com.shakilclark.lgremote.ui.theme.LocalStatusColors
 import com.shakilclark.lgremote.ui.theme.Space
 
@@ -38,6 +39,7 @@ fun ConnectionBanner(
     modifier: Modifier = Modifier,
 ) {
     val banner = bannerContent(state, tvName, hasActiveTv)
+    val animatePulse = banner.pulse && !LocalReduceMotion.current
     val status = LocalStatusColors.current
     val scheme = MaterialTheme.colorScheme
     val dotColor = when (banner.dot) {
@@ -67,7 +69,7 @@ fun ConnectionBanner(
         Spacer(
             Modifier
                 .size(11.dp)
-                .alpha(if (banner.pulse) dotAlpha else 1f)
+                .alpha(if (animatePulse) dotAlpha else 1f)
                 .clip(CircleShape)
                 .background(dotColor),
         )

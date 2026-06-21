@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -74,7 +75,7 @@ fun NowPlayingBar(
             Modifier
                 .weight(1f)
                 .clip(MaterialTheme.shapes.medium)
-                .clickable {
+                .clickable(role = Role.Button) {
                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                     onExpand()
                 }
