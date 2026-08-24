@@ -247,6 +247,12 @@ class RemoteViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setHaptics(enabled: Boolean) = viewModelScope.launch { store.setHapticsEnabled(enabled) }
 
+    /** Keep-screen-awake + auto-dim-when-idle preference (Settings → Behaviour); default off. */
+    val alwaysOn: StateFlow<Boolean> =
+        store.alwaysOn.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun setAlwaysOn(enabled: Boolean) = viewModelScope.launch { store.setAlwaysOn(enabled) }
+
     /** Selected theme + light/dark mode (spec 021), persisted; default Dynamic / System. */
     val appTheme: StateFlow<AppTheme> =
         store.themeId.map { AppTheme.fromId(it) }

@@ -20,6 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shakilclark.lgremote.connection.ConnectionState
 import com.shakilclark.lgremote.ui.App
+import com.shakilclark.lgremote.ui.ScreenWakeEffect
+import com.shakilclark.lgremote.ui.rememberInteractionSignal
+import com.shakilclark.lgremote.ui.trackInteractions
 import com.shakilclark.lgremote.ui.theme.LGRemoteTheme
 
 class MainActivity : ComponentActivity() {
@@ -50,7 +53,24 @@ class MainActivity : ComponentActivity() {
                     val scanning by viewModel.scanning.collectAsStateWithLifecycle()
                     val showGestureHint by viewModel.showGestureHint.collectAsStateWithLifecycle()
                     val hapticsEnabled by viewModel.hapticsEnabled.collectAsStateWithLifecycle()
+                    val alwaysOn by viewModel.alwaysOn.collectAsStateWithLifecycle()
                     val tvAddress by viewModel.activeAddress.collectAsStateWithLifecycle()
+
+                    // Always-on (Settings → Behaviour): keep the screen awake + auto-dim while connected,
+                    // so the remote stays reachable without re-waking/unlocking the phone.
+                    val interactions = rememberInteractionSignal()
+                    ScreenWakeEffect(
+                        enabled = alwaysOn && ui.connection is ConnectionState.Connected,
+                        interactions = interactions,
+                    )
+
+                    // Draw over the keyguard (and wake the screen) when always-on is on, so a tap from
+                    // the launcher / QS tile lands straight in the remote with no unlock step.
+                    LaunchedEffect(alwaysOn) {
+                        this@MainActivity.setShowWhenLocked(alwaysOn)
+                        this@MainActivity.setTurnScreenOn(alwaysOn)
+                    }
+
                     CompositionLocalProvider(LocalHapticsEnabled provides hapticsEnabled) {
                     App(
                         ui = ui,
@@ -92,7 +112,11 @@ class MainActivity : ComponentActivity() {
                         onSelectThemeMode = viewModel::setThemeMode,
                         showGestureHint = showGestureHint,
                         onDismissGestureHint = viewModel::dismissGestureHint,
-                        modifier = Modifier.padding(padding),
+                        alwaysOn = alwaysOn,
+                        onSetAlwaysOn = viewModel::setAlwaysOn,
+                        modifier = Modifier
+                            .padding(padding)
+                            .trackInteractions { interactions.tryEmit(Unit) },
                     )
                     }
                 }

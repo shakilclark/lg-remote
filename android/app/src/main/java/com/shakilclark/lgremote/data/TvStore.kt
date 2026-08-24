@@ -36,6 +36,7 @@ class TvStore(private val context: Context) {
     private val activeKey = stringPreferencesKey("active_id")
     private val gestureHintKey = booleanPreferencesKey("gesture_hint_seen")
     private val hapticsKey = booleanPreferencesKey("haptics_enabled")
+    private val alwaysOnKey = booleanPreferencesKey("always_on_enabled")
     private val json = Json { ignoreUnknownKeys = true }
 
     /** Whether the one-time gesture-pad teaching card has been dismissed. */
@@ -55,6 +56,17 @@ class TvStore(private val context: Context) {
 
     suspend fun setHapticsEnabled(enabled: Boolean) {
         context.dataStore.edit { it[hapticsKey] = enabled }
+    }
+
+    /**
+     * Always-on preference (Settings → Behaviour): keep the screen awake while the remote is open and
+     * auto-dim it when idle, so you don't have to keep waking/unlocking the phone to nudge the TV.
+     * Defaults off (it holds the screen on, which costs battery).
+     */
+    val alwaysOn: Flow<Boolean> = context.dataStore.data.map { it[alwaysOnKey] ?: false }
+
+    suspend fun setAlwaysOn(enabled: Boolean) {
+        context.dataStore.edit { it[alwaysOnKey] = enabled }
     }
 
     private val themeIdKey = stringPreferencesKey("theme_id")

@@ -72,6 +72,7 @@ fun SettingsScreen(
     tvAddress: String?,
     themeSummary: String,
     hapticsEnabled: Boolean,
+    alwaysOn: Boolean,
     versionLabel: String,
     onBack: () -> Unit,
     onRescan: () -> Unit,
@@ -79,6 +80,7 @@ fun SettingsScreen(
     onForget: () -> Unit,
     onOpenAppearance: () -> Unit,
     onToggleHaptics: (Boolean) -> Unit,
+    onToggleAlwaysOn: (Boolean) -> Unit,
     onResetHints: () -> Unit,
     onOpenLicenses: () -> Unit,
     modifier: Modifier = Modifier,
@@ -123,6 +125,10 @@ fun SettingsScreen(
             item {
                 Group("Behaviour") {
                     SwitchRow(MaterialSymbols.Tune, "Haptic feedback", hapticsEnabled, onToggleHaptics)
+                    SwitchRow(
+                        MaterialSymbols.LightMode, "Always-on remote", alwaysOn, onToggleAlwaysOn,
+                        supporting = "Show on the lock screen, keep the screen on while connected, and dim when idle",
+                    )
                     NavRow(MaterialSymbols.Sync, "Reset first-run hints", onClick = onResetHints, chevron = false)
                 }
             }
@@ -197,10 +203,17 @@ private fun NavRow(
 }
 
 @Composable
-private fun SwitchRow(symbol: String, title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun SwitchRow(
+    symbol: String,
+    title: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit,
+    supporting: String? = null,
+) {
     ListItem(
         leadingContent = { SymbolIcon(symbol, null, tint = MaterialTheme.colorScheme.onSurface) },
         headlineContent = { Text(title) },
+        supportingContent = supporting?.let { { Text(it) } },
         trailingContent = { Switch(checked = checked, onCheckedChange = null) },
         colors = rowColors,
         modifier = Modifier.toggleable(value = checked, role = Role.Switch, onValueChange = onChange),

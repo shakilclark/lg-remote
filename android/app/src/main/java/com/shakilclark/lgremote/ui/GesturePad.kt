@@ -59,10 +59,14 @@ import kotlin.math.roundToInt
 /** Finger travel → pointer travel gain (matches the prior touchpad feel). */
 private const val GAIN = 1.6f
 
-/** Corner hit-box size (fraction of pad w/h) and the central OK dead-zone radius. */
+/**
+ * Corner hit-box size (fraction of pad w/h) and the central OK radius. OK is the primary affordance,
+ * so its target is generous (0.26 of the pad ≈ a disc wider than the drawn key); the four arrow wedges
+ * only need a tap, so they keep the thinner ring left between this circle and the corners.
+ */
 private const val CORNER_X = 0.30f
 private const val CORNER_Y = 0.24f
-private const val OK_RADIUS = 0.16f
+private const val OK_RADIUS = 0.26f
 
 private enum class PadZone { Up, Down, Left, Right, Ok, Settings, Mute, Back, Home }
 
@@ -243,14 +247,14 @@ private fun BoxScope.HintOverlay(touched: Boolean, reduceMotion: Boolean, muted:
 private fun OkButton(pressed: Boolean) {
     val scheme = MaterialTheme.colorScheme
     val corner by animateDpAsState(
-        if (pressed) 26.dp else 42.dp, animationSpec = tween(durationMillis = 150), label = "okCorner",
+        if (pressed) 34.dp else 54.dp, animationSpec = tween(durationMillis = 150), label = "okCorner",
     )
     val scale by animateFloatAsState(
         if (pressed) 0.93f else 1f, animationSpec = tween(durationMillis = 120), label = "okScale",
     )
     Box(
         Modifier
-            .size(84.dp)
+            .size(108.dp)
             .scale(scale)
             .clip(RoundedCornerShape(corner))
             .background(scheme.primaryContainer),

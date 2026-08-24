@@ -77,6 +77,8 @@ fun App(
     onSelectThemeMode: (ThemeMode) -> Unit = {},
     showGestureHint: Boolean = false,
     onDismissGestureHint: () -> Unit = {},
+    alwaysOn: Boolean = false,
+    onSetAlwaysOn: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var reconfigure by remember { mutableStateOf(false) }
@@ -111,6 +113,7 @@ fun App(
                 tvAddress = tvAddress,
                 themeSummary = "${themeMode.label} · ${appTheme.label}",
                 hapticsEnabled = hapticsEnabled,
+                alwaysOn = alwaysOn,
                 versionLabel = versionLabel,
                 onBack = { settingsRoute = SettingsRoute.None },
                 onRescan = onScan,
@@ -118,6 +121,7 @@ fun App(
                 onForget = { onForgetTv(); settingsRoute = SettingsRoute.None },
                 onOpenAppearance = { settingsRoute = SettingsRoute.Appearance },
                 onToggleHaptics = onSetHaptics,
+                onToggleAlwaysOn = onSetAlwaysOn,
                 onResetHints = onResetHints,
                 onOpenLicenses = { settingsRoute = SettingsRoute.Licenses },
                 modifier = modifier,
